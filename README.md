@@ -55,9 +55,7 @@ java -version
 
 You should see something like:
 ```
-java version "21.0.1" 2023-10-17 LTS
-Java(TM) SE Runtime Environment (build 21.0.1+12-LTS-29)
-Java HotSpot(TM) 64-Bit Server VM (build 21.0.1+12-LTS-29, mixed mode, sharing)
+java version "21.0.1" or higher
 ```
 
 ## 💻 Installation
