@@ -1,0 +1,49 @@
+# Git files
+.git
+.gitignore
+
+# Build artifacts (except the main JAR we need)
+target/classes/
+target/generated-*
+target/maven-*
+target/test-*
+target/*-1.0.0.jar
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+test_*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# JSON backup files
+*.json
+blockchain_backup_*.json
+test_backup.json
+
+# Database files (will be mounted as volume)
+*.db
+blockchain.db
+
+# Documentation
+README.md
+docs/
+
+# Test scripts output
+test_output*
+test_final*

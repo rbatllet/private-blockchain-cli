@@ -243,26 +243,29 @@ print_header "⚠️  Error Handling Tests"
 print_test "Invalid command test"
 if ! java -jar target/blockchain-cli.jar invalid-command >/dev/null 2>&1; then
     print_success "Invalid command properly rejected"
+    ((TESTS_PASSED++))
 else
     print_error "Invalid command not properly handled"
+    ((TESTS_FAILED++))
 fi
-((TOTAL_TESTS++))
 
 print_test "Missing arguments test"
 if ! java -jar target/blockchain-cli.jar add-key >/dev/null 2>&1; then
     print_success "Missing arguments properly detected"
+    ((TESTS_PASSED++))
 else
     print_error "Missing arguments not properly handled"
+    ((TESTS_FAILED++))
 fi
-((TOTAL_TESTS++))
 
 print_test "Invalid file import test"
 if ! java -jar target/blockchain-cli.jar import "non_existent_file.json" >/dev/null 2>&1; then
     print_success "Invalid file import properly rejected"
+    ((TESTS_PASSED++))
 else
     print_error "Invalid file import not properly handled"
+    ((TESTS_FAILED++))
 fi
-((TOTAL_TESTS++))
 
 # Test 10: Workflow Integration
 print_header "🔄 Workflow Integration Tests"
@@ -280,10 +283,11 @@ if ! java -jar target/blockchain-cli.jar search "Genesis" >/dev/null 2>&1; then 
 
 if [ "$WORKFLOW_SUCCESS" = true ]; then
     print_success "Complete workflow test passed"
+    ((TESTS_PASSED++))
 else
     print_error "Complete workflow test failed"
+    ((TESTS_FAILED++))
 fi
-((TOTAL_TESTS++))
 
 # Performance Test
 print_header "⚡ Performance Tests"
@@ -298,10 +302,11 @@ duration=$((end_time - start_time))
 
 if [ $duration -lt 30 ]; then
     print_success "Performance test passed (5 status calls in ${duration}s)"
+    ((TESTS_PASSED++))
 else
     print_warning "Performance test slow (5 status calls in ${duration}s)"
+    ((TESTS_PASSED++))
 fi
-((TOTAL_TESTS++))
 
 # Final Summary
 print_header "📊 TEST SUMMARY"

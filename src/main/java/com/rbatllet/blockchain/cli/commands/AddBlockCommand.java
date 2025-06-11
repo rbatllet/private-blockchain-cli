@@ -9,6 +9,7 @@ import com.rbatllet.blockchain.util.CryptoUtil;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.time.LocalDateTime;
 import java.security.KeyPair;
 
 /**
@@ -72,7 +73,11 @@ public class AddBlockCommand implements Runnable {
                 String publicKeyString = CryptoUtil.publicKeyToString(publicKey);
                 String autoOwnerName = "CLI-Generated-" + System.currentTimeMillis();
                 
-                if (blockchain.addAuthorizedKey(publicKeyString, autoOwnerName)) {
+                // FIXED: Create authorized key with timestamp before block creation
+                // to ensure temporal consistency and avoid race condition issues
+                LocalDateTime keyCreationTime = LocalDateTime.now().minusSeconds(1);
+                
+                if (blockchain.addAuthorizedKey(publicKeyString, autoOwnerName, keyCreationTime)) {
                     BlockchainCLI.info("Generated new key pair for signing");
                     BlockchainCLI.info("Automatically authorized new key as: " + autoOwnerName);
                     System.out.println("🔑 Public Key: " + publicKeyString);

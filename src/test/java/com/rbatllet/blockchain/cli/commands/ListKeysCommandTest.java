@@ -32,7 +32,8 @@ public class ListKeysCommandTest {
         System.setErr(new PrintStream(errContent));
         System.setProperty("user.dir", tempDir.toString());
         
-        cli = new CommandLine(new ListKeysCommand());
+        // Use BlockchainCLI as parent command, not ListKeysCommand directly
+        cli = new CommandLine(new com.rbatllet.blockchain.cli.BlockchainCLI());
     }
 
     @AfterEach
@@ -43,7 +44,7 @@ public class ListKeysCommandTest {
 
     @Test
     void testBasicListKeys() {
-        int exitCode = cli.execute();
+        int exitCode = cli.execute("list-keys");
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
@@ -53,7 +54,7 @@ public class ListKeysCommandTest {
 
     @Test
     void testListKeysWithDetailedFlag() {
-        int exitCode = cli.execute("--detailed");
+        int exitCode = cli.execute("list-keys", "--detailed");
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
@@ -63,7 +64,7 @@ public class ListKeysCommandTest {
 
     @Test
     void testListKeysWithShortDetailedFlag() {
-        int exitCode = cli.execute("-d");
+        int exitCode = cli.execute("list-keys", "-d");
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
@@ -72,7 +73,7 @@ public class ListKeysCommandTest {
 
     @Test
     void testListKeysWithJsonFlag() {
-        int exitCode = cli.execute("--json");
+        int exitCode = cli.execute("list-keys", "--json");
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
@@ -82,7 +83,7 @@ public class ListKeysCommandTest {
 
     @Test
     void testListKeysWithShortJsonFlag() {
-        int exitCode = cli.execute("-j");
+        int exitCode = cli.execute("list-keys", "-j");
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
@@ -92,7 +93,7 @@ public class ListKeysCommandTest {
 
     @Test
     void testListKeysWithActiveOnlyFlag() {
-        int exitCode = cli.execute("--active-only");
+        int exitCode = cli.execute("list-keys", "--active-only");
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
@@ -102,7 +103,7 @@ public class ListKeysCommandTest {
 
     @Test
     void testListKeysWithShortActiveOnlyFlag() {
-        int exitCode = cli.execute("-a");
+        int exitCode = cli.execute("list-keys", "-a");
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
@@ -111,26 +112,28 @@ public class ListKeysCommandTest {
 
     @Test
     void testListKeysWithCombinedFlags() {
-        int exitCode = cli.execute("--detailed", "--json");
+        int exitCode = cli.execute("list-keys", "--detailed", "--json");
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertFalse(output.isEmpty());
+        assertTrue(output.contains("{") || output.contains("[") || 
+                  output.contains("\"") || output.contains("detailed"));
     }
 
     @Test
     void testListKeysHelp() {
+        // Test help for the main command instead of subcommand help
         int exitCode = cli.execute("--help");
         
-        assertTrue(exitCode >= 0 && exitCode <= 2);
+        assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("List") || output.contains("key") || 
+        assertTrue(output.contains("list-keys") || output.contains("List") || 
                   output.contains("Usage") || output.contains("help"));
     }
 
     @Test
     void testListKeysAllFlags() {
-        int exitCode = cli.execute("--detailed", "--active-only", "--json");
+        int exitCode = cli.execute("list-keys", "--detailed", "--active-only", "--json");
         
         assertEquals(0, exitCode);
         String output = outContent.toString();

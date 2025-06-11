@@ -1,0 +1,60 @@
+services:
+  # Main blockchain CLI service
+  blockchain-cli:
+    build: .
+    container_name: blockchain-cli
+    volumes:
+      - ./blockchain-data:/data
+      - ./backups:/backups
+    environment:
+      - JAVA_OPTS=-Xmx512m
+      - TZ=Europe/Madrid
+    command: ["status", "--detailed"]
+    profiles: ["default"]
+
+  # Interactive CLI for manual operations
+  blockchain-interactive:
+    build: .
+    container_name: blockchain-interactive
+    volumes:
+      - ./blockchain-data:/data
+      - ./backups:/backups
+    environment:
+      - JAVA_OPTS=-Xmx512m
+      - TZ=Europe/Madrid
+    stdin_open: true
+    tty: true
+    entrypoint: ["/bin/bash"]
+    profiles: ["interactive"]
+
+  # Automated backup service
+  blockchain-backup:
+    build: .
+    container_name: blockchain-backup
+    volumes:
+      - ./blockchain-data:/data
+      - ./backups:/backups
+    environment:
+      - JAVA_OPTS=-Xmx256m
+      - TZ=Europe/Madrid
+    entrypoint: ["sh", "-c"]
+    command: ["java -jar /app/blockchain-cli.jar export /backups/backup_$$(date +%Y%m%d_%H%M%S).json"]
+    profiles: ["backup"]
+
+  # Chain validation service
+  blockchain-validator:
+    build: .
+    container_name: blockchain-validator
+    volumes:
+      - ./blockchain-data:/data
+    environment:
+      - JAVA_OPTS=-Xmx256m
+      - TZ=Europe/Madrid
+    command: ["validate", "--detailed", "--json"]
+    profiles: ["validate"]
+
+volumes:
+  blockchain-data:
+    driver: local
+  backups:
+    driver: local
