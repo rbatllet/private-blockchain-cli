@@ -4,11 +4,11 @@ Comprehensive examples and use cases for the Private Blockchain CLI.
 
 ## 📋 Table of Contents
 
-- [Quick Start Examples](#-quick-start-examples)
-- [Real-World Use Cases](#-real-world-use-cases)
-- [Advanced Scenarios](#-advanced-scenarios)
-- [Docker Examples](#-docker-examples)
-- [Automation Scripts](#-automation-scripts)
+- [Quick Start Examples](#quick-start-examples)
+- [Real-World Use Cases](#real-world-use-cases)
+- [Advanced Scenarios](#advanced-scenarios)
+- [Docker Examples](#docker-examples)
+- [Automation Scripts](#automation-scripts)
 
 ## 🚀 Quick Start Examples
 

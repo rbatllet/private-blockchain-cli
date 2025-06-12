@@ -4,16 +4,16 @@ A command-line interface for managing a private blockchain system built with Jav
 
 ## 📋 Table of Contents
 
-- [Overview](#-overview)
-- [Prerequisites](#-prerequisites)
-- [Installation](#-installation)
-- [Quick Start](#-quick-start)
-- [Commands](#-commands)
-- [Building from Source](#-building-from-source)
-- [Basic Testing](#-basic-testing)
-- [Technical Details](#-technical-details)
-- [Documentation](#-documentation)
-- [License](#-license)
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Commands](#commands)
+- [Building from Source](#building-from-source)
+- [Basic Testing](#basic-testing)
+- [Technical Details](#technical-details)
+- [Documentation](#documentation)
+- [License](#license)
 
 ## 🚀 Overview
 
