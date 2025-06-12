@@ -13,6 +13,7 @@ A command-line interface for managing a private blockchain system built with Jav
 - [Basic Testing](#-basic-testing)
 - [Technical Details](#-technical-details)
 - [Documentation](#-documentation)
+- [License](#-license)
 
 ## 🚀 Overview
 
@@ -580,8 +581,19 @@ For the most up-to-date information and detailed documentation, please refer to 
 ### Project Information
 - **Version**: 1.0.0
 - **Java Compatibility**: 21+
-- **License**: [Check project license file]
+- **License**: MIT License - see [LICENSE](LICENSE) file for details
 - **Build Status**: All tests passing ✅
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+### What this means:
+- ✅ **Commercial use** - Use in commercial projects
+- ✅ **Modification** - Modify and create derivative works
+- ✅ **Distribution** - Distribute original or modified versions
+- ✅ **Private use** - Use privately without sharing source
+- ✅ **No warranty** - Software provided "as is"
 
 ---
 
