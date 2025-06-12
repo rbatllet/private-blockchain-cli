@@ -453,7 +453,7 @@ java -jar blockchain-cli.jar search "Genesis"
 - **Multiple Operations**: 5 status calls in < 30 seconds
 - **Memory Usage**: Stable ~50MB during testing
 
-For comprehensive testing information, see [Testing section](README.md#testing) in the full documentation.
+For comprehensive testing information, see [Testing section](README.md#basic-testing) in the full documentation.
 
 ## 🔧 Technical Details
 
