@@ -4,13 +4,13 @@ Comprehensive troubleshooting guide for the Private Blockchain CLI.
 
 ## 📋 Table of Contents
 
-- [Diagnostic Commands](#diagnostic-commands)
-- [Common Scenarios](#common-scenarios)
-- [Step-by-Step Guide](#step-by-step-guide)
-- [Environment Issues](#environment-issues)
-- [Performance Problems](#performance-problems)
-- [Docker Issues](#docker-issues)
-- [Debug Mode](#debug-mode)
+- [Diagnostic Commands](#-diagnostic-commands)
+- [Common Scenarios](#-common-scenarios)
+- [Step-by-Step Guide](#-step-by-step-guide)
+- [Environment Issues](#-environment-issues)
+- [Performance Problems](#-performance-problems)
+- [Docker Issues](#-docker-issues)
+- [Debug Mode](#-debug-mode)
 
 ## 🩺 Diagnostic Commands
 

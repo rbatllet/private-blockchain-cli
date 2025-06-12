@@ -4,13 +4,13 @@ This document provides ready-to-use automation scripts for the Private Blockchai
 
 ## 📋 Table of Contents
 
-- [Daily Operations Scripts](#daily-operations-scripts)
-- [Backup and Recovery Scripts](#backup-and-recovery-scripts)
-- [Monitoring and Health Checks](#monitoring-and-health-checks)
-- [CI/CD Integration Scripts](#cicd-integration-scripts)
-- [Maintenance Scripts](#maintenance-scripts)
-- [Docker Automation](#docker-automation)
-- [Troubleshooting Scripts](#troubleshooting-scripts)
+- [Daily Operations Scripts](#-daily-operations-scripts)
+- [Backup and Recovery Scripts](#-backup-and-recovery-scripts)
+- [Monitoring and Health Checks](#-monitoring-and-health-checks)
+- [CI/CD Integration Scripts](#-cicd-integration-scripts)
+- [Maintenance Scripts](#-maintenance-scripts)
+- [Docker Automation](#-docker-automation)
+- [Troubleshooting Scripts](#-troubleshooting-scripts)
 
 ## 📊 Daily Operations Scripts
 

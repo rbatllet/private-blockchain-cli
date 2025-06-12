@@ -4,13 +4,13 @@ Complete guide for using the Private Blockchain CLI with Docker.
 
 ## 📋 Table of Contents
 
-- [Quick Start](#quick-start)
-- [Installation](#installation)
-- [Basic Usage](#basic-usage)
-- [Docker Compose](#docker-compose)
-- [Volume Management](#volume-management)
-- [Production Usage](#production-usage)
-- [Troubleshooting](#troubleshooting)
+- [Quick Start](#-quick-start)
+- [Installation](#-installation)
+- [Basic Usage](#-basic-usage)
+- [Docker Compose](#-docker-compose)
+- [Volume Management](#-volume-management)
+- [Production Usage](#-production-usage)
+- [Troubleshooting](#-troubleshooting)
 
 ## 🚀 Quick Start
 

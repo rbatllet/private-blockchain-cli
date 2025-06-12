@@ -4,7 +4,7 @@ Complete guide for integrating the Private Blockchain CLI with external systems,
 
 ## 📋 Table of Contents
 
-- [CI/CD Integration](#cicd-integration)
+- [CI/CD Integration](#-cicd-integration)
 
 ## 🚀 CI/CD Integration
 
