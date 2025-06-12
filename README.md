@@ -4,16 +4,16 @@ A command-line interface for managing a private blockchain system built with Jav
 
 ## 📋 Table of Contents
 
-- [Overview](#overview)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Commands](#commands)
-- [Building from Source](#building-from-source)
-- [Basic Testing](#basic-testing)
-- [Technical Details](#technical-details)
-- [Documentation](#documentation)
-- [License](#license)
+- [Overview](#-overview)
+- [Prerequisites](#-prerequisites)
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Commands](#-commands)
+- [Building from Source](#-building-from-source)
+- [Basic Testing](#-basic-testing)
+- [Technical Details](#-technical-details)
+- [Documentation](#-documentation)
+- [License](#-license)
 
 ## 🚀 Overview
 
@@ -453,7 +453,7 @@ java -jar blockchain-cli.jar search "Genesis"
 - **Multiple Operations**: 5 status calls in < 30 seconds
 - **Memory Usage**: Stable ~50MB during testing
 
-For comprehensive testing information, see [Testing section](README.md#basic-testing) in the full documentation.
+For comprehensive testing information, see [Testing section](README.md#-basic-testing) in the full documentation.
 
 ## 🔧 Technical Details
 
