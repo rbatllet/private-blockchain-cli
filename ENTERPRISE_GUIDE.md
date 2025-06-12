@@ -7,8 +7,8 @@ Best practices and guidelines for using the Private Blockchain CLI in enterprise
 - [Security Best Practices](#security-best-practices)
 - [Performance Best Practices](#performance-best-practices)
 - [Operational Best Practices](#operational-best-practices)
-- [Monitoring & Alerting](#monitoring--alerting)
-- [Compliance & Auditing](#compliance--auditing)
+- [Monitoring & Alerting](#monitoring-alerting)
+- [Compliance & Auditing](#compliance-auditing)
 - [Production Deployment](#production-deployment)
 
 ## 🔐 Security Best Practices
