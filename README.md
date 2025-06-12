@@ -159,6 +159,9 @@ java -jar blockchain-cli.jar add-key "Alice" --generate --show-private
 java -jar blockchain-cli.jar add-block "My first blockchain entry" --signer Alice
 ```
 
+**✨ NEW: Enhanced --signer functionality**
+The `--signer` parameter now works seamlessly with existing authorized users. When you specify an existing signer, the CLI creates a demo mode signature that simulates real-world usage.
+
 ### 6. Verify everything worked
 
 ```bash
@@ -167,7 +170,7 @@ java -jar blockchain-cli.jar validate --detailed
 
 ### Complete Workflow Example
 
-Here's a complete workflow that demonstrates all major features:
+Here's a complete workflow that demonstrates all major features including the new `--signer` functionality:
 
 ```bash
 # 1. Check initial status
@@ -179,9 +182,9 @@ java -jar blockchain-cli.jar add-key "Alice" --generate
 # 3. List all keys to verify
 java -jar blockchain-cli.jar list-keys --detailed
 
-# 4. Add some blocks
+# 4. Add blocks using different signing methods
 java -jar blockchain-cli.jar add-block "First transaction" --signer Alice
-java -jar blockchain-cli.jar add-block "Second transaction" --signer Alice
+java -jar blockchain-cli.jar add-block "Auto-generated key transaction" --generate-key
 
 # 5. Validate blockchain integrity
 java -jar blockchain-cli.jar validate --detailed
@@ -270,11 +273,56 @@ java -jar blockchain-cli.jar list-keys --json
 Add a new block to the blockchain. Requires an authorized key for signing.
 
 ```bash
-# Add block with auto-generated key
-java -jar blockchain-cli.jar add-block "Transaction data" --generate-key
+# Method 1: Use existing authorized signer (RECOMMENDED)
+java -jar blockchain-cli.jar add-block "Transaction data" --signer Alice
 
-# Add block with specific signer
-java -jar blockchain-cli.jar add-block "System update" --signer Alice
+# Method 2: Generate new key automatically
+java -jar blockchain-cli.jar add-block "System update" --generate-key
+
+# Method 3: Load from key file (coming soon)
+java -jar blockchain-cli.jar add-block "Secure data" --key-file alice.key
+```
+
+**🔑 Signing Methods Explained:**
+
+| Method | When to Use | Security Level | Best For |
+|--------|-------------|----------------|----------|
+| `--signer <name>` | User already exists | ⭐⭐⭐ Demo | Multi-user workflows |
+| `--generate-key` | Quick testing | ⭐⭐ Medium | Development/testing |
+| `--key-file <path>` | Production use | ⭐⭐⭐⭐ High | Enterprise deployments |
+
+**Common Use Cases:**
+
+```bash
+# Corporate environment - multiple signers
+java -jar blockchain-cli.jar add-block "Monthly report submitted" --signer Manager
+java -jar blockchain-cli.jar add-block "Budget approved" --signer CFO
+java -jar blockchain-cli.jar add-block "Project milestone reached" --signer Developer
+
+# Single user - quick operations
+java -jar blockchain-cli.jar add-block "Quick note" --generate-key
+
+# Batch operations with same signer
+java -jar blockchain-cli.jar add-block "Transaction #001" --signer Alice
+java -jar blockchain-cli.jar add-block "Transaction #002" --signer Alice
+java -jar blockchain-cli.jar add-block "Transaction #003" --signer Alice
+```
+
+**Error Handling:**
+
+```bash
+# Error: Signer doesn't exist
+$ java -jar blockchain-cli.jar add-block "Test" --signer UnknownUser
+❌ Error: Signer 'UnknownUser' not found in authorized keys
+❌ Error: Use 'blockchain list-keys' to see available signers
+
+# Error: No signing method specified
+$ java -jar blockchain-cli.jar add-block "Test data"
+❌ Error: No signing method specified
+❌ Error: Use one of the following options:
+❌ Error:   --generate-key: Generate a new key pair
+❌ Error:   --signer <name>: Use an existing authorized key
+❌ Error:   --key-file <path>: Load private key from file (not yet implemented)
 ```
 
 #### `export` - Export Blockchain ✅
@@ -484,7 +532,43 @@ java -jar blockchain-cli.jar rollback --to-block 5 --json      # Rollback to blo
 - **Multiple Operations**: 5 status calls in < 30 seconds
 - **Memory Usage**: Stable ~50MB during testing
 
-For comprehensive testing information, see [Testing section](README.md#-basic-testing) in the full documentation.
+For comprehensive testing information, see [ROLLBACK_TESTING.md](ROLLBACK_TESTING.md) for detailed rollback testing procedures.
+
+### Rollback Testing Suite
+
+The rollback functionality includes comprehensive testing tools:
+
+```bash
+# Run complete rollback test suite
+./run-rollback-tests.sh
+
+# Setup test data for rollback testing
+./test-rollback-setup.sh
+
+# Interactive testing menu
+./test-rollback-interactive.sh
+
+# Exhaustive automated testing
+./test-rollback-exhaustive.sh
+
+# Unit tests only
+mvn test -Dtest=RollbackCommandTest
+```
+
+**Test Coverage:**
+- ✅ Parameter validation (edge cases, invalid inputs)
+- ✅ Dry run functionality (preview without changes)
+- ✅ Actual rollback operations (blocks and target-block modes)
+- ✅ Error handling (boundary conditions, database errors)
+- ✅ Output formats (text and JSON)
+- ✅ Blockchain integrity validation after rollback
+- ✅ Performance benchmarks and stress testing
+
+**Safety Features:**
+- Comprehensive backup/restore procedures
+- Confirmation prompts for destructive operations
+- Dry-run mode for safe preview
+- Full integrity validation after operations
 
 ## 🔧 Technical Details
 

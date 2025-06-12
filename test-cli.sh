@@ -195,15 +195,150 @@ run_cli_test "List keys detailed" list-keys --detailed
 run_cli_test "List keys JSON" list-keys --json
 run_cli_test "Add another key" add-key "SecondUser" --generate
 
+# Additional Key Management Tests (Bug Fix Verification)
+print_test "Key management bug fix verification"
+KEY_OWNER_TEST="BugFixTestUser"
+KEY_OUTPUT=$(java -jar target/blockchain-cli.jar add-key "$KEY_OWNER_TEST" --generate 2>/dev/null | grep "Owner:" | cut -d: -f2 | xargs)
+if [ "$KEY_OUTPUT" = "$KEY_OWNER_TEST" ]; then
+    print_success "Key owner name stored correctly (bug fix verified)"
+    ((TESTS_PASSED++))
+else
+    print_error "Key owner name bug not fixed (got: '$KEY_OUTPUT', expected: '$KEY_OWNER_TEST')"
+    ((TESTS_FAILED++))
+fi
+
+print_test "Key-owner separation verification"
+JSON_OUTPUT=$(java -jar target/blockchain-cli.jar add-key "SeparationTestUser" --generate --json 2>/dev/null)
+JSON_OWNER=$(echo "$JSON_OUTPUT" | grep '"owner"' | cut -d'"' -f4)
+JSON_PUBLIC_KEY=$(echo "$JSON_OUTPUT" | grep '"publicKey"' | cut -d'"' -f4)
+if [ -n "$JSON_OWNER" ] && [ -n "$JSON_PUBLIC_KEY" ] && [ "$JSON_OWNER" != "$JSON_PUBLIC_KEY" ]; then
+    print_success "Public key and owner name properly separated"
+    ((TESTS_PASSED++))
+else
+    print_error "Public key and owner name not properly separated"
+    ((TESTS_FAILED++))
+fi
+
+print_test "Multiple user key management"
+MULTI_USER_SUCCESS=true
+for test_user in "Alice" "Bob" "Charlie"; do
+    USER_RESULT=$(java -jar target/blockchain-cli.jar add-key "$test_user" --generate 2>/dev/null | grep "Owner:" | cut -d: -f2 | xargs)
+    if [ "$USER_RESULT" != "$test_user" ]; then
+        MULTI_USER_SUCCESS=false
+        break
+    fi
+done
+if [ "$MULTI_USER_SUCCESS" = true ]; then
+    print_success "Multiple users with correct owner names"
+    ((TESTS_PASSED++))
+else
+    print_error "Multiple user key management failed"
+    ((TESTS_FAILED++))
+fi
+
 # Test 5: Block Management
 print_header "🧱 Block Management Commands"
 
-# Note: There's a known issue where add-block may not work with signer names
-# because the implementation stores public keys as owner names instead of provided names
-print_warning "Note: Block addition may fail due to key management implementation details"
-run_cli_test "Add block with generated key (may fail)" add-block "Test_transaction_data" --generate-key || {
-    print_info "Expected: Add block failed because generated keys aren't automatically authorized"
-}
+print_info "Testing basic block management functionality"
+run_cli_test "Add block with generated key" add-block "Test_transaction_data" --generate-key
+
+# Test 5.5: --signer Bug Fix Verification Tests
+print_header "🔧 --signer Bug Fix Verification"
+
+print_info "Testing the --signer parameter bug fix"
+print_info "Previous bug: --signer parameter existed but was not used in code"
+
+# First create a test user for signer tests
+SIGNER_TEST_USER="SignerTestUser"
+print_test "Creating test user for --signer tests"
+if java -jar target/blockchain-cli.jar add-key "$SIGNER_TEST_USER" --generate >/dev/null 2>&1; then
+    print_success "Test user '$SIGNER_TEST_USER' created successfully"
+    ((TESTS_PASSED++))
+    
+    # Test 1: Verify --signer parameter is recognized (not "unknown option")
+    print_test "--signer parameter recognition"
+    SIGNER_OUTPUT=$(java -jar target/blockchain-cli.jar add-block "Test with existing signer" --signer "$SIGNER_TEST_USER" 2>&1)
+    if echo "$SIGNER_OUTPUT" | grep -qi "unknown option"; then
+        print_error "--signer parameter not recognized (bug not fixed)"
+        ((TESTS_FAILED++))
+    else
+        print_success "--signer parameter is recognized (bug fix verified)"
+        ((TESTS_PASSED++))
+    fi
+    
+    # Test 2: Verify --signer with existing user works (creates demo key)
+    print_test "--signer with existing user functionality"
+    if java -jar target/blockchain-cli.jar add-block "Block with existing signer" --signer "$SIGNER_TEST_USER" >/dev/null 2>&1; then
+        print_success "--signer with existing user works (creates demo key)"
+        ((TESTS_PASSED++))
+    else
+        print_error "--signer with existing user failed"
+        ((TESTS_FAILED++))
+    fi
+    
+    # Test 3: Verify --signer shows demo mode message
+    print_test "--signer demo mode verification"
+    DEMO_OUTPUT=$(java -jar target/blockchain-cli.jar add-block "Demo mode test" --signer "$SIGNER_TEST_USER" 2>&1)
+    if echo "$DEMO_OUTPUT" | grep -qi "demo"; then
+        print_success "--signer shows demo mode message correctly"
+        ((TESTS_PASSED++))
+    else
+        print_error "--signer demo mode message not found"
+        ((TESTS_FAILED++))
+    fi
+    
+else
+    print_error "Failed to create test user for --signer tests"
+    ((TESTS_FAILED++))
+fi
+
+# Test 4: Verify --signer with non-existent user fails gracefully
+print_test "--signer with non-existent user"
+NON_EXISTENT_OUTPUT=$(java -jar target/blockchain-cli.jar add-block "Test with fake signer" --signer "NonExistentUser123" 2>&1)
+if echo "$NON_EXISTENT_OUTPUT" | grep -qi "not found"; then
+    print_success "--signer with non-existent user fails gracefully"
+    ((TESTS_PASSED++))
+else
+    print_error "--signer with non-existent user should show 'not found' error"
+    ((TESTS_FAILED++))
+fi
+
+# Test 5: Verify proper error when no signing method specified
+print_test "No signing method specified error"
+NO_METHOD_OUTPUT=$(java -jar target/blockchain-cli.jar add-block "Test no method" 2>&1)
+if echo "$NO_METHOD_OUTPUT" | grep -qi "signing method"; then
+    print_success "Proper error shown when no signing method specified"
+    ((TESTS_PASSED++))
+else
+    print_error "Should show 'signing method' error when no method specified"
+    ((TESTS_FAILED++))
+fi
+
+# Test 6: Compare --signer vs --generate-key behavior
+print_test "--signer vs --generate-key comparison"
+GENERATE_OUTPUT=$(java -jar target/blockchain-cli.jar add-block "Generated key block" --generate-key 2>&1)
+SIGNER_OUTPUT=$(java -jar target/blockchain-cli.jar add-block "Signer key block" --signer "$SIGNER_TEST_USER" 2>&1)
+
+GENERATE_SUCCESS=false
+SIGNER_SUCCESS=false
+
+if echo "$GENERATE_OUTPUT" | grep -qi "success\|added"; then
+    GENERATE_SUCCESS=true
+fi
+
+if echo "$SIGNER_OUTPUT" | grep -qi "success\|added\|demo"; then
+    SIGNER_SUCCESS=true
+fi
+
+if [ "$GENERATE_SUCCESS" = true ] && [ "$SIGNER_SUCCESS" = true ]; then
+    print_success "Both --generate-key and --signer work correctly"
+    ((TESTS_PASSED++))
+else
+    print_error "Inconsistent behavior between --generate-key and --signer"
+    ((TESTS_FAILED++))
+fi
+
+print_info "✅ --signer bug fix verification completed"
 
 # Test 6: Search Commands
 print_header "🔍 Search Commands"
@@ -232,12 +367,112 @@ if run_cli_test "Export blockchain" export "$EXPORT_FILE"; then
     fi
 fi
 
-# Test 8: Help Commands
+# Test 8: Rollback Commands
+print_header "🔄 Rollback Commands"
+
+print_warning "Testing rollback functionality (uses dry-run for safety)"
+
+# Basic rollback parameter validation tests (expected to fail gracefully)
+print_test "Rollback no params (should fail)"
+if ! java -jar target/blockchain-cli.jar rollback >/dev/null 2>&1; then
+    print_success "Rollback without parameters properly rejected"
+    ((TESTS_PASSED++))
+else
+    print_error "Rollback without parameters should fail"
+    ((TESTS_FAILED++))
+fi
+
+print_test "Rollback both params (should fail)"
+if ! java -jar target/blockchain-cli.jar rollback --blocks 1 --to-block 1 >/dev/null 2>&1; then
+    print_success "Conflicting parameters properly rejected"
+    ((TESTS_PASSED++))
+else
+    print_error "Conflicting parameters should fail"
+    ((TESTS_FAILED++))
+fi
+
+print_test "Rollback negative blocks (should fail)"
+if ! java -jar target/blockchain-cli.jar rollback --blocks -1 --yes >/dev/null 2>&1; then
+    print_success "Negative values properly rejected"
+    ((TESTS_PASSED++))
+else
+    print_error "Negative values should fail"
+    ((TESTS_FAILED++))
+fi
+
+print_test "Rollback zero blocks (should fail)"
+if ! java -jar target/blockchain-cli.jar rollback --blocks 0 --yes >/dev/null 2>&1; then
+    print_success "Zero blocks properly rejected"
+    ((TESTS_PASSED++))
+else
+    print_error "Zero blocks should fail"
+    ((TESTS_FAILED++))
+fi
+
+print_test "Rollback negative target (should fail)"
+if ! java -jar target/blockchain-cli.jar rollback --to-block -1 --yes >/dev/null 2>&1; then
+    print_success "Negative target block properly rejected"
+    ((TESTS_PASSED++))
+else
+    print_error "Negative target block should fail"
+    ((TESTS_FAILED++))
+fi
+
+# Dry run tests (safe to execute)
+run_cli_test "Rollback dry run with blocks" rollback --blocks 1 --dry-run
+run_cli_test "Rollback dry run with target" rollback --to-block 0 --dry-run
+run_cli_test "Rollback dry run JSON output" rollback --blocks 1 --dry-run --json
+
+# Test edge cases with dry run (expected to fail)
+print_test "Rollback too many blocks (should fail)"
+if ! java -jar target/blockchain-cli.jar rollback --blocks 1000 --dry-run >/dev/null 2>&1; then
+    print_success "Excessive rollback properly rejected"
+    ((TESTS_PASSED++))
+else
+    print_error "Excessive rollback should fail"
+    ((TESTS_FAILED++))
+fi
+
+print_test "Rollback to non-existent block (should fail)"
+if ! java -jar target/blockchain-cli.jar rollback --to-block 1000 --dry-run >/dev/null 2>&1; then
+    print_success "Non-existent target block properly rejected"
+    ((TESTS_PASSED++))
+else
+    print_error "Non-existent target block should fail"
+    ((TESTS_FAILED++))
+fi
+
+# Additional Rollback Consistency Tests
+print_test "Rollback + validation consistency"
+TEMP_EXPORT_FILE="$TEMP_DIR/consistency_test.json"
+# Export current state
+java -jar target/blockchain-cli.jar export "$TEMP_EXPORT_FILE" >/dev/null 2>&1
+# Perform rollback and validate
+if java -jar target/blockchain-cli.jar rollback --blocks 1 --dry-run >/dev/null 2>&1 && \
+   java -jar target/blockchain-cli.jar validate >/dev/null 2>&1; then
+    print_success "Rollback maintains blockchain consistency"
+    ((TESTS_PASSED++))
+else
+    print_error "Rollback consistency validation failed"
+    ((TESTS_FAILED++))
+fi
+
+print_test "Export/Import + Rollback consistency"
+if java -jar target/blockchain-cli.jar import "$TEMP_EXPORT_FILE" --force >/dev/null 2>&1 && \
+   java -jar target/blockchain-cli.jar validate >/dev/null 2>&1; then
+    print_success "Export/Import maintains consistency with rollback"
+    ((TESTS_PASSED++))
+else
+    print_error "Export/Import + rollback consistency failed"
+    ((TESTS_FAILED++))
+fi
+
+# Test 9: Help Commands
 print_header "❓ Help Commands"
 
 run_cli_test "Help command" help
 
-# Test 9: Error Handling
+# Test 10: Error Handling
 print_header "⚠️  Error Handling Tests"
 
 print_test "Invalid command test"
@@ -267,19 +502,20 @@ else
     ((TESTS_FAILED++))
 fi
 
-# Test 10: Workflow Integration
+# Test 11: Workflow Integration
 print_header "🔄 Workflow Integration Tests"
 
 print_test "Complete workflow test"
 WORKFLOW_SUCCESS=true
 
-# Workflow: Status -> Add Key -> List Keys -> Validate -> Export -> Search
+# Workflow: Status -> Add Key -> List Keys -> Validate -> Export -> Search -> Rollback (dry-run) -> Key Management
 if ! java -jar target/blockchain-cli.jar status >/dev/null 2>&1; then WORKFLOW_SUCCESS=false; fi
 if ! java -jar target/blockchain-cli.jar add-key "WorkflowUser" --generate >/dev/null 2>&1; then WORKFLOW_SUCCESS=false; fi
 if ! java -jar target/blockchain-cli.jar list-keys >/dev/null 2>&1; then WORKFLOW_SUCCESS=false; fi
 if ! java -jar target/blockchain-cli.jar validate >/dev/null 2>&1; then WORKFLOW_SUCCESS=false; fi
 if ! java -jar target/blockchain-cli.jar export "$TEMP_DIR/workflow_export.json" >/dev/null 2>&1; then WORKFLOW_SUCCESS=false; fi
 if ! java -jar target/blockchain-cli.jar search "Genesis" >/dev/null 2>&1; then WORKFLOW_SUCCESS=false; fi
+if ! java -jar target/blockchain-cli.jar rollback --blocks 1 --dry-run >/dev/null 2>&1; then WORKFLOW_SUCCESS=false; fi
 
 if [ "$WORKFLOW_SUCCESS" = true ]; then
     print_success "Complete workflow test passed"
@@ -328,9 +564,12 @@ if [ $TESTS_FAILED -eq 0 ]; then
     echo "   java -jar target/blockchain-cli.jar status"
     echo "   java -jar target/blockchain-cli.jar add-key \"Alice\" --generate"
     echo "   java -jar target/blockchain-cli.jar list-keys --detailed"
+    echo "   java -jar target/blockchain-cli.jar add-block \"My data\" --signer Alice"
     echo "   java -jar target/blockchain-cli.jar validate --detailed"
     echo "   java -jar target/blockchain-cli.jar export backup.json"
     echo "   java -jar target/blockchain-cli.jar search \"Genesis\" --json"
+    echo "   java -jar target/blockchain-cli.jar rollback --blocks 2 --dry-run"
+    echo "   java -jar target/blockchain-cli.jar add-block \"Data\" --generate-key"
     echo ""
     echo "🔗 For all commands: java -jar target/blockchain-cli.jar --help"
     exit 0

@@ -71,7 +71,7 @@ public class AddKeyCommand implements Runnable {
             }
             
             // Add the authorized key
-            boolean success = blockchain.addAuthorizedKey(ownerName, finalPublicKey);
+            boolean success = blockchain.addAuthorizedKey(finalPublicKey, ownerName);
             
             if (success) {
                 if (json) {

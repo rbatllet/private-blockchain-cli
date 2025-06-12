@@ -1,10 +1,11 @@
 # 💡 Blockchain CLI Examples
 
-Comprehensive examples and use cases for the Private Blockchain CLI.
+Comprehensive examples and use cases for the Private Blockchain CLI, featuring the new enhanced `--signer` functionality.
 
 ## 📋 Table of Contents
 
 - [Quick Start Examples](#-quick-start-examples)
+- [Advanced Signer Workflows](#-advanced-signer-workflows)
 - [Real-World Use Cases](#-real-world-use-cases)
 - [Advanced Scenarios](#-advanced-scenarios)
 - [Docker Examples](#-docker-examples)
@@ -12,7 +13,7 @@ Comprehensive examples and use cases for the Private Blockchain CLI.
 
 ## 🚀 Quick Start Examples
 
-### Example 1: First-Time Setup
+### Example 1: First-Time Setup with Multiple Users
 ```bash
 # Step 1: Check if CLI is working
 java -jar blockchain-cli.jar --version
@@ -22,31 +23,109 @@ java -jar blockchain-cli.jar --version
 java -jar blockchain-cli.jar status
 # Creates genesis block automatically
 
-# Step 3: Add your first authorized user
-java -jar blockchain-cli.jar add-key "Alice" --generate --show-private
-# Save the private key securely!
+# Step 3: Set up multiple authorized users
+java -jar blockchain-cli.jar add-key "Alice" --generate
+java -jar blockchain-cli.jar add-key "Bob" --generate
+java -jar blockchain-cli.jar add-key "Manager" --generate
 
-# Step 4: Add your first block
-java -jar blockchain-cli.jar add-block "My first blockchain entry" --signer Alice
+# Step 4: Verify users are added
+java -jar blockchain-cli.jar list-keys --detailed
 
-# Step 5: Verify everything worked
+# Step 5: Add blocks using different signers
+java -jar blockchain-cli.jar add-block "Alice's first entry" --signer Alice
+java -jar blockchain-cli.jar add-block "Bob's contribution" --signer Bob
+java -jar blockchain-cli.jar add-block "Manager approval" --signer Manager
+
+# Step 6: Verify everything worked
 java -jar blockchain-cli.jar validate --detailed
 ```
 
-### Example 2: Daily Operations
+### Example 2: Daily Operations with Role-Based Signing
 ```bash
 # Morning: Check blockchain health
 java -jar blockchain-cli.jar status --detailed
 
-# Add daily transaction records
-java -jar blockchain-cli.jar add-block "Transaction: Invoice #2025-001" --signer Alice
-java -jar blockchain-cli.jar add-block "Payment received: $1,500" --signer Alice
+# Team lead adds daily standup notes
+java -jar blockchain-cli.jar add-block "Daily Standup 2025-06-12: Team velocity on track, 3 stories completed" --signer TeamLead
+
+# Developer adds technical updates
+java -jar blockchain-cli.jar add-block "Feature: User authentication implemented and tested" --signer Developer
+
+# Manager adds business decisions
+java -jar blockchain-cli.jar add-block "Decision: Approved budget for additional QA resources" --signer Manager
 
 # End of day: Create backup
 java -jar blockchain-cli.jar export backups/daily_$(date +%Y%m%d).json
 
 # Verify backup integrity
 java -jar blockchain-cli.jar validate --json
+```
+
+## 🎯 Advanced Signer Workflows
+
+### Workflow 1: Multi-Department Corporate Environment
+```bash
+# Setup: Create department-specific signers
+java -jar blockchain-cli.jar add-key "HR-Director" --generate
+java -jar blockchain-cli.jar add-key "Finance-Manager" --generate
+java -jar blockchain-cli.jar add-key "IT-Administrator" --generate
+java -jar blockchain-cli.jar add-key "Legal-Counsel" --generate
+
+# Verify all signers are created
+java -jar blockchain-cli.jar list-keys
+
+# Department-specific transactions
+java -jar blockchain-cli.jar add-block "New employee onboarded: John Doe | Start date: 2025-06-15 | Department: Engineering" --signer HR-Director
+java -jar blockchain-cli.jar add-block "Budget allocation approved: Q3 Marketing $50K | Reference: FIN-2025-Q3-001" --signer Finance-Manager
+java -jar blockchain-cli.jar add-block "Security update deployed: CVE-2025-1234 patched across all systems" --signer IT-Administrator
+java -jar blockchain-cli.jar add-block "Contract review completed: Vendor Agreement ABC Corp | Status: Approved with amendments" --signer Legal-Counsel
+
+# Generate department activity report
+java -jar blockchain-cli.jar search "HR-Director\|Finance-Manager\|IT-Administrator\|Legal-Counsel" --detailed
+```
+
+### Workflow 2: Project Management with Milestone Tracking
+```bash
+# Setup: Create project team signers
+java -jar blockchain-cli.jar add-key "Project-Manager" --generate  
+java -jar blockchain-cli.jar add-key "Lead-Developer" --generate
+java -jar blockchain-cli.jar add-key "QA-Lead" --generate
+java -jar blockchain-cli.jar add-key "Product-Owner" --generate
+
+# Project phases with different signers
+java -jar blockchain-cli.jar add-block "PROJECT INITIATION: Project Alpha kickoff meeting completed | Stakeholders: 8 | Duration: 6 months" --signer Project-Manager
+java -jar blockchain-cli.jar add-block "DEVELOPMENT: Sprint 1 completed | User stories: 12/12 | Velocity: 45 points" --signer Lead-Developer  
+java -jar blockchain-cli.jar add-block "TESTING: Integration tests completed | Test cases: 156 passed, 0 failed | Coverage: 94%" --signer QA-Lead
+java -jar blockchain-cli.jar add-block "REVIEW: Sprint 1 demo approved by stakeholders | Feedback: Positive | Next sprint approved" --signer Product-Owner
+
+# Track project timeline
+java -jar blockchain-cli.jar search "PROJECT\|DEVELOPMENT\|TESTING\|REVIEW" --json > project_alpha_timeline.json
+```
+
+### Workflow 3: Error Handling and Troubleshooting
+```bash
+# Common error scenarios and solutions
+
+# Error 1: Trying to use non-existent signer
+$ java -jar blockchain-cli.jar add-block "Test data" --signer NonExistentUser
+❌ Error: Signer 'NonExistentUser' not found in authorized keys
+❌ Error: Use 'blockchain list-keys' to see available signers
+
+# Solution: Check available signers
+java -jar blockchain-cli.jar list-keys
+
+# Error 2: No signing method specified
+$ java -jar blockchain-cli.jar add-block "Test data"
+❌ Error: No signing method specified
+
+# Solution: Use one of the available methods
+java -jar blockchain-cli.jar add-block "Test data" --signer Alice
+# OR
+java -jar blockchain-cli.jar add-block "Test data" --generate-key
+
+# Error 3: Dealing with special characters in data
+java -jar blockchain-cli.jar add-block "Transaction with \"quotes\" and $symbols" --signer Alice
+java -jar blockchain-cli.jar add-block 'Data with single quotes and $variables' --signer Alice
 ```
 
 ### Example 3: Multi-User Setup
@@ -67,68 +146,95 @@ java -jar blockchain-cli.jar add-block "Security audit passed" --signer Charlie-
 
 ## 🎯 Real-World Use Cases
 
-### Use Case 1: Document Audit Trail
+### Use Case 1: Document Audit Trail with Role-Based Approval
 ```bash
-# Setup for document management system
-java -jar blockchain-cli.jar add-key "DocumentManager" --generate
-java -jar blockchain-cli.jar add-key "LegalTeam" --generate
+# Setup for document management system with different roles
+java -jar blockchain-cli.jar add-key "Document-Author" --generate
+java -jar blockchain-cli.jar add-key "Legal-Reviewer" --generate
+java -jar blockchain-cli.jar add-key "Final-Approver" --generate
 
-# Track document lifecycle
-java -jar blockchain-cli.jar add-block "Document created: Contract_2025.pdf | Author: Alice | Size: 245KB" --signer DocumentManager
-java -jar blockchain-cli.jar add-block "Document reviewed: Contract_2025.pdf | Reviewer: Legal | Status: Approved" --signer LegalTeam
-java -jar blockchain-cli.jar add-block "Document signed: Contract_2025.pdf | Signatory: Bob | Timestamp: $(date)" --signer DocumentManager
+# Complete document lifecycle with proper signers
+java -jar blockchain-cli.jar add-block "CREATED: Contract_2025-ABC.pdf | Author: Alice Smith | Size: 245KB | Version: 1.0" --signer Document-Author
+java -jar blockchain-cli.jar add-block "REVIEWED: Contract_2025-ABC.pdf | Reviewer: Legal Team | Status: Minor changes required | Comments: 3" --signer Legal-Reviewer
+java -jar blockchain-cli.jar add-block "REVISED: Contract_2025-ABC.pdf | Author: Alice Smith | Version: 1.1 | Changes: Addressed legal comments" --signer Document-Author
+java -jar blockchain-cli.jar add-block "APPROVED: Contract_2025-ABC.pdf | Approver: John Manager | Final Status: Approved for signature" --signer Final-Approver
+java -jar blockchain-cli.jar add-block "SIGNED: Contract_2025-ABC.pdf | Signatory: Bob Client | Digital signature verified | Timestamp: $(date)" --signer Final-Approver
 
-# Generate audit report
-java -jar blockchain-cli.jar search "Contract_2025.pdf" --detailed
-java -jar blockchain-cli.jar export audit_reports/contract_audit_$(date +%Y%m%d).json
+# Generate comprehensive audit report
+java -jar blockchain-cli.jar search "Contract_2025-ABC.pdf" --detailed > audit_reports/contract_abc_audit.txt
+java -jar blockchain-cli.jar export audit_reports/contract_abc_full_$(date +%Y%m%d).json
 ```
 
-### Use Case 2: Supply Chain Tracking
+### Use Case 2: Supply Chain with Multi-Party Verification
 ```bash
-# Setup supply chain participants
-java -jar blockchain-cli.jar add-key "Manufacturer" --generate
-java -jar blockchain-cli.jar add-key "Distributor" --generate  
-java -jar blockchain-cli.jar add-key "Retailer" --generate
+# Setup supply chain participants with specific roles
+java -jar blockchain-cli.jar add-key "Manufacturer-QC" --generate
+java -jar blockchain-cli.jar add-key "Logistics-Coordinator" --generate  
+java -jar blockchain-cli.jar add-key "Warehouse-Supervisor" --generate
+java -jar blockchain-cli.jar add-key "Retail-Manager" --generate
+java -jar blockchain-cli.jar add-key "Quality-Inspector" --generate
 
-# Track product journey
-java -jar blockchain-cli.jar add-block "PRODUCED: Product #12345 | Location: Factory-A | Date: $(date +%Y-%m-%d)" --signer Manufacturer
-java -jar blockchain-cli.jar add-block "SHIPPED: Product #12345 | From: Factory-A | To: Warehouse-B | Carrier: FastShip" --signer Distributor
-java -jar blockchain-cli.jar add-block "RECEIVED: Product #12345 | Location: Warehouse-B | Condition: Good | Inspector: John" --signer Distributor
-java -jar blockchain-cli.jar add-block "SOLD: Product #12345 | Store: TechMart | Customer: [PRIVATE] | Price: $299" --signer Retailer
+# Complete product journey with verification at each step
+java -jar blockchain-cli.jar add-block "MANUFACTURED: Product SKU-12345 | Batch: B2025-06-001 | QC Inspector: Mike | Quality Grade: A" --signer Manufacturer-QC
+java -jar blockchain-cli.jar add-block "DISPATCHED: Product SKU-12345 | Carrier: FastShip Express | Tracking: FS123456789 | Expected delivery: 2025-06-14" --signer Logistics-Coordinator
+java -jar blockchain-cli.jar add-block "IN-TRANSIT: Product SKU-12345 | Checkpoint: City Hub | Temperature: 22°C | Condition: Good" --signer Logistics-Coordinator
+java -jar blockchain-cli.jar add-block "RECEIVED: Product SKU-12345 | Warehouse: Central-001 | Condition: Excellent | Inspector: Sarah | Storage location: A-15-C" --signer Warehouse-Supervisor
+java -jar blockchain-cli.jar add-block "QUALITY-CHECK: Product SKU-12345 | Inspector: QC Team | Random sample test: Passed | Compliance: FDA approved" --signer Quality-Inspector
+java -jar blockchain-cli.jar add-block "SOLD: Product SKU-12345 | Store: TechMart Downtown | Customer: [PRIVACY-PROTECTED] | Price: $299.99 | Warranty: 2 years" --signer Retail-Manager
 
-# Track specific product
-java -jar blockchain-cli.jar search "Product #12345" --json > product_12345_history.json
+# Track complete product lifecycle
+java -jar blockchain-cli.jar search "SKU-12345" --json > supply_chain/product_12345_complete_history.json
+
+# Generate compliance report for auditors
+java -jar blockchain-cli.jar search "QUALITY-CHECK\|QC Inspector" --detailed > compliance_reports/qc_audit_$(date +%Y%m%d).txt
 ```
 
-### Use Case 3: Meeting Minutes & Decisions
+### Use Case 3: Corporate Governance with Board Meeting Records
 ```bash
-# Setup for corporate governance
-java -jar blockchain-cli.jar add-key "Secretary" --generate
-java -jar blockchain-cli.jar add-key "Chairman" --generate
+# Setup corporate governance participants
+java -jar blockchain-cli.jar add-key "Board-Secretary" --generate
+java -jar blockchain-cli.jar add-key "Board-Chairman" --generate
+java -jar blockchain-cli.jar add-key "Chief-Executive" --generate
+java -jar blockchain-cli.jar add-key "Compliance-Officer" --generate
 
-# Record meeting decisions
-java -jar blockchain-cli.jar add-block "MEETING: Board Meeting 2025-06-11 | Attendees: 8/10 | Type: Quarterly Review" --signer Secretary
-java -jar blockchain-cli.jar add-block "DECISION: Approved budget increase 15% for Q3 | Vote: 7-1 | Motion: CFO-2025-03" --signer Chairman
-java -jar blockchain-cli.jar add-block "ACTION: Hire 5 new developers | Deadline: Q3 2025 | Owner: HR Director" --signer Secretary
+# Complete board meeting lifecycle
+java -jar blockchain-cli.jar add-block "MEETING-NOTICE: Board Meeting scheduled for 2025-06-15 14:00 UTC | Agenda items: 5 | Notice period: 14 days" --signer Board-Secretary
+java -jar blockchain-cli.jar add-block "MEETING-START: Board Meeting commenced | Attendees: 8/10 directors present | Quorum: Achieved | Chairman: John Smith" --signer Board-Chairman
+java -jar blockchain-cli.jar add-block "MOTION-01: Approve Q2 financial results | Proposer: CFO | Seconder: COO | Discussion: 15 minutes" --signer Board-Secretary
+java -jar blockchain-cli.jar add-block "VOTE-01: Q2 financial results approved | Vote: 7 in favor, 1 abstention | Motion: PASSED" --signer Board-Chairman
+java -jar blockchain-cli.jar add-block "MOTION-02: CEO compensation adjustment | Proposer: Chairman | Seconder: Independent Director | Discussion: 25 minutes" --signer Board-Secretary
+java -jar blockchain-cli.jar add-block "VOTE-02: CEO compensation approved | Vote: 6 in favor, 2 against | Motion: PASSED | Effective: Q3 2025" --signer Board-Chairman
+java -jar blockchain-cli.jar add-block "COMPLIANCE-NOTE: All decisions comply with corporate governance guidelines | Reviewed by: Legal Counsel | Filed: SEC Form 8-K" --signer Compliance-Officer
+java -jar blockchain-cli.jar add-block "MEETING-END: Board Meeting concluded | Duration: 2.5 hours | Next meeting: 2025-09-15 | Minutes: Filed" --signer Board-Secretary
 
-# Generate meeting report
-java -jar blockchain-cli.jar search --date-from $(date +%Y-%m-%d) --detailed
+# Generate meeting minutes and governance reports
+java -jar blockchain-cli.jar search --date-from $(date +%Y-%m-%d) --detailed > governance/board_meeting_$(date +%Y%m%d)_minutes.txt
+java -jar blockchain-cli.jar export governance/board_meeting_$(date +%Y%m%d)_complete.json
 ```
 
-### Use Case 4: Software Release Pipeline
+### Use Case 4: Software Development Lifecycle with DevOps Pipeline
 ```bash
-# Setup development team
-java -jar blockchain-cli.jar add-key "Developer" --generate
-java -jar blockchain-cli.jar add-key "QA-Team" --generate
-java -jar blockchain-cli.jar add-key "DevOps" --generate
+# Setup development team with specialized roles
+java -jar blockchain-cli.jar add-key "Feature-Developer" --generate
+java -jar blockchain-cli.jar add-key "Code-Reviewer" --generate
+java -jar blockchain-cli.jar add-key "QA-Automation" --generate
+java -jar blockchain-cli.jar add-key "Security-Tester" --generate
+java -jar blockchain-cli.jar add-key "Release-Manager" --generate
+java -jar blockchain-cli.jar add-key "Production-Ops" --generate
 
-# Track release process
-java -jar blockchain-cli.jar add-block "CODE: Feature XYZ completed | Branch: feature/xyz | Commits: 23 | Author: Alice" --signer Developer
-java -jar blockchain-cli.jar add-block "TEST: Feature XYZ tested | Tests: 45/45 passed | Coverage: 98% | QA: Bob" --signer QA-Team
-java -jar blockchain-cli.jar add-block "DEPLOY: Feature XYZ deployed | Environment: Production | Version: v2.1.0 | Time: $(date)" --signer DevOps
+# Complete feature development and deployment cycle
+java -jar blockchain-cli.jar add-block "FEATURE-START: User authentication with 2FA | Developer: Alice | Branch: feature/2fa-auth | Estimated effort: 3 days" --signer Feature-Developer
+java -jar blockchain-cli.jar add-block "CODE-COMPLETE: Feature implementation finished | Files changed: 12 | Lines added: 847 | Unit tests: 23 added" --signer Feature-Developer
+java -jar blockchain-cli.jar add-block "CODE-REVIEW: Pull request reviewed | Reviewer: Bob | Comments: 5 | Status: Approved with minor changes" --signer Code-Reviewer
+java -jar blockchain-cli.jar add-block "AUTOMATED-TESTS: CI pipeline completed | Unit tests: 156/156 passed | Integration tests: 89/89 passed | Coverage: 94.2%" --signer QA-Automation
+java -jar blockchain-cli.jar add-block "SECURITY-SCAN: Security tests completed | Vulnerabilities: 0 critical, 1 medium (fixed) | OWASP compliance: Verified" --signer Security-Tester
+java -jar blockchain-cli.jar add-block "STAGING-DEPLOY: Feature deployed to staging | Environment: staging-v2.1.0 | Smoke tests: Passed | Performance: Baseline" --signer Release-Manager
+java -jar blockchain-cli.jar add-block "PRODUCTION-DEPLOY: Feature deployed to production | Version: v2.1.0 | Rollout: Gradual (10% traffic) | Monitoring: Active" --signer Production-Ops
+java -jar blockchain-cli.jar add-block "RELEASE-COMPLETE: 2FA authentication feature live | User adoption: 15% in first 24h | Issues: 0 | Performance impact: <2ms" --signer Production-Ops
 
-# Release audit
-java -jar blockchain-cli.jar search "Feature XYZ" --detailed > release_audit.txt
+# Generate release audit trail and performance reports
+java -jar blockchain-cli.jar search "2FA\|authentication" --detailed > releases/feature_2fa_complete_audit.txt
+java -jar blockchain-cli.jar search "PRODUCTION-DEPLOY\|RELEASE-COMPLETE" --json > releases/production_deployments.json
 ```
 
 ## 🔧 Advanced Scenarios
@@ -190,32 +296,196 @@ java -jar blockchain-cli.jar validate --detailed > compliance/chain_integrity_$(
 java -jar blockchain-cli.jar export compliance/full_blockchain_$(date +%Y-%m-%d).json
 ```
 
-## 🛠 Docker Examples
+## 🛠 Docker Examples with --signer
 
-### Docker Quick Start
+### Docker Quick Start with Multi-User Setup
 ```bash
 # Build once, use everywhere
 docker build -t blockchain-cli .
 
-# Daily operations with persistent data
-docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli status --detailed
+# Setup persistent data volume
+mkdir -p blockchain-data backups
+
+# Initialize blockchain and create signers
+docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli status
+docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli add-key "Docker-Admin" --generate
 docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli add-key "Docker-User" --generate
-docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli add-block "Data from Docker container" --generate-key
+docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli add-key "Docker-Service" --generate
+
+# Verify signers were created
+docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli list-keys --detailed
+
+# Add blocks using different signers
+docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli add-block "Admin: System initialized" --signer Docker-Admin
+docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli add-block "User: First user transaction" --signer Docker-User
+docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli add-block "Service: Automated process completed" --signer Docker-Service
 
 # Backup with dual volumes
 docker run --rm -v $(pwd)/blockchain-data:/data -v $(pwd)/backups:/backups blockchain-cli export /backups/docker_backup_$(date +%Y%m%d).json
 ```
 
-### Docker Compose Automation
+### Docker Compose with Role-Based Workflow
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  blockchain-admin:
+    build: .
+    volumes:
+      - ./blockchain-data:/data
+      - ./backups:/backups
+    command: ["add-block", "Admin operation: Daily system check", "--signer", "Docker-Admin"]
+    profiles: ["admin"]
+
+  blockchain-user:
+    build: .
+    volumes:
+      - ./blockchain-data:/data
+    command: ["add-block", "User transaction: Data processing completed", "--signer", "Docker-User"]
+    profiles: ["user"]
+
+  blockchain-backup:
+    build: .
+    volumes:
+      - ./blockchain-data:/data
+      - ./backups:/backups
+    command: ["export", "/backups/automated_backup_$(date +%Y%m%d_%H%M%S).json"]
+    profiles: ["backup"]
+
+  blockchain-status:
+    build: .
+    volumes:
+      - ./blockchain-data:/data
+    command: ["status", "--detailed"]
+    profiles: ["default", "status"]
+```
+
+**Usage:**
 ```bash
+# Run as admin
+docker-compose --profile admin up
+
+# Run as user
+docker-compose --profile user up
+
 # Automated daily backup
 docker-compose --profile backup up
 
-# Chain validation
-docker-compose --profile validate up
-
 # Status monitoring
-docker-compose --profile default up
+docker-compose --profile status up
+```
+
+### Docker Automation Script with Error Handling
+```bash
+#!/bin/bash
+# save as: docker_blockchain_operations.sh
+
+DOCKER_IMAGE="blockchain-cli"
+DATA_VOLUME="$(pwd)/blockchain-data"
+BACKUP_VOLUME="$(pwd)/backups"
+
+# Function to run blockchain command with proper volumes
+run_blockchain() {
+    docker run --rm \
+        -v "$DATA_VOLUME:/data" \
+        -v "$BACKUP_VOLUME:/backups" \
+        "$DOCKER_IMAGE" "$@"
+}
+
+# Function to add block with signer, creating signer if needed
+add_block_with_signer() {
+    local data="$1"
+    local signer="$2"
+    
+    echo "📝 Adding block with signer: $signer"
+    
+    # Check if signer exists
+    if run_blockchain list-keys | grep -q "$signer"; then
+        echo "✅ Using existing signer: $signer"
+    else
+        echo "🔑 Creating new signer: $signer"
+        run_blockchain add-key "$signer" --generate
+    fi
+    
+    # Add the block
+    run_blockchain add-block "$data" --signer "$signer"
+}
+
+# Setup function
+setup_blockchain() {
+    echo "🚀 Setting up blockchain with Docker..."
+    
+    # Create directories
+    mkdir -p "$DATA_VOLUME" "$BACKUP_VOLUME"
+    
+    # Initialize blockchain
+    run_blockchain status
+    
+    # Create initial signers
+    add_block_with_signer "System initialization completed" "System-Admin"
+    add_block_with_signer "Docker environment ready" "Docker-Service"
+    
+    echo "✅ Blockchain setup complete!"
+}
+
+# Daily operations function
+daily_operations() {
+    echo "📅 Running daily operations..."
+    
+    DATE=$(date +%Y-%m-%d)
+    
+    # Add daily entries
+    add_block_with_signer "Daily health check: All systems operational | Date: $DATE" "System-Monitor"
+    add_block_with_signer "Backup process initiated | Date: $DATE" "Backup-Service"
+    
+    # Create backup
+    run_blockchain export "/backups/daily_backup_$(date +%Y%m%d).json"
+    
+    # Validate
+    run_blockchain validate --detailed
+    
+    echo "✅ Daily operations complete!"
+}
+
+# Usage
+case "${1:-help}" in
+    setup)
+        setup_blockchain
+        ;;
+    daily)
+        daily_operations
+        ;;
+    status)
+        run_blockchain status --detailed
+        ;;
+    backup)
+        run_blockchain export "/backups/manual_backup_$(date +%Y%m%d_%H%M%S).json"
+        ;;
+    help|*)
+        echo "Usage: $0 {setup|daily|status|backup}"
+        echo "  setup  - Initialize blockchain with signers"
+        echo "  daily  - Run daily operations and backup"
+        echo "  status - Show blockchain status"
+        echo "  backup - Create manual backup"
+        ;;
+esac
+```
+
+**Usage:**
+```bash
+chmod +x docker_blockchain_operations.sh
+
+# Initial setup
+./docker_blockchain_operations.sh setup
+
+# Daily operations
+./docker_blockchain_operations.sh daily
+
+# Check status
+./docker_blockchain_operations.sh status
+
+# Manual backup
+./docker_blockchain_operations.sh backup
 ```
 
 For comprehensive Docker usage, see [DOCKER_GUIDE.md](DOCKER_GUIDE.md).
