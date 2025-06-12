@@ -5,11 +5,6 @@ Complete guide for integrating the Private Blockchain CLI with external systems,
 ## 📋 Table of Contents
 
 - [CI/CD Integration](#cicd-integration)
-- [REST API Integration](#rest-api-integration)
-- [Monitoring Integration](#monitoring-integration)
-- [Enterprise Systems Integration](#enterprise-systems-integration)
-- [Cloud Integration Patterns](#cloud-integration-patterns)
-- [Security Integration](#security-integration)
 
 ## 🚀 CI/CD Integration
 
