@@ -316,6 +316,33 @@ java -jar blockchain-cli.jar search --date-from 2025-01-01 --date-to 2025-01-31
 java -jar blockchain-cli.jar search "data" --limit 10 --json
 ```
 
+#### `rollback` - Rollback Blockchain ✅
+
+**⚠️ DANGEROUS OPERATION:** Remove recent blocks from the blockchain. This operation is irreversible!
+
+```bash
+# Remove last 3 blocks (with confirmation prompt)
+java -jar blockchain-cli.jar rollback --blocks 3
+
+# Rollback to specific block (keep blocks 0-10)
+java -jar blockchain-cli.jar rollback --to-block 10
+
+# Skip confirmation prompt (USE WITH EXTREME CAUTION)
+java -jar blockchain-cli.jar rollback --blocks 2 --yes
+
+# Dry run - see what would be removed without doing it
+java -jar blockchain-cli.jar rollback --blocks 5 --dry-run
+
+# JSON output for automation
+java -jar blockchain-cli.jar rollback --to-block 8 --json
+```
+
+**Safety Features:**
+- Interactive confirmation prompt (unless `--yes` flag is used)
+- Dry run mode to preview changes
+- Cannot remove genesis block
+- Detailed preview of what will be removed
+
 #### `help` - Detailed Help ✅
 
 Show comprehensive help information.
@@ -444,6 +471,10 @@ java -jar blockchain-cli.jar import backup.json --backup
 
 # Search functionality ✅
 java -jar blockchain-cli.jar search "Genesis"                   
+
+# Rollback functionality ✅
+java -jar blockchain-cli.jar rollback --blocks 1 --dry-run     # Test rollback
+java -jar blockchain-cli.jar rollback --to-block 5 --json      # Rollback to block 5
 ```
 
 ### Test Performance Benchmarks

@@ -22,6 +22,7 @@ import com.rbatllet.blockchain.cli.commands.*;
              ExportCommand.class,
              ImportCommand.class,
              SearchCommand.class,
+             RollbackCommand.class,
              HelpCommand.class
          })
 public class BlockchainCLI implements Runnable {
@@ -70,6 +71,7 @@ public class BlockchainCLI implements Runnable {
         System.out.println("  export      Export blockchain to file");
         System.out.println("  import      Import blockchain from file");
         System.out.println("  search      Search blocks by content, hash, or date");
+        System.out.println("  rollback    Remove recent blocks (DANGEROUS)");
         System.out.println("  help        Show detailed help");
         System.out.println();
         System.out.println("Use 'blockchain [COMMAND] --help' for command-specific help");
