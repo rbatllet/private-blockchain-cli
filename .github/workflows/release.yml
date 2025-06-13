@@ -1,0 +1,85 @@
+name: Release CLI
+
+on:
+  push:
+    tags:
+      - 'cli-v*.*.*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout CLI code
+      uses: actions/checkout@v4
+    
+    - name: Checkout core blockchain library
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ github.repository_owner }}/privateBlockchain
+        path: ../privateBlockchain
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+    
+    - name: Cache Maven dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    
+    - name: Install core blockchain library to local repository
+      run: |
+        cd ../privateBlockchain
+        mvn clean install -DskipTests
+    
+    - name: Run CLI tests
+      run: mvn clean test
+    
+    - name: Build CLI JAR
+      run: mvn clean package
+    
+    - name: Get version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/cli-}" >> $GITHUB_OUTPUT
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: cli-${{ steps.get_version.outputs.VERSION }}
+        name: CLI Release ${{ steps.get_version.outputs.VERSION }}
+        body: |
+          ## Private Blockchain CLI ${{ steps.get_version.outputs.VERSION }}
+          
+          Command Line Interface for Private Blockchain operations.
+          
+          ## Download Options
+          - **blockchain-cli.jar**: Executable CLI JAR (Maven Shade - recommended)
+          - **blockchain-cli-assembly-jar-with-dependencies.jar**: Alternative executable JAR (Maven Assembly)
+          
+          ## Usage
+          ```bash
+          # Using the CLI
+          java -jar blockchain-cli.jar --help
+          
+          # Example commands
+          java -jar blockchain-cli.jar create-wallet
+          java -jar blockchain-cli.jar send-transaction --from <address> --to <address> --amount <amount>
+          java -jar blockchain-cli.jar balance --address <address>
+          ```
+          
+          ## Requirements
+          - Java 21 or higher
+          - No additional dependencies needed (all included)
+        files: |
+          target/blockchain-cli.jar
+          target/blockchain-cli-assembly-jar-with-dependencies.jar
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

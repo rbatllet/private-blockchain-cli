@@ -1,0 +1,69 @@
+name: Build CLI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout CLI code
+      uses: actions/checkout@v4
+    
+    - name: Checkout core blockchain library
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ github.repository_owner }}/privateBlockchain
+        path: ../privateBlockchain
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+    
+    - name: Cache Maven dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    
+    - name: Install core blockchain library to local repository
+      run: |
+        cd ../privateBlockchain
+        mvn clean install -DskipTests
+    
+    - name: Run CLI tests
+      run: mvn clean test
+    
+    - name: Build CLI JAR
+      run: mvn clean package
+    
+    - name: List generated files
+      run: |
+        echo "Generated JAR files:"
+        ls -la target/*.jar
+    
+    - name: Upload CLI JAR artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: blockchain-cli-jars
+        path: |
+          target/blockchain-cli.jar
+          target/blockchain-cli-assembly-jar-with-dependencies.jar
+          target/private-blockchain-cli-*.jar
+        retention-days: 30
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: cli-test-results
+        path: target/surefire-reports/
+        retention-days: 30
