@@ -30,8 +30,8 @@ jobs:
     - name: Checkout and build core blockchain dependency
       run: |
         echo "Cloning and building core blockchain..."
-        git clone https://github.com/${{ github.repository_owner }}/privateBlockchain.git ../privateBlockchain
-        cd ../privateBlockchain
+        git clone https://github.com/${{ github.repository_owner }}/private-blockchain.git ../private-blockchain
+        cd ../private-blockchain
         mvn clean install -DskipTests -q
         echo "Core blockchain installed to local repository"
     

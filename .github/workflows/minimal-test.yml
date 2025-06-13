@@ -1,0 +1,52 @@
+name: Minimal Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  minimal:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+    
+    - name: Test basic commands
+      run: |
+        java -version
+        mvn -version
+        echo "Project files:"
+        ls -la
+    
+    - name: Check pom.xml
+      run: |
+        echo "=== POM.XML CONTENT ==="
+        cat pom.xml
+    
+    - name: Test Maven without dependencies
+      run: |
+        echo "Testing mvn help..."
+        mvn help:effective-pom -q
+        echo "Testing mvn validate..."
+        mvn validate
+    
+    - name: Create dummy JAR manually
+      run: |
+        echo "Creating test JAR to verify upload works..."
+        mkdir -p target
+        echo "test content" > target/test.txt
+        cd target
+        jar cf test-upload.jar test.txt
+        ls -la *.jar
+    
+    - name: Test artifact upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-upload
+        path: target/test-upload.jar
