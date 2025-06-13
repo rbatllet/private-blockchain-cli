@@ -27,66 +27,18 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     
-    - name: Download latest core blockchain JAR from GitHub Actions
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Checkout and build core blockchain dependency
       run: |
-        echo "Downloading latest core blockchain JAR from Actions artifacts..."
-        
-        # Get the latest successful workflow run for privateBlockchain
-        LATEST_RUN=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-          "https://api.github.com/repos/${{ github.repository_owner }}/privateBlockchain/actions/runs?status=success&per_page=1" \
-          | jq -r '.workflow_runs[0].id')
-        
-        if [ "$LATEST_RUN" != "null" ] && [ ! -z "$LATEST_RUN" ]; then
-          echo "Found latest run: $LATEST_RUN"
-          
-          # Get artifacts from that run
-          ARTIFACT_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-            "https://api.github.com/repos/${{ github.repository_owner }}/privateBlockchain/actions/runs/$LATEST_RUN/artifacts" \
-            | jq -r '.artifacts[] | select(.name=="private-blockchain-jars") | .id')
-          
-          if [ "$ARTIFACT_ID" != "null" ] && [ ! -z "$ARTIFACT_ID" ]; then
-            echo "Downloading artifact: $ARTIFACT_ID"
-            curl -L -H "Authorization: token $GITHUB_TOKEN" \
-              "https://api.github.com/repos/${{ github.repository_owner }}/privateBlockchain/actions/artifacts/$ARTIFACT_ID/zip" \
-              -o core-jars.zip
-            
-            unzip -q core-jars.zip
-            
-            # Find the JAR with dependencies
-            CORE_JAR=$(find . -name "*jar-with-dependencies.jar" | head -1)
-            if [ ! -z "$CORE_JAR" ]; then
-              echo "Found core JAR: $CORE_JAR"
-              mvn install:install-file \
-                -Dfile="$CORE_JAR" \
-                -DgroupId=com.rbatllet \
-                -DartifactId=private-blockchain \
-                -Dversion=1.0.0 \
-                -Dpackaging=jar
-              echo "CORE_AVAILABLE=true" >> $GITHUB_ENV
-            fi
-          fi
-        fi
-        
-        if [ "$CORE_AVAILABLE" != "true" ]; then
-          echo "Core JAR not available from Actions, will skip tests"
-          echo "CORE_AVAILABLE=false" >> $GITHUB_ENV
-        fi
+        echo "Cloning and building core blockchain..."
+        git clone https://github.com/${{ github.repository_owner }}/privateBlockchain.git ../privateBlockchain
+        cd ../privateBlockchain
+        mvn clean install -DskipTests -q
+        echo "Core blockchain installed to local repository"
     
-    - name: Run tests (if core available)
-      if: env.CORE_AVAILABLE == 'true'
-      run: mvn clean test
-    
-    - name: Build CLI JAR
+    - name: Build CLI with tests
       run: |
-        if [ "$CORE_AVAILABLE" == "true" ]; then
-          echo "Building with full dependencies..."
-          mvn clean package
-        else
-          echo "Building without tests (core not available)..."
-          mvn clean package -DskipTests
-        fi
+        echo "Building CLI with full test suite..."
+        mvn clean package
     
     - name: List generated files
       run: |
@@ -102,8 +54,17 @@ jobs:
     
     - name: Upload test results
       uses: actions/upload-artifact@v4
-      if: always() && env.CORE_AVAILABLE == 'true'
+      if: always()
       with:
         name: cli-test-results
         path: target/surefire-reports/
         retention-days: 30
+
+    - name: Build summary
+      run: |
+        echo "🎉 Build completed successfully!"
+        echo "📦 Generated JARs:"
+        ls -la target/*.jar
+        echo ""
+        echo "💾 JAR sizes:"
+        du -h target/*.jar

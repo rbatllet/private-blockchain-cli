@@ -26,7 +26,6 @@
             <groupId>com.rbatllet</groupId>
             <artifactId>private-blockchain</artifactId>
             <version>1.0.0</version>
-            <optional>true</optional>
         </dependency>
 
         <!-- PicoCLI for command line interface -->

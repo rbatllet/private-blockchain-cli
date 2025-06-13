@@ -1,0 +1,59 @@
+name: Debug Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master, develop ]
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+    
+    - name: Show project structure
+      run: |
+        echo "=== PROJECT STRUCTURE ==="
+        find . -type f -name "*.java" | head -10
+        echo ""
+        echo "=== POM.XML CONTENT ==="
+        cat pom.xml
+    
+    - name: Try compilation with verbose errors
+      run: |
+        echo "=== TRYING CLEAN ==="
+        mvn clean -X
+        echo ""
+        echo "=== TRYING COMPILE ==="
+        mvn compile -X -e
+      continue-on-error: true
+    
+    - name: Check if compilation worked
+      run: |
+        echo "=== CHECKING COMPILED CLASSES ==="
+        find target -name "*.class" 2>/dev/null || echo "No compiled classes found"
+        echo ""
+        echo "=== TARGET DIRECTORY CONTENT ==="
+        ls -la target/ 2>/dev/null || echo "No target directory"
+    
+    - name: Try package without tests
+      run: |
+        echo "=== TRYING PACKAGE ==="
+        mvn package -DskipTests -X -e
+      continue-on-error: true
+    
+    - name: Final status check
+      run: |
+        echo "=== FINAL TARGET CONTENT ==="
+        find target -type f 2>/dev/null || echo "No target directory or files"
+        echo ""
+        echo "=== ALL JAR FILES IN PROJECT ==="
+        find . -name "*.jar" 2>/dev/null || echo "No JAR files found anywhere"
