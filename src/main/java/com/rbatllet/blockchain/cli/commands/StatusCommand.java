@@ -4,6 +4,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
+import com.rbatllet.blockchain.cli.util.ExitUtil;
 
 /**
  * Command to show blockchain status and statistics
@@ -39,7 +40,7 @@ public class StatusCommand implements Runnable {
             
         } catch (Exception e) {
             BlockchainCLI.error("Failed to get blockchain status: " + e.getMessage());
-            System.exit(1);
+            ExitUtil.exit(1);
         }
     }
     

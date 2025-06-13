@@ -170,21 +170,38 @@ java -jar blockchain-cli.jar validate --detailed
 
 ### Complete Workflow Example
 
-Here's a complete workflow that demonstrates all major features including the new `--signer` functionality:
+Here's a complete workflow that demonstrates all major features including the new secure private key management:
 
 ```bash
 # 1. Check initial status
 java -jar blockchain-cli.jar status
 
-# 2. Add an authorized key
-java -jar blockchain-cli.jar add-key "Alice" --generate
+# 2. Set up users with different security levels
+# Production user with stored private key
+java -jar blockchain-cli.jar add-key "Alice" --generate --store-private
+🔐 Enter password to protect private key: [hidden]
+🔒 Private key stored securely for: Alice
 
-# 3. List all keys to verify
+# Demo user without stored private key
+java -jar blockchain-cli.jar add-key "Bob" --generate
+
+# 3. List all keys and check stored private keys
 java -jar blockchain-cli.jar list-keys --detailed
+java -jar blockchain-cli.jar manage-keys --list
 
 # 4. Add blocks using different signing methods
-java -jar blockchain-cli.jar add-block "First transaction" --signer Alice
-java -jar blockchain-cli.jar add-block "Auto-generated key transaction" --generate-key
+# Production signing (requires password)
+java -jar blockchain-cli.jar add-block "Production transaction" --signer Alice
+🔐 Enter password for Alice: [hidden]
+✅ Using stored private key for signer: Alice
+
+# Demo mode signing (temporary key)
+java -jar blockchain-cli.jar add-block "Demo transaction" --signer Bob
+⚠️  DEMO MODE: No stored private key found for signer: Bob
+🔑 DEMO: Created temporary key for existing signer: Bob
+
+# Quick test with auto-generated key
+java -jar blockchain-cli.jar add-block "Test transaction" --generate-key
 
 # 5. Validate blockchain integrity
 java -jar blockchain-cli.jar validate --detailed
@@ -267,6 +284,42 @@ java -jar blockchain-cli.jar list-keys --detailed
 # JSON output for processing
 java -jar blockchain-cli.jar list-keys --json
 ```
+
+#### `manage-keys` - Manage Private Keys ✅ **NEW**
+
+Manage securely stored private keys for production signing.
+
+```bash
+# List all stored private keys
+java -jar blockchain-cli.jar manage-keys --list
+🔐 Stored Private Keys:
+🔑 Alice
+🔑 Manager
+📊 Total: 2 stored private key(s)
+
+# Check if a specific user has stored private key
+java -jar blockchain-cli.jar manage-keys --check Alice
+✅ Private key is stored for: Alice
+
+# Test password for a stored private key
+java -jar blockchain-cli.jar manage-keys --test Alice
+🔐 Enter password for Alice: [hidden]
+✅ Password is correct for: Alice
+
+# Delete a stored private key (with confirmation)
+java -jar blockchain-cli.jar manage-keys --delete Alice
+⚠️  Are you sure you want to delete the private key for 'Alice'? (yes/no): yes
+🗑️  Private key deleted for: Alice
+
+# JSON output for automation
+java -jar blockchain-cli.jar manage-keys --list --json
+```
+
+**🔐 Private Key Security Features:**
+- ✅ **AES-128 encryption** protects stored keys
+- ✅ **Password validation** ensures strong passwords
+- ✅ **Secure input** hides passwords during entry
+- ✅ **Confirmation prompts** prevent accidental deletion
 
 #### `add-block` - Add New Block ✅
 
@@ -691,6 +744,8 @@ For the most up-to-date information and detailed documentation, please refer to 
 ### Getting Help
 - 📖 Check [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for common issues
 - 💬 Review [EXAMPLES.md](EXAMPLES.md) for usage patterns
+- 🔐 See [SECURE_KEY_MANAGEMENT.md](SECURE_KEY_MANAGEMENT.md) for production security **NEW**
+- 🔧 Check [SIGNER_TROUBLESHOOTING.md](SIGNER_TROUBLESHOOTING.md) for --signer issues
 - 🏢 See [ENTERPRISE_GUIDE.md](ENTERPRISE_GUIDE.md) for advanced setups
 
 ### Project Information

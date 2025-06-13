@@ -5,6 +5,9 @@ import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Option;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
+import com.rbatllet.blockchain.cli.security.SecureKeyStorage;
+import com.rbatllet.blockchain.cli.security.PasswordUtil;
+import com.rbatllet.blockchain.cli.util.ExitUtil;
 import com.rbatllet.blockchain.util.CryptoUtil;
 
 import java.security.KeyPair;
@@ -37,6 +40,10 @@ public class AddKeyCommand implements Runnable {
             description = "Show private key when generating (CAUTION: Keep secure!)")
     boolean showPrivateKey = false;
     
+    @Option(names = {"--store-private"}, 
+            description = "Store private key securely for use with --signer")
+    boolean storePrivateKey = false;
+    
     @Override
     public void run() {
         try {
@@ -45,7 +52,7 @@ public class AddKeyCommand implements Runnable {
             // Validate owner name
             if (ownerName == null || ownerName.trim().isEmpty()) {
                 BlockchainCLI.error("Owner name cannot be empty");
-                System.exit(1);
+                ExitUtil.exit(1);
             }
             
             Blockchain blockchain = new Blockchain();
@@ -63,11 +70,40 @@ public class AddKeyCommand implements Runnable {
                     privateKeyForDisplay = CryptoUtil.privateKeyToString(keyPair.getPrivate());
                 }
                 
+                // Store private key securely if requested
+                if (storePrivateKey) {
+                    BlockchainCLI.verbose("Storing private key securely...");
+                    
+                    String password = PasswordUtil.readPasswordWithConfirmation("🔐 Enter password to protect private key: ");
+                    if (password == null) {
+                        BlockchainCLI.error("Password input cancelled");
+                        ExitUtil.exit(1);
+                    }
+                    
+                    if (!PasswordUtil.isValidPassword(password)) {
+                        ExitUtil.exit(1);
+                    }
+                    
+                    if (SecureKeyStorage.savePrivateKey(ownerName, keyPair.getPrivate(), password)) {
+                        BlockchainCLI.info("🔒 Private key stored securely for: " + ownerName);
+                        BlockchainCLI.info("💡 You can now use --signer " + ownerName + " with add-block command");
+                    } else {
+                        BlockchainCLI.error("Failed to store private key");
+                        ExitUtil.exit(1);
+                    }
+                }
+                
                 BlockchainCLI.verbose("Generated key pair successfully");
             } else {
                 // Use provided public key
                 finalPublicKey = publicKeyString;
                 BlockchainCLI.verbose("Using provided public key");
+                
+                if (storePrivateKey) {
+                    BlockchainCLI.error("Cannot store private key when using provided public key");
+                    BlockchainCLI.error("Use --generate with --store-private to generate and store a key pair");
+                    ExitUtil.exit(1);
+                }
             }
             
             // Add the authorized key
@@ -100,7 +136,7 @@ public class AddKeyCommand implements Runnable {
                 } else {
                     BlockchainCLI.error("Failed to add authorized key (key may already exist)");
                 }
-                System.exit(1);
+                ExitUtil.exit(1);
             }
             
         } catch (Exception e) {
@@ -108,7 +144,7 @@ public class AddKeyCommand implements Runnable {
             if (BlockchainCLI.verbose) {
                 e.printStackTrace();
             }
-            System.exit(1);
+            ExitUtil.exit(1);
         }
     }
     

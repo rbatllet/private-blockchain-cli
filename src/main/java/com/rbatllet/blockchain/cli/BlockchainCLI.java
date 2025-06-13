@@ -4,6 +4,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import com.rbatllet.blockchain.cli.commands.*;
+import com.rbatllet.blockchain.cli.util.ExitUtil;
 
 /**
  * Main CLI application for Private Blockchain
@@ -19,6 +20,7 @@ import com.rbatllet.blockchain.cli.commands.*;
              AddBlockCommand.class,
              AddKeyCommand.class,
              ListKeysCommand.class,
+             ManageKeysCommand.class,
              ExportCommand.class,
              ImportCommand.class,
              SearchCommand.class,
@@ -45,13 +47,13 @@ public class BlockchainCLI implements Runnable {
     public static void main(String[] args) {
         try {
             int exitCode = new CommandLine(new BlockchainCLI()).execute(args);
-            System.exit(exitCode);
+            ExitUtil.exit(exitCode);
         } catch (Exception e) {
             System.err.println("Unexpected error: " + e.getMessage());
             if (verbose) {
                 e.printStackTrace();
             }
-            System.exit(1);
+            ExitUtil.exit(1);
         }
     }
     

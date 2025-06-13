@@ -3,6 +3,7 @@ package com.rbatllet.blockchain.cli.commands;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.entity.AuthorizedKey;
 import com.rbatllet.blockchain.util.CryptoUtil;
+import com.rbatllet.blockchain.cli.util.ExitUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
@@ -17,7 +18,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Manual test to verify the --signer bug fix without System.exit() issues
+ * Manual test to verify the --signer bug fix without ExitUtil.exit() issues
  * This test directly tests the blockchain functionality rather than the CLI
  */
 public class AddBlockCommandManualTest {

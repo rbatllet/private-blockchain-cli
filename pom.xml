@@ -68,13 +68,6 @@
                         --add-opens java.base/java.lang=ALL-UNNAMED
                         --add-opens java.base/java.util=ALL-UNNAMED
                     </argLine>
-                    <excludes>
-                        <exclude>**/BlockchainCLIIntegrationTest.java</exclude>
-                        <exclude>**/SearchCommandTest.java</exclude>
-                        <exclude>**/AddBlockCommandTest.java</exclude>
-                        <exclude>**/AddKeyCommandTest.java</exclude>
-                        <exclude>**/ExportCommandTest.java</exclude>
-                    </excludes>
                 </configuration>
             </plugin>
 

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import picocli.CommandLine;
+import com.rbatllet.blockchain.cli.util.ExitUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -31,6 +32,9 @@ public class BlockchainCLITest {
         System.setOut(new PrintStream(outContent));
         System.setErr(new PrintStream(errContent));
         
+        // Disable System.exit() for testing
+        ExitUtil.disableExit();
+        
         // Create temporary directory for test database
         tempDirectory = Files.createTempDirectory("blockchain-cli-test");
         System.setProperty("user.dir", tempDirectory.toString());
@@ -44,6 +48,9 @@ public class BlockchainCLITest {
         // Restore standard output
         System.setOut(originalOut);
         System.setErr(originalErr);
+        
+        // Re-enable System.exit() after testing
+        ExitUtil.enableExit();
         
         // Clean up temporary files
         if (tempDirectory != null && Files.exists(tempDirectory)) {
@@ -121,7 +128,7 @@ public class BlockchainCLITest {
         // Test that main method handles args correctly
         assertDoesNotThrow(() -> {
             String[] args = {"--version"};
-            // We can't easily test main() without System.exit, so just verify structure
+            // We can't easily test main() without ExitUtil.exit, so just verify structure
             assertNotNull(args);
         });
     }

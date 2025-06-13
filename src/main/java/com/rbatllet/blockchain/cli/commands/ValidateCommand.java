@@ -5,6 +5,7 @@ import picocli.CommandLine.Option;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.entity.Block;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
+import com.rbatllet.blockchain.cli.util.ExitUtil;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -55,7 +56,7 @@ public class ValidateCommand implements Runnable {
             
             // Exit with error code if validation failed
             if (!isValid) {
-                System.exit(1);
+                ExitUtil.exit(1);
             }
             
         } catch (Exception e) {
@@ -63,7 +64,7 @@ public class ValidateCommand implements Runnable {
             if (BlockchainCLI.verbose) {
                 e.printStackTrace();
             }
-            System.exit(1);
+            ExitUtil.exit(1);
         }
     }
     

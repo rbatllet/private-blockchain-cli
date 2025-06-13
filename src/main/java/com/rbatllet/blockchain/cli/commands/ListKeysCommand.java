@@ -5,6 +5,7 @@ import picocli.CommandLine.Option;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.entity.AuthorizedKey;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
+import com.rbatllet.blockchain.cli.util.ExitUtil;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -54,7 +55,7 @@ public class ListKeysCommand implements Runnable {
             if (BlockchainCLI.verbose) {
                 e.printStackTrace();
             }
-            System.exit(1);
+            ExitUtil.exit(1);
         }
     }
     

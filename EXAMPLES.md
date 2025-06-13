@@ -1,10 +1,11 @@
 # 💡 Blockchain CLI Examples
 
-Comprehensive examples and use cases for the Private Blockchain CLI, featuring the new enhanced `--signer` functionality.
+Comprehensive examples and use cases for the Private Blockchain CLI, featuring the new enhanced `--signer` functionality and secure private key management.
 
 ## 📋 Table of Contents
 
 - [Quick Start Examples](#-quick-start-examples)
+- [Secure Key Management Examples](#-secure-key-management-examples)
 - [Advanced Signer Workflows](#-advanced-signer-workflows)
 - [Real-World Use Cases](#-real-world-use-cases)
 - [Advanced Scenarios](#-advanced-scenarios)
@@ -13,7 +14,7 @@ Comprehensive examples and use cases for the Private Blockchain CLI, featuring t
 
 ## 🚀 Quick Start Examples
 
-### Example 1: First-Time Setup with Multiple Users
+### Example 1: First-Time Setup with Secure Keys
 ```bash
 # Step 1: Check if CLI is working
 java -jar blockchain-cli.jar --version
@@ -23,21 +24,106 @@ java -jar blockchain-cli.jar --version
 java -jar blockchain-cli.jar status
 # Creates genesis block automatically
 
-# Step 3: Set up multiple authorized users
-java -jar blockchain-cli.jar add-key "Alice" --generate
+# Step 3: Set up users with different security levels
+# Production user with stored private key
+java -jar blockchain-cli.jar add-key "Alice" --generate --store-private
+🔐 Enter password to protect private key: [hidden]
+Confirm password: [hidden]
+🔒 Private key stored securely for: Alice
+
+# Demo users without stored private keys
 java -jar blockchain-cli.jar add-key "Bob" --generate
-java -jar blockchain-cli.jar add-key "Manager" --generate
+java -jar blockchain-cli.jar add-key "Charlie" --generate
 
-# Step 4: Verify users are added
+# Step 4: Verify users and check stored keys
 java -jar blockchain-cli.jar list-keys --detailed
+java -jar blockchain-cli.jar manage-keys --list
 
-# Step 5: Add blocks using different signers
-java -jar blockchain-cli.jar add-block "Alice's first entry" --signer Alice
-java -jar blockchain-cli.jar add-block "Bob's contribution" --signer Bob
-java -jar blockchain-cli.jar add-block "Manager approval" --signer Manager
+# Step 5: Add blocks using different security modes
+# Production mode (requires password)
+java -jar blockchain-cli.jar add-block "Secure production data" --signer Alice
+🔐 Enter password for Alice: [hidden]
+✅ Using stored private key for signer: Alice
+
+# Demo mode (temporary keys)
+java -jar blockchain-cli.jar add-block "Demo data from Bob" --signer Bob
+⚠️  DEMO MODE: No stored private key found for signer: Bob
+🔑 DEMO: Created temporary key for existing signer: Bob
 
 # Step 6: Verify everything worked
 java -jar blockchain-cli.jar validate --detailed
+```
+
+## 🔐 Secure Key Management Examples
+
+### Example 1: Setting Up Production Environment
+```bash
+# Create secure production users
+java -jar blockchain-cli.jar add-key "CEO" --generate --store-private
+java -jar blockchain-cli.jar add-key "CFO" --generate --store-private  
+java -jar blockchain-cli.jar add-key "CTO" --generate --store-private
+
+# Verify all keys are stored securely
+java -jar blockchain-cli.jar manage-keys --list
+🔐 Stored Private Keys:
+🔑 CEO
+🔑 CFO
+🔑 CTO
+📊 Total: 3 stored private key(s)
+
+# Test access to stored keys
+java -jar blockchain-cli.jar manage-keys --test CEO
+🔐 Enter password for CEO: [hidden]
+✅ Password is correct for: CEO
+
+# Use secure keys for critical operations
+java -jar blockchain-cli.jar add-block "Q4 Financial Results Approved" --signer CEO
+java -jar blockchain-cli.jar add-block "Budget for 2026 Allocated" --signer CFO
+java -jar blockchain-cli.jar add-block "Security Audit Completed" --signer CTO
+```
+
+### Example 2: Mixed Environment (Production + Development)
+```bash
+# Production users with stored keys
+java -jar blockchain-cli.jar add-key "ProductionUser" --generate --store-private
+java -jar blockchain-cli.jar add-key "AuditUser" --generate --store-private
+
+# Development users without stored keys
+java -jar blockchain-cli.jar add-key "DevUser1" --generate
+java -jar blockchain-cli.jar add-key "TestUser" --generate
+
+# Check security setup
+java -jar blockchain-cli.jar manage-keys --list
+java -jar blockchain-cli.jar manage-keys --check ProductionUser
+java -jar blockchain-cli.jar manage-keys --check DevUser1
+
+# Production operations (secure)
+java -jar blockchain-cli.jar add-block "Customer data processed" --signer ProductionUser
+🔐 Enter password for ProductionUser: [hidden]
+✅ Using stored private key for signer: ProductionUser
+
+# Development operations (demo mode)  
+java -jar blockchain-cli.jar add-block "Test data for debugging" --signer DevUser1
+⚠️  DEMO MODE: No stored private key found for signer: DevUser1
+🔑 DEMO: Created temporary key for existing signer: DevUser1
+```
+
+### Example 3: Key Lifecycle Management
+```bash
+# Create user with stored key
+java -jar blockchain-cli.jar add-key "TempUser" --generate --store-private
+
+# Use the key for some operations
+java -jar blockchain-cli.jar add-block "Temporary operation" --signer TempUser
+
+# When user leaves or key compromised, remove stored key
+java -jar blockchain-cli.jar manage-keys --delete TempUser
+⚠️  Are you sure you want to delete the private key for 'TempUser'? (yes/no): yes
+🗑️  Private key deleted for: TempUser
+
+# User can still be used but will fall back to demo mode
+java -jar blockchain-cli.jar add-block "Post-deletion operation" --signer TempUser
+⚠️  DEMO MODE: No stored private key found for signer: TempUser
 ```
 
 ### Example 2: Daily Operations with Role-Based Signing

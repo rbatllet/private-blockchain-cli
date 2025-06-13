@@ -6,6 +6,7 @@ import picocli.CommandLine.Parameters;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.entity.Block;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
+import com.rbatllet.blockchain.cli.util.ExitUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -110,7 +111,7 @@ public class SearchCommand implements Runnable {
             } else {
                 BlockchainCLI.error("No search criteria specified");
                 System.out.println("Use one of: --content, --hash, --block-number, --date-from/--date-to, or provide a search term");
-                System.exit(1);
+                ExitUtil.exit(1);
             }
             
             // Apply limit
@@ -129,7 +130,7 @@ public class SearchCommand implements Runnable {
             if (BlockchainCLI.verbose) {
                 e.printStackTrace();
             }
-            System.exit(1);
+            ExitUtil.exit(1);
         }
     }
     
@@ -144,7 +145,7 @@ public class SearchCommand implements Runnable {
             
         } catch (DateTimeParseException e) {
             BlockchainCLI.error("Invalid date format. Use yyyy-MM-dd");
-            System.exit(1);
+            ExitUtil.exit(1);
             return new ArrayList<>();
         }
     }
@@ -162,7 +163,7 @@ public class SearchCommand implements Runnable {
             
         } catch (DateTimeParseException e) {
             BlockchainCLI.error("Invalid datetime format. Use yyyy-MM-dd HH:mm");
-            System.exit(1);
+            ExitUtil.exit(1);
             return new ArrayList<>();
         }
     }

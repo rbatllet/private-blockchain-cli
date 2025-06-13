@@ -5,6 +5,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
+import com.rbatllet.blockchain.cli.util.ExitUtil;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -45,7 +46,7 @@ public class ExportCommand implements Runnable {
             // Validate output file path
             if (outputFile == null || outputFile.trim().isEmpty()) {
                 BlockchainCLI.error("Output file path cannot be empty");
-                System.exit(1);
+                ExitUtil.exit(1);
             }
             
             // Check if file exists and handle overwrite
@@ -55,7 +56,7 @@ public class ExportCommand implements Runnable {
             if (file.exists() && !overwrite) {
                 BlockchainCLI.error("File already exists: " + outputFile);
                 System.out.println("Use --overwrite flag to replace existing file");
-                System.exit(1);
+                ExitUtil.exit(1);
             }
             
             // Ensure parent directories exist
@@ -64,7 +65,7 @@ public class ExportCommand implements Runnable {
                 BlockchainCLI.verbose("Creating parent directories: " + parentDir.getAbsolutePath());
                 if (!parentDir.mkdirs()) {
                     BlockchainCLI.error("Failed to create parent directories");
-                    System.exit(1);
+                    ExitUtil.exit(1);
                 }
             }
             
@@ -72,7 +73,7 @@ public class ExportCommand implements Runnable {
             if (!"json".equalsIgnoreCase(format)) {
                 BlockchainCLI.error("Unsupported export format: " + format);
                 System.out.println("Supported formats: json");
-                System.exit(1);
+                ExitUtil.exit(1);
             }
             
             Blockchain blockchain = new Blockchain();
@@ -108,7 +109,7 @@ public class ExportCommand implements Runnable {
                 } else {
                     BlockchainCLI.error("Failed to export blockchain");
                 }
-                System.exit(1);
+                ExitUtil.exit(1);
             }
             
         } catch (Exception e) {
@@ -116,7 +117,7 @@ public class ExportCommand implements Runnable {
             if (BlockchainCLI.verbose) {
                 e.printStackTrace();
             }
-            System.exit(1);
+            ExitUtil.exit(1);
         }
     }
     

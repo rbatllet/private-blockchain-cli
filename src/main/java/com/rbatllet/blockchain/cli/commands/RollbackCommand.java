@@ -5,6 +5,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
+import com.rbatllet.blockchain.cli.util.ExitUtil;
 import java.util.Scanner;
 
 /**
@@ -46,13 +47,13 @@ public class RollbackCommand implements Runnable {
             // Validate input parameters
             if (blocksToRemove != null && targetBlock != null) {
                 BlockchainCLI.error("Cannot specify both --blocks and --to-block options");
-                System.exit(2);
+                ExitUtil.exit(2);
                 return;
             }
             
             if (blocksToRemove == null && targetBlock == null) {
                 BlockchainCLI.error("Must specify either --blocks N or --to-block N");
-                System.exit(2);
+                ExitUtil.exit(2);
                 return;
             }
             
@@ -64,7 +65,7 @@ public class RollbackCommand implements Runnable {
             if (blocksToRemove != null) {
                 if (blocksToRemove <= 0) {
                     BlockchainCLI.error("Number of blocks must be positive");
-                    System.exit(2);
+                    ExitUtil.exit(2);
                     return;
                 }
                 
@@ -72,7 +73,7 @@ public class RollbackCommand implements Runnable {
                     BlockchainCLI.error("Cannot remove " + blocksToRemove + 
                                       " blocks. Only " + currentBlockCount + 
                                       " blocks exist (including genesis block)");
-                    System.exit(1);
+                    ExitUtil.exit(1);
                     return;
                 }
                 
@@ -82,14 +83,14 @@ public class RollbackCommand implements Runnable {
             } else if (targetBlock != null) {
                 if (targetBlock < 0) {
                     BlockchainCLI.error("Target block number cannot be negative");
-                    System.exit(2);
+                    ExitUtil.exit(2);
                     return;
                 }
                 
                 if (targetBlock >= currentBlockCount) {
                     BlockchainCLI.error("Target block " + targetBlock + 
                                       " does not exist. Current max block: " + (currentBlockCount - 1));
-                    System.exit(1);
+                    ExitUtil.exit(1);
                     return;
                 }
                 
@@ -140,7 +141,7 @@ public class RollbackCommand implements Runnable {
                 } else {
                     BlockchainCLI.error("Rollback operation failed");
                 }
-                System.exit(1);
+                ExitUtil.exit(1);
             }
             
         } catch (Exception e) {
@@ -149,7 +150,7 @@ public class RollbackCommand implements Runnable {
             } else {
                 BlockchainCLI.error("Rollback failed: " + e.getMessage());
             }
-            System.exit(1);
+            ExitUtil.exit(1);
         }
     }
     

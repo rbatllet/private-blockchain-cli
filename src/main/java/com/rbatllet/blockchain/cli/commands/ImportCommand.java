@@ -5,6 +5,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
+import com.rbatllet.blockchain.cli.util.ExitUtil;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -49,7 +50,7 @@ public class ImportCommand implements Runnable {
             // Validate input file
             if (inputFile == null || inputFile.trim().isEmpty()) {
                 BlockchainCLI.error("Input file path cannot be empty");
-                System.exit(1);
+                ExitUtil.exit(1);
             }
             
             Path inputPath = Paths.get(inputFile);
@@ -57,12 +58,12 @@ public class ImportCommand implements Runnable {
             
             if (!file.exists()) {
                 BlockchainCLI.error("Import file does not exist: " + inputFile);
-                System.exit(1);
+                ExitUtil.exit(1);
             }
             
             if (!file.canRead()) {
                 BlockchainCLI.error("Cannot read import file: " + inputFile);
-                System.exit(1);
+                ExitUtil.exit(1);
             }
             
             // Get file information
@@ -109,7 +110,7 @@ public class ImportCommand implements Runnable {
                 } else {
                     BlockchainCLI.error("Failed to create backup");
                     if (!force) {
-                        System.exit(1);
+                        ExitUtil.exit(1);
                     }
                 }
             }
@@ -152,7 +153,7 @@ public class ImportCommand implements Runnable {
                 if (!isValid && validateAfter) {
                     BlockchainCLI.error("Warning: Imported blockchain failed validation!");
                     if (!force) {
-                        System.exit(1);
+                        ExitUtil.exit(1);
                     }
                 }
                 
@@ -162,7 +163,7 @@ public class ImportCommand implements Runnable {
                 } else {
                     BlockchainCLI.error("Failed to import blockchain");
                 }
-                System.exit(1);
+                ExitUtil.exit(1);
             }
             
         } catch (Exception e) {
@@ -170,7 +171,7 @@ public class ImportCommand implements Runnable {
             if (BlockchainCLI.verbose) {
                 e.printStackTrace();
             }
-            System.exit(1);
+            ExitUtil.exit(1);
         }
     }
     
