@@ -1,0 +1,55 @@
+name: Simple Build Test
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+jobs:
+  simple-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+    
+    - name: Check Java version
+      run: java -version
+    
+    - name: Create minimal dependency
+      run: |
+        mkdir -p temp-lib
+        echo "Creating minimal JAR for dependency..."
+        cat > temp-lib/Main.java << 'EOF'
+        package com.rbatllet.blockchain;
+        public class Main {
+            public static void main(String[] args) {
+                System.out.println("Dummy blockchain core");
+            }
+        }
+        EOF
+        
+        cd temp-lib
+        javac -d . Main.java
+        jar cf private-blockchain-1.0.0.jar com/
+        mvn install:install-file -Dfile=private-blockchain-1.0.0.jar -DgroupId=com.rbatllet -DartifactId=private-blockchain -Dversion=1.0.0 -Dpackaging=jar
+        cd ..
+    
+    - name: Compile only (no package)
+      run: mvn clean compile
+    
+    - name: Package (skip tests)
+      run: mvn package -DskipTests
+    
+    - name: List results
+      run: |
+        echo "Target directory contents:"
+        ls -la target/ || echo "No target directory"
+        echo "Looking for JAR files:"
+        find . -name "*.jar" -type f | head -10

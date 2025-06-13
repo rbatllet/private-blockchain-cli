@@ -27,61 +27,82 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     
-    - name: Download latest core blockchain JAR from releases
+    - name: Download latest core blockchain JAR from GitHub Actions
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        echo "Downloading latest privateBlockchain JAR..."
-        # Try to get the latest release
-        LATEST_RELEASE=$(curl -s "https://api.github.com/repos/${{ github.repository_owner }}/privateBlockchain/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-        if [ ! -z "$LATEST_RELEASE" ]; then
-          echo "Found release: $LATEST_RELEASE"
-          curl -L -o private-blockchain.jar "https://github.com/${{ github.repository_owner }}/privateBlockchain/releases/download/$LATEST_RELEASE/private-blockchain-1.0.0-jar-with-dependencies.jar"
-        else
-          echo "No releases found, will try to build without core dependency"
+        echo "Downloading latest core blockchain JAR from Actions artifacts..."
+        
+        # Get the latest successful workflow run for privateBlockchain
+        LATEST_RUN=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/${{ github.repository_owner }}/privateBlockchain/actions/runs?status=success&per_page=1" \
+          | jq -r '.workflow_runs[0].id')
+        
+        if [ "$LATEST_RUN" != "null" ] && [ ! -z "$LATEST_RUN" ]; then
+          echo "Found latest run: $LATEST_RUN"
+          
+          # Get artifacts from that run
+          ARTIFACT_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository_owner }}/privateBlockchain/actions/runs/$LATEST_RUN/artifacts" \
+            | jq -r '.artifacts[] | select(.name=="private-blockchain-jars") | .id')
+          
+          if [ "$ARTIFACT_ID" != "null" ] && [ ! -z "$ARTIFACT_ID" ]; then
+            echo "Downloading artifact: $ARTIFACT_ID"
+            curl -L -H "Authorization: token $GITHUB_TOKEN" \
+              "https://api.github.com/repos/${{ github.repository_owner }}/privateBlockchain/actions/artifacts/$ARTIFACT_ID/zip" \
+              -o core-jars.zip
+            
+            unzip -q core-jars.zip
+            
+            # Find the JAR with dependencies
+            CORE_JAR=$(find . -name "*jar-with-dependencies.jar" | head -1)
+            if [ ! -z "$CORE_JAR" ]; then
+              echo "Found core JAR: $CORE_JAR"
+              mvn install:install-file \
+                -Dfile="$CORE_JAR" \
+                -DgroupId=com.rbatllet \
+                -DartifactId=private-blockchain \
+                -Dversion=1.0.0 \
+                -Dpackaging=jar
+              echo "CORE_AVAILABLE=true" >> $GITHUB_ENV
+            fi
+          fi
+        fi
+        
+        if [ "$CORE_AVAILABLE" != "true" ]; then
+          echo "Core JAR not available from Actions, will skip tests"
+          echo "CORE_AVAILABLE=false" >> $GITHUB_ENV
         fi
     
-    - name: Install core JAR to local Maven repository (if available)
-      run: |
-        if [ -f private-blockchain.jar ]; then
-          mvn install:install-file \
-            -Dfile=private-blockchain.jar \
-            -DgroupId=com.rbatllet \
-            -DartifactId=private-blockchain \
-            -Dversion=1.0.0 \
-            -Dpackaging=jar
-          echo "Core blockchain JAR installed successfully"
-        else
-          echo "Core JAR not available, proceeding without it"
-        fi
+    - name: Run tests (if core available)
+      if: env.CORE_AVAILABLE == 'true'
+      run: mvn clean test
     
-    - name: Build CLI JAR (skip tests if core not available)
+    - name: Build CLI JAR
       run: |
-        if [ -f private-blockchain.jar ]; then
-          echo "Building with tests..."
+        if [ "$CORE_AVAILABLE" == "true" ]; then
+          echo "Building with full dependencies..."
           mvn clean package
         else
-          echo "Building without tests (core dependency not available)..."
+          echo "Building without tests (core not available)..."
           mvn clean package -DskipTests
         fi
     
     - name: List generated files
       run: |
         echo "Generated JAR files:"
-        ls -la target/*.jar || echo "No JAR files found"
+        ls -la target/*.jar
     
     - name: Upload CLI JAR artifacts
       uses: actions/upload-artifact@v4
-      if: always()
       with:
         name: blockchain-cli-jars
-        path: |
-          target/blockchain-cli.jar
-          target/blockchain-cli-assembly-jar-with-dependencies.jar
-          target/private-blockchain-cli-*.jar
+        path: target/*.jar
         retention-days: 30
     
     - name: Upload test results
       uses: actions/upload-artifact@v4
-      if: always() && hashFiles('target/surefire-reports/*') != ''
+      if: always() && env.CORE_AVAILABLE == 'true'
       with:
         name: cli-test-results
         path: target/surefire-reports/
