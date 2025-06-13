@@ -38,6 +38,15 @@ This CLI application provides a secure interface for managing a private blockcha
 ✅ **Production Ready** - Enterprise-grade error handling and logging  
 ✅ **Easy to Use** - Clear help system and examples  
 
+### 🔐 NEW: Secure Key Management Features
+
+✅ **Production-Grade Security** - AES-128 encrypted private key storage  
+✅ **Password Protection** - Strong password validation and secure input  
+✅ **Dual Mode Operation** - Demo mode for testing, production mode for real use  
+✅ **Key Lifecycle Management** - Complete CRUD operations for stored keys  
+✅ **Migration Support** - Seamless upgrade from demo to production workflows  
+✅ **Audit Trail** - Track key usage and operations  
+
 ## 📦 Prerequisites
 
 Before using this application, make sure you have:
@@ -214,6 +223,54 @@ java -jar blockchain-cli.jar export backup_$(date +%Y%m%d).json
 
 # 8. Verify the backup was created correctly
 java -jar blockchain-cli.jar validate --json
+```
+
+### Advanced Security Workflows
+
+#### Enterprise Production Workflow
+```bash
+# Setup secure keys for department heads
+java -jar blockchain-cli.jar add-key "ChiefFinancialOfficer" --generate --store-private
+java -jar blockchain-cli.jar add-key "TechnicalDirector" --generate --store-private
+java -jar blockchain-cli.jar add-key "ComplianceOfficer" --generate --store-private
+
+# Verify stored keys
+java -jar blockchain-cli.jar manage-keys --list
+
+# Sign important transactions with stored keys
+java -jar blockchain-cli.jar add-block "Q4 Budget Approved: $2.5M" --signer ChiefFinancialOfficer
+java -jar blockchain-cli.jar add-block "Security Audit Completed" --signer ComplianceOfficer
+java -jar blockchain-cli.jar add-block "System Architecture Updated" --signer TechnicalDirector
+```
+
+#### Migration from Demo to Production
+```bash
+# Current demo users
+java -jar blockchain-cli.jar list-keys
+
+# Upgrade existing user to production
+java -jar blockchain-cli.jar add-key "Alice" --generate --store-private
+# Note: This creates a new secure key for Alice while preserving her authorization
+
+# Test the upgraded user
+java -jar blockchain-cli.jar manage-keys --check Alice
+java -jar blockchain-cli.jar add-block "First production transaction" --signer Alice
+```
+
+#### Mixed Environment (Demo + Production)
+```bash
+# Production users with stored keys
+java -jar blockchain-cli.jar add-key "ProductionManager" --generate --store-private
+
+# Demo users for testing
+java -jar blockchain-cli.jar add-key "TestUser1" --generate
+java -jar blockchain-cli.jar add-key "TestUser2" --generate
+
+# Production signing (requires password)
+java -jar blockchain-cli.jar add-block "Production data" --signer ProductionManager
+
+# Demo signing (temporary keys)
+java -jar blockchain-cli.jar add-block "Test data" --signer TestUser1
 ```
 
 ## 📖 Commands
@@ -477,6 +534,55 @@ Most commands support multiple output formats:
 
 For detailed command usage, examples, and advanced scenarios, see [EXAMPLES.md](EXAMPLES.md).
 
+## 🔄 Migration Guide
+
+### Upgrading from Previous Versions
+
+If you're upgrading from an earlier version without secure key management:
+
+#### Step 1: Check Current State
+```bash
+# See what you currently have
+java -jar blockchain-cli.jar list-keys --detailed
+java -jar blockchain-cli.jar status --detailed
+```
+
+#### Step 2: Backup Everything
+```bash
+# Create a complete backup before upgrading workflows
+java -jar blockchain-cli.jar export pre_upgrade_backup_$(date +%Y%m%d).json
+```
+
+#### Step 3: Upgrade Users to Secure Keys (Optional)
+```bash
+# Existing users continue to work in demo mode
+# Optionally upgrade important users to production mode:
+java -jar blockchain-cli.jar add-key "ImportantUser" --generate --store-private
+```
+
+### Demo vs Production Mode Comparison
+
+| Feature | Demo Mode | Production Mode |
+|---------|-----------|-----------------|
+| **Private Key Storage** | Temporary | AES-encrypted, password-protected |
+| **Security Level** | ⭐⭐ Medium | ⭐⭐⭐⭐ High |
+| **Best For** | Testing, Development | Production, Enterprise |
+| **Password Required** | ❌ No | ✅ Yes |
+| **Key Persistence** | ❌ No | ✅ Yes |
+| **Audit Trail** | ⭐ Basic | ⭐⭐⭐ Complete |
+| **Compliance Ready** | ❌ No | ✅ Yes |
+
+### Quick Command Reference
+
+| Task | Command |
+|------|---------|
+| **Check stored keys** | `manage-keys --list` |
+| **Verify password** | `manage-keys --test <user>` |
+| **Remove stored key** | `manage-keys --delete <user>` |
+| **Production sign** | `add-block "data" --signer <user>` |
+| **Demo sign** | `add-block "data" --signer <user>` (if no stored key) |
+| **Quick test** | `add-block "data" --generate-key` |
+
 ## 🔨 Building from Source
 
 ### Prerequisites for Building
@@ -663,6 +769,26 @@ mvn test -Dtest=RollbackCommandTest
 - **Input Validation**: All user inputs are validated
 - **Error Handling**: Secure error messages (no sensitive data leaks)
 
+### New Security Architecture
+
+#### Secure Key Storage
+- **Encryption**: AES-128 with password-derived keys
+- **Storage Location**: `private-keys/` directory (created automatically)
+- **Password Validation**: Enforced strong password requirements
+- **Key Format**: PKCS#8 encrypted private keys
+
+#### Dual Operation Modes
+- **Demo Mode**: Temporary keys for testing and development
+- **Production Mode**: Encrypted stored keys for enterprise use
+- **Automatic Detection**: CLI automatically detects available modes
+- **Seamless Migration**: Easy upgrade path from demo to production
+
+#### Enhanced Security Features
+- **Secure Input**: Password masking during entry
+- **Key Verification**: Built-in key integrity checks
+- **Audit Logging**: Track key operations and usage
+- **Safe Defaults**: Secure-by-default configuration
+
 ## 📚 Documentation
 
 This project includes comprehensive documentation for different use cases:
@@ -671,6 +797,15 @@ This project includes comprehensive documentation for different use cases:
 - **[EXAMPLES.md](EXAMPLES.md)** - Comprehensive examples and use cases
 - **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Complete troubleshooting guide
 - **[DOCKER_GUIDE.md](DOCKER_GUIDE.md)** - Docker deployment and usage
+
+### 🔐 Security & Key Management
+- **[SECURE_KEY_MANAGEMENT.md](SECURE_KEY_MANAGEMENT.md)** - Complete secure key management guide **NEW**
+- **[SIGNER_TROUBLESHOOTING.md](SIGNER_TROUBLESHOOTING.md)** - Troubleshooting --signer issues **NEW**
+- **[PRACTICAL_EXAMPLES.md](PRACTICAL_EXAMPLES.md)** - Real-world usage examples **NEW**
+
+### 🧪 Testing & Validation
+- **[COMPREHENSIVE_TESTING.md](COMPREHENSIVE_TESTING.md)** - Complete testing guide **NEW**
+- **[VALIDATION_SUMMARY.md](VALIDATION_SUMMARY.md)** - Validation procedures summary **NEW**
 
 ### 🏢 Enterprise & Advanced Usage
 - **[ENTERPRISE_GUIDE.md](ENTERPRISE_GUIDE.md)** - Enterprise deployment and best practices
