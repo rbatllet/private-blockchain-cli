@@ -67,7 +67,7 @@ public class BlockchainCLITest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("Private Blockchain CLI v1.0.0"));
+        assertTrue(output.contains("Private Blockchain CLI v1.0.1"));
         assertTrue(output.contains("Available commands:"));
         assertTrue(output.contains("status"));
         assertTrue(output.contains("validate"));
@@ -80,7 +80,7 @@ public class BlockchainCLITest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("1.0.0"));
+        assertTrue(output.contains("1.0.1"));
     }
 
     @Test
@@ -89,7 +89,7 @@ public class BlockchainCLITest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("1.0.0"));
+        assertTrue(output.contains("1.0.1"));
     }
 
     @Test

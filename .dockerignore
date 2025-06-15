@@ -7,7 +7,7 @@ target/classes/
 target/generated-*
 target/maven-*
 target/test-*
-target/*-1.0.0.jar
+target/*-1.0.1.jar
 
 # IDE files
 .idea/

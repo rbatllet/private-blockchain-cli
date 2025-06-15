@@ -1,7 +1,7 @@
 # Simple production image using pre-built JAR
 FROM openjdk:21-jdk-slim
 LABEL maintainer="blockchain-team@company.com"
-LABEL version="1.0.0"
+LABEL version="1.0.1"
 LABEL description="Private Blockchain CLI"
 
 # Create non-root user for security

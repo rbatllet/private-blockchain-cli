@@ -18,7 +18,7 @@ Comprehensive examples and use cases for the Private Blockchain CLI, featuring t
 ```bash
 # Step 1: Check if CLI is working
 java -jar blockchain-cli.jar --version
-# Expected: 1.0.0
+# Expected: 1.0.1
 
 # Step 2: Initialize and check blockchain
 java -jar blockchain-cli.jar status
