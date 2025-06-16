@@ -30,6 +30,7 @@ The `rollback` command provides two main methods for removing blocks:
    ```bash
    blockchain rollback --to-block <N>
    ```
+   Note: Block numbers are stored as `Long` values
 
 ### Important Options
 

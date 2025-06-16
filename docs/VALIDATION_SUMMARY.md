@@ -118,9 +118,8 @@ SKIP_SECURE_TESTS=true ./test-cli.sh
 ## 📚 Documentation Enhancements
 
 ### New Documentation Files
-1. **COMPREHENSIVE_TESTING.md** (368 lines): Complete test guide
-2. **PRACTICAL_EXAMPLES.md** (487 lines): Real-world usage scenarios
-3. **Enhanced test-cli.sh** (730 lines): Integrated test suite
+1. **PRACTICAL_EXAMPLES.md**: Real-world usage scenarios
+2. **Enhanced test-cli.sh**: Integrated test suite
 
 ### Documentation Highlights
 - **Test execution guides** with different complexity levels

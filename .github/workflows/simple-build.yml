@@ -37,8 +37,8 @@ jobs:
         
         cd temp-lib
         javac -d . Main.java
-        jar cf private-blockchain-1.0.1.jar com/
-        mvn install:install-file -Dfile=private-blockchain-1.0.1.jar -DgroupId=com.rbatllet -DartifactId=private-blockchain -Dversion=1.0.1 -Dpackaging=jar
+        jar cf private-blockchain-1.0.2.jar com/
+        mvn install:install-file -Dfile=private-blockchain-1.0.2.jar -DgroupId=com.rbatllet -DartifactId=private-blockchain -Dversion=1.0.2 -Dpackaging=jar
         cd ..
     
     - name: Compile only (no package)

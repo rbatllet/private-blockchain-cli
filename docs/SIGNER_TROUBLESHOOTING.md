@@ -289,7 +289,7 @@ $ java -jar blockchain-cli.jar add-block "Test data" --signer Alice
 ℹ️  DEMO: This simulates using the --signer functionality
 🔑 Temp Public Key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
 ✅ Block added successfully!
-📦 Block number: 3
+📦 Block number: 3L
 📝 Data: Test data
 🔗 Total blocks in chain: 3
 ```

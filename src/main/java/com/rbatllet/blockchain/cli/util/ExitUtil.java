@@ -1,27 +1,23 @@
 package com.rbatllet.blockchain.cli.util;
 
 /**
- * Utility class to handle System.exit() calls in a test-friendly way
+ * Adapter class that delegates to the core ExitUtil implementation
+ * @see com.rbatllet.blockchain.util.ExitUtil
  */
 public class ExitUtil {
-    
-    private static boolean exitDisabled = false;
-    private static int lastExitCode = 0;
     
     /**
      * Disable System.exit() calls (for testing)
      */
     public static void disableExit() {
-        exitDisabled = true;
-        lastExitCode = 0; // Reset exit code when entering test mode
+        com.rbatllet.blockchain.util.ExitUtil.disableExit();
     }
     
     /**
      * Enable System.exit() calls (normal operation)
      */
     public static void enableExit() {
-        exitDisabled = false;
-        lastExitCode = 0; // Reset exit code when leaving test mode
+        com.rbatllet.blockchain.util.ExitUtil.enableExit();
     }
     
     /**
@@ -29,12 +25,7 @@ public class ExitUtil {
      * @param exitCode the exit code
      */
     public static void exit(int exitCode) {
-        if (!exitDisabled) {
-            System.exit(exitCode);
-        } else {
-            // In test mode, store the exit code instead of exiting
-            lastExitCode = exitCode;
-        }
+        com.rbatllet.blockchain.util.ExitUtil.exit(exitCode);
     }
     
     /**
@@ -42,7 +33,7 @@ public class ExitUtil {
      * @return true if exit is disabled (test mode)
      */
     public static boolean isExitDisabled() {
-        return exitDisabled;
+        return com.rbatllet.blockchain.util.ExitUtil.isExitDisabled();
     }
     
     /**
@@ -50,6 +41,6 @@ public class ExitUtil {
      * @return the last exit code, or 0 if none
      */
     public static int getLastExitCode() {
-        return lastExitCode;
+        return com.rbatllet.blockchain.util.ExitUtil.getLastExitCode();
     }
 }

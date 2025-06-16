@@ -60,7 +60,7 @@ jobs:
           ## Download Options
           - **blockchain-cli.jar**: Executable CLI JAR (Maven Shade - ~40MB - recommended)
           - **blockchain-cli-assembly-jar-with-dependencies.jar**: Alternative executable JAR (Maven Assembly - ~40MB)
-          - **private-blockchain-cli-1.0.1.jar**: Lightweight JAR (requires dependencies - ~53KB)
+          - **private-blockchain-cli-1.0.2.jar**: Lightweight JAR (requires dependencies - ~53KB)
           
           ## Usage
           ```bash
@@ -79,7 +79,7 @@ jobs:
         files: |
           target/blockchain-cli.jar
           target/blockchain-cli-assembly-jar-with-dependencies.jar
-          target/private-blockchain-cli-1.0.1.jar
+          target/private-blockchain-cli-1.0.2.jar
         draft: false
         prerelease: false
       env:

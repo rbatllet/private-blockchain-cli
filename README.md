@@ -131,7 +131,7 @@ java -jar blockchain-cli.jar --version
 
 Expected output:
 ```
-1.0.1
+1.0.2
 ```
 
 ### 2. View help information
@@ -694,7 +694,7 @@ All commands have been thoroughly tested and verified:
 
 ```bash
 # Core functionality ✅
-java -jar blockchain-cli.jar --version              # Returns: 1.0.1
+java -jar blockchain-cli.jar --version              # Returns: 1.0.2
 java -jar blockchain-cli.jar --help                 # Shows comprehensive help
 java -jar blockchain-cli.jar status                 # Shows blockchain status
 java -jar blockchain-cli.jar validate               # Full chain validation
@@ -841,7 +841,7 @@ This project includes comprehensive documentation for different use cases:
 - **[docs/PRACTICAL_EXAMPLES.md](docs/PRACTICAL_EXAMPLES.md)** - Real-world usage examples **NEW**
 
 ### 🧪 Testing & Validation
-- **[docs/COMPREHENSIVE_TESTING.md](docs/COMPREHENSIVE_TESTING.md)** - Complete testing guide **NEW**
+- **[../privateBlockchain/docs/SECURITY_CLASSES_GUIDE.md](../privateBlockchain/docs/SECURITY_CLASSES_GUIDE.md)** - Guía de clases de seguridad (migradas al core) **UPDATED**
 - **[docs/VALIDATION_SUMMARY.md](docs/VALIDATION_SUMMARY.md)** - Validation procedures summary **NEW**
 - **[docs/ROLLBACK_TESTING.md](docs/ROLLBACK_TESTING.md)** - Rollback functionality testing guide **NEW**
 - **[docs/SCRIPT_REFERENCE.md](docs/SCRIPT_REFERENCE.md)** - Comprehensive script reference **NEW**
@@ -931,7 +931,7 @@ For the most up-to-date information and detailed documentation, please refer to 
 - 🏢 See [docs/ENTERPRISE_GUIDE.md](docs/ENTERPRISE_GUIDE.md) for advanced setups
 
 ### Project Information
-- **Version**: 1.0.1
+- **Version**: 1.0.2
 - **Java Compatibility**: 21+
 - **License**: MIT License - see [LICENSE](LICENSE) file for details
 - **Build Status**: All tests passing ✅
