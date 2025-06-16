@@ -30,7 +30,7 @@ public class ExportCommand implements Runnable {
             description = "Overwrite existing file if it exists")
     boolean overwrite = false;
     
-    @Option(names = {"-j", "--json-output"}, 
+    @Option(names = {"-j", "--json"}, 
             description = "Output operation result in JSON format")
     boolean jsonOutput = false;
     

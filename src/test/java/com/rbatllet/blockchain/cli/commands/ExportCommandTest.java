@@ -104,7 +104,7 @@ public class ExportCommandTest {
     @Test
     void testExportWithJsonOutput() throws Exception {
         Path exportFile = tempDir.resolve("test_json.json");
-        int exitCode = executeCommand(exportFile.toString(), "--json-output");
+        int exitCode = executeCommand(exportFile.toString(), "--json");
         
         assertEquals(0, exitCode, "Export with JSON output should succeed");
         

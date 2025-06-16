@@ -57,7 +57,7 @@ public class HelpCommand implements Runnable {
         
         System.out.println("  📤 export          Export blockchain to file");
         System.out.println("     Usage: export \"filename\" [options]");
-        System.out.println("     Options: -f/--format, --overwrite, -j/--json-output, -c/--compress");
+        System.out.println("     Options: -f/--format, --overwrite, -j/--json, -c/--compress");
         System.out.println();
         
         System.out.println("  📥 import          Import blockchain from file");
