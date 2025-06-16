@@ -48,6 +48,21 @@ java -jar blockchain-cli.jar add-block "Secure production data" --signer Alice
 # Demo mode (temporary keys)
 java -jar blockchain-cli.jar add-block "Demo data from Bob" --signer Bob
 ⚠️  DEMO MODE: No stored private key found for signer: Bob
+
+# External key file mode (for enterprise use)
+java -jar blockchain-cli.jar add-block "Enterprise data" --key-file /path/to/keys/private_key.pem
+✅ Successfully loaded private key from file
+✅ Block added successfully!
+
+# With verbose output for detailed information
+java -jar blockchain-cli.jar add-block "Detailed logging" --key-file /path/to/keys/private_key.pem --verbose
+📡 Verbose: Attempting to load private key from file: /path/to/keys/private_key.pem
+📡 Verbose: Detected key format: PEM PKCS#8
+📡 Verbose: Successfully loaded RSA private key
+📡 Verbose: Derived public key from private key
+📡 Verbose: Auto-authorizing key with name: KeyFile-private_key.pem-1686841234567
+✅ Successfully loaded private key from file
+✅ Block added successfully!
 🔑 DEMO: Created temporary key for existing signer: Bob
 
 # Step 6: Verify everything worked
@@ -212,6 +227,16 @@ java -jar blockchain-cli.jar add-block "Test data" --generate-key
 # Error 3: Dealing with special characters in data
 java -jar blockchain-cli.jar add-block "Transaction with \"quotes\" and $symbols" --signer Alice
 java -jar blockchain-cli.jar add-block 'Data with single quotes and $variables' --signer Alice
+
+# Advanced Scenarios
+
+# Using key file with different formats
+java -jar blockchain-cli.jar add-block "PEM format example" --key-file keys/private_key.pem
+java -jar blockchain-cli.jar add-block "DER format example" --key-file keys/private_key.der
+java -jar blockchain-cli.jar add-block "Base64 format example" --key-file keys/private_key.b64
+
+# Using verbose mode for troubleshooting
+java -jar blockchain-cli.jar add-block "Verbose example" --key-file keys/private_key.pem --verbose
 ```
 
 ### Example 3: Multi-User Setup

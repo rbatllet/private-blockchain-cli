@@ -1,11 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env zsh
 
 # Rollback Tests Module for Blockchain CLI  
 # Contains all rollback-related tests
-# Version: 1.0
+# Version: 1.0.0
+# ZSH adaptation
 
 # Function to run rollback tests
-run_rollback_tests() {
+function run_rollback_tests() {
     print_header "🔄 Rollback Commands"
     
     print_warning "Testing rollback functionality (uses dry-run for safety)"

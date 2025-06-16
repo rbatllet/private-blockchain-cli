@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env zsh
 
 # Enhanced Blockchain CLI Build and Test Script
 # Comprehensive testing of all CLI commands and workflows
-# Version: 2.2 - Refactored for better modularity
+# Version: 2.3 - Refactored for better modularity and ZSH compatibility
 #
 # Environment Variables:
 #   SKIP_UNIT_TESTS=true     - Skip Maven unit tests
@@ -12,7 +12,7 @@
 # SQLITE_IOERR_SHORT_READ errors that can occur when WAL files are not properly processed.
 
 # Get the script directory and load common functions
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="${0:a:h}"
 source "$SCRIPT_DIR/lib/common-functions.sh"
 
 # Note: Removed "set -e" to be more permissive with minor failures
@@ -23,7 +23,7 @@ TESTS_FAILED=0
 TOTAL_TESTS=0
 
 # Function to run CLI command with error handling
-run_cli_test() {
+function run_cli_test() {
     local test_name="$1"
     shift
     local cmd="java -jar target/blockchain-cli.jar $*"
@@ -34,7 +34,7 @@ run_cli_test() {
     if output=$($cmd 2>&1); then
         print_success "$test_name passed"
         ((TESTS_PASSED++))
-        if [ ${#output} -gt 100 ]; then
+        if [[ ${#output} -gt 100 ]]; then
             echo "   Output: ${output:0:100}..."
         else
             echo "   Output: $output"
@@ -49,15 +49,15 @@ run_cli_test() {
 }
 
 # Function to use external database cleanup
-clean_database() {
+function clean_database() {
     # Allow skipping database cleanup with environment variable
-    if [ "${SKIP_DB_CLEANUP:-}" = "true" ]; then
+    if [[ "${SKIP_DB_CLEANUP:-}" = "true" ]]; then
         print_info "Database cleanup skipped (SKIP_DB_CLEANUP=true)"
         return 0
     fi
     
     print_info "Running database cleanup..."
-    if [ -x "$SCRIPT_DIR/clean-database.sh" ]; then
+    if [[ -x "$SCRIPT_DIR/clean-database.sh" ]]; then
         # Run the dedicated cleanup script
         "$SCRIPT_DIR/clean-database.sh"
     else
@@ -66,7 +66,7 @@ clean_database() {
 }
 
 # Function to create temporary test files
-setup_temp_files() {
+function setup_temp_files() {
     TEMP_DIR=$(mktemp -d)
     EXPORT_FILE="$TEMP_DIR/test_export.json"
     IMPORT_FILE="$TEMP_DIR/test_import.json"
@@ -74,8 +74,8 @@ setup_temp_files() {
 }
 
 # Function to cleanup
-cleanup() {
-    if [ -n "$TEMP_DIR" ] && [ -d "$TEMP_DIR" ]; then
+function cleanup() {
+    if [[ -n "$TEMP_DIR" && -d "$TEMP_DIR" ]]; then
         rm -rf "$TEMP_DIR"
         echo "🧹 Cleaned up temp directory"
     fi
@@ -117,7 +117,7 @@ else
 fi
 
 # Step 3: Run tests (if not skipped)
-if [ "${SKIP_UNIT_TESTS:-}" != "true" ]; then
+if [[ "${SKIP_UNIT_TESTS:-}" != "true" ]]; then
     echo "🧪 Running unit tests..."
     if mvn test -q -Dtest="StatusCommandTest,BlockchainCLITest" 2>/dev/null; then
         print_success "Unit tests passed"
@@ -138,7 +138,7 @@ else
 fi
 
 # Step 5: Verify the JAR was created
-if [ -f "target/blockchain-cli.jar" ]; then
+if [[ -f "target/blockchain-cli.jar" ]]; then
     JAR_SIZE=$(ls -lh target/blockchain-cli.jar | awk '{print $5}')
     print_success "JAR file created successfully: target/blockchain-cli.jar ($JAR_SIZE)"
 else
@@ -150,7 +150,7 @@ print_header "🧪 FUNCTIONAL TESTING PHASE"
 
 # Load functional tests modules
 source "$SCRIPT_DIR/lib/functional-tests.sh"
-source "$SCRIPT_DIR/lib/additional-tests.sh" 
+source "$SCRIPT_DIR/lib/additional-tests.sh"
 source "$SCRIPT_DIR/lib/secure-integration.sh"
 source "$SCRIPT_DIR/lib/rollback-tests.sh"
 
@@ -170,10 +170,10 @@ run_workflow_tests
 run_performance_tests
 
 # Run secure key management tests based on environment variables
-if [ "${SKIP_SECURE_TESTS:-}" != "true" ]; then
-    if [ "${FULL_SECURE_TESTS:-}" = "true" ]; then
+if [[ "${SKIP_SECURE_TESTS:-}" != "true" ]]; then
+    if [[ "${FULL_SECURE_TESTS:-}" = "true" ]]; then
         run_integrated_secure_tests "full"
-    elif [ "${STRESS_TESTS:-}" = "true" ]; then
+    elif [[ "${STRESS_TESTS:-}" = "true" ]]; then
         run_integrated_secure_tests "full"
         # Add stress testing here if needed
         print_info "Stress testing mode enabled"
@@ -197,7 +197,7 @@ echo ""
 # Manual cleanup
 cleanup
 
-if [ $TESTS_FAILED -eq 0 ]; then
+if [[ $TESTS_FAILED -eq 0 ]]; then
     print_success "🎉 ALL TESTS PASSED! CLI is ready for production use"
     echo ""
     echo "📝 Usage examples:"

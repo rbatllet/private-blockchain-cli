@@ -141,7 +141,7 @@ public class AddBlockCommandEnhancedTest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("Generated new key pair"));
+        assertTrue(output.contains("Generated new key pair for signing"));
         assertTrue(output.contains("Block added successfully"));
         assertTrue(output.contains("Public Key:"));
     }

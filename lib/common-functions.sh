@@ -1,8 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env zsh
 
 # Common Functions Library
 # Shared functions for blockchain CLI scripts
-# Version: 1.0
+# Version: 1.0.0
+# ZSH adaptation
 
 # Colors for output
 RED='\033[0;31m'
@@ -13,37 +14,37 @@ PURPLE='\033[0;35m'
 NC='\033[0m' # No Color
 
 # Function to print colored messages
-print_header() {
+function print_header() {
     echo -e "${BLUE}$1${NC}"
     echo "=============================================="
 }
 
-print_test() {
+function print_test() {
     echo -e "${PURPLE}📋 Test $1${NC}"
 }
 
-print_success() {
+function print_success() {
     echo -e "${GREEN}✅ $1${NC}"
 }
 
-print_error() {
+function print_error() {
     echo -e "${RED}❌ $1${NC}"
 }
 
-print_warning() {
+function print_warning() {
     echo -e "${YELLOW}⚠️  $1${NC}"
 }
 
-print_info() {
+function print_info() {
     echo -e "${BLUE}ℹ️  $1${NC}"
 }
 
 # Function to get script directory
-get_script_dir() {
-    echo "$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)"
+function get_script_dir() {
+    echo "${${(%):-%x}:a:h}"
 }
 
 # Function to check if command exists
-command_exists() {
+function command_exists() {
     command -v "$1" >/dev/null 2>&1
 }

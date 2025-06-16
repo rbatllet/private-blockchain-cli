@@ -435,18 +435,15 @@ docker run --rm -v blockchain_data:/data blockchain-cli status
 
 ### Enable Verbose Output
 
+For detailed debugging information, use the `--verbose` flag globally or with specific commands:
+
 ```bash
-# Basic verbose mode
+# Global verbose mode
 java -jar blockchain-cli.jar --verbose status
 
-# Very detailed output
-java -jar blockchain-cli.jar --verbose add-key "test" --generate
-
-# Verbose with timing
-time java -jar blockchain-cli.jar --verbose validate
+# Command-specific verbose mode
+java -jar blockchain-cli.jar add-block "Test data" --key-file keys/private.pem --verbose
 ```
-
-### Debug Information
 
 Verbose mode shows:
 - Database connection details
@@ -454,6 +451,45 @@ Verbose mode shows:
 - Internal validation results
 - Timing information
 - SQL queries (if enabled)
+- Key loading and format detection details
+- Authorization processes
+
+### Troubleshooting Key File Issues
+
+If you're having problems with the `--key-file` option:
+
+```bash
+# Enable verbose mode to see detailed key loading information
+java -jar blockchain-cli.jar add-block "Test data" --key-file keys/private.pem --verbose
+
+# Check if the key file is readable
+cat keys/private.pem | head -3
+
+# Verify key format (should show BEGIN PRIVATE KEY for PKCS#8)
+head -1 keys/private.pem
+```
+
+#### Common Key File Errors and Solutions
+
+| Error | Possible Cause | Solution |
+|-------|---------------|----------|
+| "Invalid key format" | Not in PEM PKCS#8, DER, or Base64 format | Convert to PKCS#8: `openssl pkcs8 -topk8 -in key.pem -out key_pkcs8.pem -nocrypt` |
+| "File not found" | Incorrect path or permissions | Check path and ensure read permissions: `chmod 600 keys/private.pem` |
+| "Unable to load private key" | Corrupted or encrypted key file | Ensure key is not password-protected or use proper format |
+| "Path validation failed" | Trying to access system directories | Use a path in a non-system directory |
+
+#### Converting Key Formats
+
+```bash
+# Convert RSA key to PKCS#8 format (recommended)
+openssl pkcs8 -topk8 -in original_key.pem -out key_pkcs8.pem -nocrypt
+
+# Convert PEM to DER format
+openssl pkcs8 -topk8 -in key.pem -outform DER -out key.der -nocrypt
+
+# Convert PEM to Base64 (raw)
+openssl pkcs8 -topk8 -in key.pem -outform DER -out - -nocrypt | base64 > key.b64
+```
 
 ### Logging Configuration
 
@@ -521,6 +557,29 @@ if java -jar blockchain-cli.jar validate >/dev/null; then
     echo "✅ Validation test passed"
 else
     echo "❌ Validation test failed"
+    exit 1
+fi
+
+# Test 6: Key file support (if test keys exist)
+echo "📋 Test 6: Key file support"
+if [ -f "test-keys/test_key_pkcs8.pem" ]; then
+    if java -jar blockchain-cli.jar add-block "Key file test" --key-file test-keys/test_key_pkcs8.pem >/dev/null; then
+        echo "✅ Key file test passed"
+    else
+        echo "❌ Key file test failed"
+        exit 1
+    fi
+else
+    echo "ℹ️ Skipping key file test (test-keys/test_key_pkcs8.pem not found)"
+    echo "  Create test keys with: mkdir -p test-keys && openssl genpkey -algorithm RSA -out test-keys/test_key.pem && openssl pkcs8 -topk8 -in test-keys/test_key.pem -out test-keys/test_key_pkcs8.pem -nocrypt"
+fi
+
+# Test 7: Verbose mode
+echo "📋 Test 7: Verbose mode"
+if java -jar blockchain-cli.jar --verbose status | grep -q "Verbose"; then
+    echo "✅ Verbose mode test passed"
+else
+    echo "❌ Verbose mode test failed"
     exit 1
 fi
 

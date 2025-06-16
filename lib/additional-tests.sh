@@ -1,18 +1,19 @@
-#!/bin/bash
+#!/usr/bin/env zsh
 
 # Additional Tests Module for Blockchain CLI
 # Contains error handling, workflow and performance tests
-# Version: 1.0
+# Version: 1.0.0
+# ZSH adaptation
 
 # Function to run help tests
-run_help_tests() {
+function run_help_tests() {
     print_header "❓ Help Commands"
     
     run_cli_test "Help command" help
 }
 
 # Function to run error handling tests
-run_error_handling_tests() {
+function run_error_handling_tests() {
     print_header "⚠️  Error Handling Tests"
     
     print_test "Invalid command test"
@@ -44,7 +45,7 @@ run_error_handling_tests() {
 }
 
 # Function to run workflow integration tests
-run_workflow_tests() {
+function run_workflow_tests() {
     print_header "🔄 Workflow Integration Tests"
     
     print_test "Complete workflow test"
@@ -59,7 +60,7 @@ run_workflow_tests() {
     if ! java -jar target/blockchain-cli.jar search "Genesis" >/dev/null 2>&1; then WORKFLOW_SUCCESS=false; fi
     if ! java -jar target/blockchain-cli.jar rollback --blocks 1 --dry-run >/dev/null 2>&1; then WORKFLOW_SUCCESS=false; fi
     
-    if [ "$WORKFLOW_SUCCESS" = true ]; then
+    if [[ "$WORKFLOW_SUCCESS" = true ]]; then
         print_success "Complete workflow test passed"
         ((TESTS_PASSED++))
     else
@@ -69,7 +70,7 @@ run_workflow_tests() {
 }
 
 # Function to run performance tests
-run_performance_tests() {
+function run_performance_tests() {
     print_header "⚡ Performance Tests"
     
     print_test "Performance test - multiple status calls"
@@ -80,7 +81,7 @@ run_performance_tests() {
     end_time=$(date +%s)
     duration=$((end_time - start_time))
     
-    if [ $duration -lt 30 ]; then
+    if [[ $duration -lt 30 ]]; then
         print_success "Performance test passed (5 status calls in ${duration}s)"
         ((TESTS_PASSED++))
     else
@@ -90,7 +91,7 @@ run_performance_tests() {
 }
 
 # Function to show practical examples
-show_practical_examples() {
+function show_practical_examples() {
     echo ""
     echo "🔐 SECURE KEY MANAGEMENT EXAMPLES:"
     echo "=================================="

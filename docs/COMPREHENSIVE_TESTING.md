@@ -195,11 +195,11 @@ void testCompleteWorkflowGenerateKeyAndStoreSecurely() {
 
 ### Quick Start
 ```bash
-# Make script executable
-chmod +x run_secure_tests.sh
+# Run the integrated secure test suite
+./test-cli.sh
 
-# Run the test suite
-./run_secure_tests.sh
+# Run with full secure tests enabled
+FULL_SECURE_TESTS=true ./test-cli.sh
 ```
 
 ### Test Options
@@ -328,8 +328,8 @@ jobs:
         with:
           java-version: '21'
       - name: Run Quick Tests
-        run: ./run_secure_tests.sh
-        # Select option 1 for quick tests in CI
+        run: ./test-cli.sh
+        # Integrated secure tests run as part of the main test suite
 ```
 
 ### Test Strategy for CI/CD

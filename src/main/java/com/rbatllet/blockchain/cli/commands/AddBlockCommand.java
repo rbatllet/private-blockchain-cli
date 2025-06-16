@@ -7,6 +7,7 @@ import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
 import com.rbatllet.blockchain.cli.security.SecureKeyStorage;
 import com.rbatllet.blockchain.cli.security.PasswordUtil;
+import com.rbatllet.blockchain.cli.security.KeyFileLoader;
 import com.rbatllet.blockchain.util.CryptoUtil;
 import com.rbatllet.blockchain.cli.util.ExitUtil;
 
@@ -14,6 +15,9 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.time.LocalDateTime;
 import java.security.KeyPair;
+import java.security.KeyFactory;
+import java.security.spec.RSAPrivateCrtKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 
 /**
  * Command to add a new block to the blockchain
@@ -31,7 +35,7 @@ public class AddBlockCommand implements Runnable {
     String signerName;
     
     @Option(names = {"-k", "--key-file"}, 
-            description = "Path to private key file")
+            description = "Path to private key file (PEM/DER/Base64 formats supported)")
     String keyFilePath;
     
     @Option(names = {"-g", "--generate-key"}, 
@@ -42,10 +46,14 @@ public class AddBlockCommand implements Runnable {
             description = "Output result in JSON format")
     boolean json = false;
     
+    @Option(names = {"-v", "--verbose"}, 
+            description = "Enable verbose output with detailed information")
+    boolean verbose = false;
+    
     @Override
     public void run() {
         try {
-            BlockchainCLI.verbose("Adding new block to blockchain...");
+            verboseLog("Adding new block to blockchain...");
             
             // Validate data length
             if (data == null || data.trim().isEmpty()) {
@@ -67,7 +75,7 @@ public class AddBlockCommand implements Runnable {
             PrivateKey privateKey = null;
             
             if (generateKey) {
-                BlockchainCLI.verbose("Generating new key pair...");
+                verboseLog("Generating new key pair...");
                 keyPair = CryptoUtil.generateKeyPair();
                 publicKey = keyPair.getPublic();
                 privateKey = keyPair.getPrivate();
@@ -90,7 +98,7 @@ public class AddBlockCommand implements Runnable {
                 }
             } else if (signerName != null) {
                 // Use existing authorized key by signer name
-                BlockchainCLI.verbose("Looking up authorized key for signer: " + signerName);
+                verboseLog("Looking up authorized key for signer: " + signerName);
                 
                 var authorizedKey = blockchain.getAuthorizedKeyByOwner(signerName);
                 if (authorizedKey == null) {
@@ -101,7 +109,7 @@ public class AddBlockCommand implements Runnable {
                 
                 // Check if we have the private key stored securely
                 if (SecureKeyStorage.hasPrivateKey(signerName)) {
-                    BlockchainCLI.verbose("Found stored private key for signer: " + signerName);
+                    verboseLog("Found stored private key for signer: " + signerName);
                     
                     String password = PasswordUtil.readPassword("🔐 Enter password for " + signerName + ": ");
                     if (password == null) {
@@ -126,7 +134,7 @@ public class AddBlockCommand implements Runnable {
                     }
                 } else {
                     // Fallback to demo mode if no private key is stored
-                    BlockchainCLI.verbose("No stored private key found for signer: " + signerName);
+                    verboseLog("No stored private key found for signer: " + signerName);
                     BlockchainCLI.info("⚠️  DEMO MODE: No stored private key found for signer: " + signerName);
                     BlockchainCLI.info("💡 Use 'add-key " + signerName + " --generate --store-private' to store private key");
                     
@@ -149,16 +157,72 @@ public class AddBlockCommand implements Runnable {
                 }
             } else if (keyFilePath != null) {
                 // Load private key from file
-                BlockchainCLI.error("--key-file functionality is not yet implemented");
-                BlockchainCLI.error("Use --generate-key to create a new key pair for now");
-                ExitUtil.exit(1);
+                verboseLog("Loading private key from file: " + keyFilePath);
+                
+                // Validate key file path
+                if (!KeyFileLoader.isValidKeyFilePath(keyFilePath)) {
+                    BlockchainCLI.error("Invalid key file path or file is not accessible: " + keyFilePath);
+                    ExitUtil.exit(1);
+                }
+                
+                // Detect and display file format for user info
+                String format = KeyFileLoader.detectKeyFileFormat(keyFilePath);
+                verboseLog("Detected key file format: " + format);
+                
+                // Load private key from file
+                privateKey = KeyFileLoader.loadPrivateKeyFromFile(keyFilePath);
+                if (privateKey == null) {
+                    BlockchainCLI.error("Failed to load private key from file: " + keyFilePath);
+                    BlockchainCLI.error("Supported formats: PEM (PKCS#8), DER, Base64");
+                    BlockchainCLI.error("For PEM files, use PKCS#8 format:");
+                    BlockchainCLI.error("  openssl pkcs8 -topk8 -nocrypt -in rsa_key.pem -out pkcs8_key.pem");
+                    ExitUtil.exit(1);
+                }
+                
+                // Derive public key from private key
+                try {
+                    publicKey = derivePublicKeyFromPrivate(privateKey);
+                    BlockchainCLI.info("✅ Successfully loaded private key from file");
+                    verboseLog("Key file: " + keyFilePath);
+                    verboseLog("Format: " + format);
+                } catch (Exception e) {
+                    BlockchainCLI.error("Failed to derive public key from private key: " + e.getMessage());
+                    ExitUtil.exit(1);
+                }
+                
+                // Check if this public key is authorized
+                String publicKeyString = CryptoUtil.publicKeyToString(publicKey);
+                var authorizedKeys = blockchain.getAuthorizedKeys();
+                boolean isAuthorized = authorizedKeys.stream()
+                    .anyMatch(key -> key.getPublicKey().equals(publicKeyString));
+                
+                if (!isAuthorized) {
+                    BlockchainCLI.info("⚠️  Public key from file is not currently authorized");
+                    BlockchainCLI.info("💡 Auto-authorizing key for this operation...");
+                    
+                    // Auto-authorize the key with file-based naming
+                    String fileName = java.nio.file.Paths.get(keyFilePath).getFileName().toString();
+                    String autoOwnerName = "KeyFile-" + fileName + "-" + System.currentTimeMillis();
+                    
+                    LocalDateTime keyCreationTime = LocalDateTime.now().minusSeconds(1);
+                    
+                    if (blockchain.addAuthorizedKey(publicKeyString, autoOwnerName, keyCreationTime)) {
+                        BlockchainCLI.info("✅ Auto-authorized key from file as: " + autoOwnerName);
+                        System.out.println("🔑 Public Key: " + publicKeyString);
+                    } else {
+                        BlockchainCLI.error("Failed to authorize key from file");
+                        ExitUtil.exit(1);
+                    }
+                } else {
+                    BlockchainCLI.info("✅ Key from file is already authorized");
+                }
             } else {
                 // Default case: no signer specified, no key generation
                 BlockchainCLI.error("No signing method specified");
                 BlockchainCLI.error("Use one of the following options:");
                 BlockchainCLI.error("  --generate-key: Generate a new key pair");
-                BlockchainCLI.error("  --signer <name>: Use an existing authorized key");
-                BlockchainCLI.error("  --key-file <path>: Load private key from file (not yet implemented)");
+                BlockchainCLI.error("  --signer <n>: Use an existing authorized key");
+                BlockchainCLI.error("  --key-file <path>: Load private key from file (PEM/DER/Base64 supported)");
                 ExitUtil.exit(1);
             }
             
@@ -193,10 +257,30 @@ public class AddBlockCommand implements Runnable {
             
         } catch (Exception e) {
             BlockchainCLI.error("Failed to add block: " + e.getMessage());
-            if (BlockchainCLI.verbose) {
+            if (verbose || BlockchainCLI.verbose) {
                 e.printStackTrace();
             }
             ExitUtil.exit(1);
+        }
+    }
+    
+    /**
+     * Derive public key from private key
+     * Helper method for key-file functionality
+     */
+    private PublicKey derivePublicKeyFromPrivate(PrivateKey privateKey) {
+        try {
+            // Use KeyFactory to derive public key from private key
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            RSAPrivateCrtKeySpec privKeySpec = 
+                keyFactory.getKeySpec(privateKey, RSAPrivateCrtKeySpec.class);
+            
+            RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(
+                privKeySpec.getModulus(), privKeySpec.getPublicExponent());
+            
+            return keyFactory.generatePublic(pubKeySpec);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to derive public key from private key: " + e.getMessage(), e);
         }
     }
     
@@ -208,5 +292,15 @@ public class AddBlockCommand implements Runnable {
         System.out.println("  \"totalBlocks\": " + totalBlocks + ",");
         System.out.println("  \"timestamp\": \"" + java.time.Instant.now() + "\"");
         System.out.println("}");
+    }
+    
+    /**
+     * Helper method for verbose logging
+     * Uses local --verbose flag if set, otherwise falls back to global verbose setting
+     */
+    private void verboseLog(String message) {
+        if (verbose || BlockchainCLI.verbose) {
+            System.out.println("🔍 " + message);
+        }
     }
 }

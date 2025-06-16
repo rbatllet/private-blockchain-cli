@@ -1,14 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env zsh
 
 # Functional Tests Module for Blockchain CLI
 # Contains all CLI functional tests
-# Version: 1.0
+# Version: 1.0.0
+# ZSH adaptation
 
 # This file should be sourced from test-cli.sh
 # It assumes common-functions.sh is already loaded and variables are set
 
 # Function to run basic CLI tests
-run_basic_tests() {
+function run_basic_tests() {
     print_header "📋 Basic CLI Commands"
     
     run_cli_test "Version check" --version
@@ -18,7 +19,7 @@ run_basic_tests() {
 }
 
 # Function to run status tests
-run_status_tests() {
+function run_status_tests() {
     print_header "📊 Status Commands"
     
     run_cli_test "Basic status" status
@@ -29,7 +30,7 @@ run_status_tests() {
 }
 
 # Function to run validation tests
-run_validation_tests() {
+function run_validation_tests() {
     print_header "🔍 Validation Commands"
     
     run_cli_test "Basic validate" validate
@@ -39,7 +40,7 @@ run_validation_tests() {
 }
 
 # Function to run key management tests
-run_key_management_tests() {
+function run_key_management_tests() {
     print_header "🔑 Key Management Commands"
     
     # Clean up any existing TestUser key first
@@ -56,7 +57,7 @@ run_key_management_tests() {
     print_test "Key management bug fix verification"
     KEY_OWNER_TEST="BugFixTestUser"
     KEY_OUTPUT=$(java -jar target/blockchain-cli.jar add-key "$KEY_OWNER_TEST" --generate 2>/dev/null | grep "Owner:" | cut -d: -f2 | xargs)
-    if [ "$KEY_OUTPUT" = "$KEY_OWNER_TEST" ]; then
+    if [[ "$KEY_OUTPUT" = "$KEY_OWNER_TEST" ]]; then
         print_success "Key owner name stored correctly (bug fix verified)"
         ((TESTS_PASSED++))
     else
@@ -68,7 +69,7 @@ run_key_management_tests() {
     JSON_OUTPUT=$(java -jar target/blockchain-cli.jar add-key "SeparationTestUser" --generate --json 2>/dev/null)
     JSON_OWNER=$(echo "$JSON_OUTPUT" | grep '"owner"' | cut -d'"' -f4)
     JSON_PUBLIC_KEY=$(echo "$JSON_OUTPUT" | grep '"publicKey"' | cut -d'"' -f4)
-    if [ -n "$JSON_OWNER" ] && [ -n "$JSON_PUBLIC_KEY" ] && [ "$JSON_OWNER" != "$JSON_PUBLIC_KEY" ]; then
+    if [[ -n "$JSON_OWNER" && -n "$JSON_PUBLIC_KEY" && "$JSON_OWNER" != "$JSON_PUBLIC_KEY" ]]; then
         print_success "Public key and owner name properly separated"
         ((TESTS_PASSED++))
     else
@@ -80,12 +81,12 @@ run_key_management_tests() {
     MULTI_USER_SUCCESS=true
     for test_user in "Alice" "Bob" "Charlie"; do
         USER_RESULT=$(java -jar target/blockchain-cli.jar add-key "$test_user" --generate 2>/dev/null | grep "Owner:" | cut -d: -f2 | xargs)
-        if [ "$USER_RESULT" != "$test_user" ]; then
+        if [[ "$USER_RESULT" != "$test_user" ]]; then
             MULTI_USER_SUCCESS=false
             break
         fi
     done
-    if [ "$MULTI_USER_SUCCESS" = true ]; then
+    if [[ "$MULTI_USER_SUCCESS" = true ]]; then
         print_success "Multiple users with correct owner names"
         ((TESTS_PASSED++))
     else
@@ -95,7 +96,7 @@ run_key_management_tests() {
 }
 
 # Function to run block management tests
-run_block_management_tests() {
+function run_block_management_tests() {
     print_header "🧱 Block Management Commands"
     
     print_info "Testing basic block management functionality"
@@ -103,7 +104,7 @@ run_block_management_tests() {
 }
 
 # Function to run signer bug fix verification tests
-run_signer_bug_fix_tests() {
+function run_signer_bug_fix_tests() {
     print_header "🔧 --signer Bug Fix Verification"
     
     print_info "Testing the --signer parameter bug fix"
@@ -178,7 +179,7 @@ run_signer_bug_fix_tests() {
 }
 
 # Function to run search tests
-run_search_tests() {
+function run_search_tests() {
     print_header "🔍 Search Commands"
     
     run_cli_test "Search for Genesis" search "Genesis"
@@ -189,11 +190,11 @@ run_search_tests() {
 }
 
 # Function to run export/import tests
-run_export_import_tests() {
+function run_export_import_tests() {
     print_header "📤📥 Export/Import Commands"
     
     if run_cli_test "Export blockchain" export "$EXPORT_FILE"; then
-        if [ -f "$EXPORT_FILE" ]; then
+        if [[ -f "$EXPORT_FILE" ]]; then
             FILE_SIZE=$(ls -lh "$EXPORT_FILE" | awk '{print $5}')
             print_success "Export file created: $EXPORT_FILE ($FILE_SIZE)"
             

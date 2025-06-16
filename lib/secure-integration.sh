@@ -1,11 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env zsh
 
 # Secure Key Management Integration Module
 # Contains the complete secure key management functionality
-# Version: 1.0
+# Version: 1.0.0
+# ZSH adaptation
 
 # Function to run secure key tests (integrated into main test-cli.sh)
-run_integrated_secure_tests() {
+function run_integrated_secure_tests() {
     local test_mode="${1:-quick}"
     
     print_header "🔐 Integrated Secure Key Management Tests"
@@ -54,7 +55,7 @@ run_integrated_secure_tests() {
 }
 
 # Function to show enhanced practical examples
-show_enhanced_practical_examples() {
+function show_enhanced_practical_examples() {
     echo ""
     echo "🔧 Key Management Operations:"
     echo "   # List all stored private keys"
@@ -75,7 +76,7 @@ show_enhanced_practical_examples() {
 }
 
 # Integration notes for developers
-show_integration_notes() {
+function show_integration_notes() {
     echo ""
     echo "🚀 INTEGRATION NOTES FOR DEVELOPERS"
     echo "===================================="

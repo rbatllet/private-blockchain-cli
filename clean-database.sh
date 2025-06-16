@@ -1,11 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env zsh
 
 # Clean Database Script
 # Quick script to clean corrupted SQLite database files
-# Version: 1.1 - Refactored to use common functions
+# Version: 1.0.0
+# ZSH adaptation
 
 # Get the script directory and load common functions
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="${0:a:h}"
 source "$SCRIPT_DIR/lib/common-functions.sh"
 
 echo -e "${BLUE}🧹 Database Cleanup Script${NC}"
@@ -15,19 +16,19 @@ cd "$SCRIPT_DIR"
 print_info "Working directory: $(pwd)"
 
 # Function to clean corrupted database files
-clean_database() {
+function clean_database() {
     print_info "Cleaning any corrupted database files..."
     
     # Clean SQLite database files in project root
-    if [ -f "blockchain.db" ] || [ -f "blockchain.db-shm" ] || [ -f "blockchain.db-wal" ]; then
+    if [[ -f "blockchain.db" || -f "blockchain.db-shm" || -f "blockchain.db-wal" ]]; then
         print_info "Found existing database files, cleaning them..."
         rm -f blockchain.db blockchain.db-shm blockchain.db-wal 2>/dev/null || true
         print_success "Removed database files from project root"
     fi
     
     # Clean SQLite database files in blockchain-data directory  
-    if [ -d "blockchain-data" ]; then
-        if [ -f "blockchain-data/blockchain.db" ] || [ -f "blockchain-data/blockchain.db-shm" ] || [ -f "blockchain-data/blockchain.db-wal" ]; then
+    if [[ -d "blockchain-data" ]]; then
+        if [[ -f "blockchain-data/blockchain.db" || -f "blockchain-data/blockchain.db-shm" || -f "blockchain-data/blockchain.db-wal" ]]; then
             print_info "Found existing database files in blockchain-data/, cleaning them..."
             rm -f blockchain-data/blockchain.db blockchain-data/blockchain.db-shm blockchain-data/blockchain.db-wal 2>/dev/null || true
             print_success "Removed database files from blockchain-data/"
@@ -35,7 +36,7 @@ clean_database() {
     fi
     
     # If database exists but appears corrupted, try to repair it
-    if [ -f "blockchain.db" ]; then
+    if [[ -f "blockchain.db" ]]; then
         print_info "Attempting to repair existing database..."
         if command_exists sqlite3; then
             if sqlite3 blockchain.db "PRAGMA wal_checkpoint(TRUNCATE);" 2>/dev/null; then

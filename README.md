@@ -281,7 +281,9 @@ java -jar blockchain-cli.jar add-block "Test data" --signer TestUser1
 |--------|-------|-------------|
 | `--help` | `-h` | Show help message and exit |
 | `--version` | `-V` | Display version information |
-| `--verbose` | `-v` | Enable verbose output for debugging |
+| `--verbose` | `-v` | Enable verbose output with detailed information |
+
+> **Note:** The `--verbose` option is available globally and for specific commands. It provides detailed information about operations, key loading, format detection, and other internal processes. This is especially useful for troubleshooting and understanding the blockchain operations.
 
 ### Available Commands
 
@@ -389,8 +391,8 @@ java -jar blockchain-cli.jar add-block "Transaction data" --signer Alice
 # Method 2: Generate new key automatically
 java -jar blockchain-cli.jar add-block "System update" --generate-key
 
-# Method 3: Load from key file (coming soon)
-java -jar blockchain-cli.jar add-block "Secure data" --key-file alice.key
+# Method 3: Load from key file (fully implemented)
+java -jar blockchain-cli.jar add-block "Secure data" --key-file alice.pem
 ```
 
 **🔑 Signing Methods Explained:**
@@ -400,6 +402,16 @@ java -jar blockchain-cli.jar add-block "Secure data" --key-file alice.key
 | `--signer <name>` | User already exists | ⭐⭐⭐ Demo | Multi-user workflows |
 | `--generate-key` | Quick testing | ⭐⭐ Medium | Development/testing |
 | `--key-file <path>` | Production use | ⭐⭐⭐⭐ High | Enterprise deployments |
+
+**🔐 Key File Support Details:**
+
+| Format | Description | Example File | Notes |
+|--------|-------------|--------------|-------|
+| PEM PKCS#8 | Text-based format (BEGIN/END PRIVATE KEY) | `key.pem` | Recommended format |
+| DER Binary | Binary format | `key.der` | Compact binary format |
+| Base64 | Raw base64-encoded key | `key.b64` | Simple text format |
+
+> **Note:** The `--key-file` option automatically detects the format, derives the public key, and auto-authorizes the key if needed. Use `--verbose` for detailed information about key loading and format detection.
 
 **Common Use Cases:**
 
@@ -416,6 +428,14 @@ java -jar blockchain-cli.jar add-block "Quick note" --generate-key
 java -jar blockchain-cli.jar add-block "Transaction #001" --signer Alice
 java -jar blockchain-cli.jar add-block "Transaction #002" --signer Alice
 java -jar blockchain-cli.jar add-block "Transaction #003" --signer Alice
+
+# Using key files with verbose output
+java -jar blockchain-cli.jar add-block "Secure transaction" --key-file keys/private_key.pem --verbose
+
+# Using different key file formats
+java -jar blockchain-cli.jar add-block "PEM format" --key-file keys/key.pem
+java -jar blockchain-cli.jar add-block "DER format" --key-file keys/key.der
+java -jar blockchain-cli.jar add-block "Base64 format" --key-file keys/key.b64
 ```
 
 **Error Handling:**
@@ -432,7 +452,7 @@ $ java -jar blockchain-cli.jar add-block "Test data"
 ❌ Error: Use one of the following options:
 ❌ Error:   --generate-key: Generate a new key pair
 ❌ Error:   --signer <name>: Use an existing authorized key
-❌ Error:   --key-file <path>: Load private key from file (not yet implemented)
+❌ Error:   --key-file <path>: Load private key from file
 ```
 
 #### `export` - Export Blockchain ✅
@@ -532,7 +552,7 @@ Most commands support multiple output formats:
 }
 ```
 
-For detailed command usage, examples, and advanced scenarios, see [EXAMPLES.md](EXAMPLES.md).
+For detailed command usage, examples, and advanced scenarios, see [docs/EXAMPLES.md](docs/EXAMPLES.md).
 
 ## 🔄 Migration Guide
 
@@ -691,7 +711,7 @@ java -jar blockchain-cli.jar rollback --to-block 5 --json      # Rollback to blo
 - **Multiple Operations**: 5 status calls in < 30 seconds
 - **Memory Usage**: Stable ~50MB during testing
 
-For comprehensive testing information, see [ROLLBACK_TESTING.md](ROLLBACK_TESTING.md) for detailed rollback testing procedures.
+For comprehensive testing information, see [docs/ROLLBACK_TESTING.md](docs/ROLLBACK_TESTING.md) for detailed rollback testing procedures.
 
 ### Rollback Testing Suite
 
@@ -794,34 +814,42 @@ mvn test -Dtest=RollbackCommandTest
 This project includes comprehensive documentation for different use cases:
 
 ### 📖 User Guides
-- **[EXAMPLES.md](EXAMPLES.md)** - Comprehensive examples and use cases
-- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Complete troubleshooting guide
-- **[DOCKER_GUIDE.md](DOCKER_GUIDE.md)** - Docker deployment and usage
+- **[docs/EXAMPLES.md](docs/EXAMPLES.md)** - Comprehensive examples and use cases
+- **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Complete troubleshooting guide
+- **[docs/DOCKER_GUIDE.md](docs/DOCKER_GUIDE.md)** - Docker deployment and usage
 
 ### 🔐 Security & Key Management
-- **[SECURE_KEY_MANAGEMENT.md](SECURE_KEY_MANAGEMENT.md)** - Complete secure key management guide **NEW**
-- **[SIGNER_TROUBLESHOOTING.md](SIGNER_TROUBLESHOOTING.md)** - Troubleshooting --signer issues **NEW**
-- **[PRACTICAL_EXAMPLES.md](PRACTICAL_EXAMPLES.md)** - Real-world usage examples **NEW**
+- **[docs/SECURE_KEY_MANAGEMENT.md](docs/SECURE_KEY_MANAGEMENT.md)** - Complete secure key management guide **NEW**
+- **[docs/SIGNER_TROUBLESHOOTING.md](docs/SIGNER_TROUBLESHOOTING.md)** - Troubleshooting --signer issues **NEW**
+- **[docs/KEY_FILE_IMPLEMENTATION.md](docs/KEY_FILE_IMPLEMENTATION.md)** - External key file support guide **NEW**
+- **[docs/VERBOSE_OPTION.md](docs/VERBOSE_OPTION.md)** - Detailed verbose logging guide **NEW**
+- **[docs/PRACTICAL_EXAMPLES.md](docs/PRACTICAL_EXAMPLES.md)** - Real-world usage examples **NEW**
 
 ### 🧪 Testing & Validation
-- **[COMPREHENSIVE_TESTING.md](COMPREHENSIVE_TESTING.md)** - Complete testing guide **NEW**
-- **[VALIDATION_SUMMARY.md](VALIDATION_SUMMARY.md)** - Validation procedures summary **NEW**
+- **[docs/COMPREHENSIVE_TESTING.md](docs/COMPREHENSIVE_TESTING.md)** - Complete testing guide **NEW**
+- **[docs/VALIDATION_SUMMARY.md](docs/VALIDATION_SUMMARY.md)** - Validation procedures summary **NEW**
+- **[docs/ROLLBACK_TESTING.md](docs/ROLLBACK_TESTING.md)** - Rollback functionality testing guide **NEW**
+- **[docs/SCRIPT_REFERENCE.md](docs/SCRIPT_REFERENCE.md)** - Comprehensive script reference **NEW**
 
 ### 🏢 Enterprise & Advanced Usage
-- **[ENTERPRISE_GUIDE.md](ENTERPRISE_GUIDE.md)** - Enterprise deployment and best practices
-- **[AUTOMATION_SCRIPTS.md](AUTOMATION_SCRIPTS.md)** - Production-ready automation scripts
-- **[INTEGRATION_PATTERNS.md](INTEGRATION_PATTERNS.md)** - Integration with external systems
+- **[docs/ENTERPRISE_GUIDE.md](docs/ENTERPRISE_GUIDE.md)** - Enterprise deployment and best practices
+- **[docs/AUTOMATION_SCRIPTS.md](docs/AUTOMATION_SCRIPTS.md)** - Production-ready automation scripts
+- **[docs/INTEGRATION_PATTERNS.md](docs/INTEGRATION_PATTERNS.md)** - Integration with external systems
 
 ### 🚀 Quick Access Links
 
 | What you want to do | Go to |
 |---------------------|-------|
-| See examples and real-world use cases | [EXAMPLES.md](EXAMPLES.md) |
-| Deploy with Docker | [DOCKER_GUIDE.md](DOCKER_GUIDE.md) |
-| Set up for enterprise use | [ENTERPRISE_GUIDE.md](ENTERPRISE_GUIDE.md) |
-| Automate operations | [AUTOMATION_SCRIPTS.md](AUTOMATION_SCRIPTS.md) |
-| Fix issues or errors | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) |
-| Integrate with other systems | [INTEGRATION_PATTERNS.md](INTEGRATION_PATTERNS.md) |
+| See examples and real-world use cases | [docs/EXAMPLES.md](docs/EXAMPLES.md) |
+| Deploy with Docker | [docs/DOCKER_GUIDE.md](docs/DOCKER_GUIDE.md) |
+| Set up for enterprise use | [docs/ENTERPRISE_GUIDE.md](docs/ENTERPRISE_GUIDE.md) |
+| Automate operations | [docs/AUTOMATION_SCRIPTS.md](docs/AUTOMATION_SCRIPTS.md) |
+| Fix issues or errors | [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) |
+| Integrate with other systems | [docs/INTEGRATION_PATTERNS.md](docs/INTEGRATION_PATTERNS.md) |
+| Test rollback functionality | [docs/ROLLBACK_TESTING.md](docs/ROLLBACK_TESTING.md) |
+| Use external key files | [docs/KEY_FILE_IMPLEMENTATION.md](docs/KEY_FILE_IMPLEMENTATION.md) |
+| Use verbose logging | [docs/VERBOSE_OPTION.md](docs/VERBOSE_OPTION.md) |
+| Find script documentation | [docs/SCRIPT_REFERENCE.md](docs/SCRIPT_REFERENCE.md) |
 
 ---
 
@@ -830,19 +858,23 @@ This project includes comprehensive documentation for different use cases:
 ```
 privateBlockchain-cli/
 ├── README.md                    # This file - main overview
-├── EXAMPLES.md                  # Detailed examples and use cases
-├── TROUBLESHOOTING.md          # Complete troubleshooting guide
-├── DOCKER_GUIDE.md             # Docker deployment guide
-├── ENTERPRISE_GUIDE.md         # Enterprise usage guide
-├── AUTOMATION_SCRIPTS.md       # Production automation scripts
-├── INTEGRATION_PATTERNS.md     # External system integration
-├── src/                        # Source code
-├── target/                     # Build output
-├── blockchain.db               # SQLite database (created automatically)
-├── pom.xml                     # Maven configuration
-├── Dockerfile                  # Docker build configuration
-├── docker-compose.yml          # Docker Compose setup
-└── test-cli.sh                 # Comprehensive test script
+├── docs/
+│   ├── EXAMPLES.md               # Detailed examples and use cases
+│   ├── TROUBLESHOOTING.md        # Complete troubleshooting guide
+│   ├── DOCKER_GUIDE.md           # Docker deployment guide
+│   ├── ENTERPRISE_GUIDE.md       # Enterprise usage guide
+│   ├── AUTOMATION_SCRIPTS.md     # Production automation scripts
+│   ├── INTEGRATION_PATTERNS.md   # External system integration
+│   ├── ROLLBACK_TESTING.md       # Rollback functionality testing guide
+│   ├── KEY_FILE_IMPLEMENTATION.md # External key file support guide
+│   └── ...
+├── src/                         # Source code
+├── target/                      # Build output
+├── blockchain.db                # SQLite database (created automatically)
+├── pom.xml                      # Maven configuration
+├── Dockerfile                   # Docker build configuration
+├── docker-compose.yml           # Docker Compose setup
+└── test-cli.sh                  # Comprehensive test script
 ```
 
 For the most up-to-date information and detailed documentation, please refer to the specific guide files listed above.
@@ -867,7 +899,7 @@ For the most up-to-date information and detailed documentation, please refer to 
 - **Test imports** with `--dry-run` before applying
 
 ### Production Recommendations
-- Set up automated daily backups (see [AUTOMATION_SCRIPTS.md](AUTOMATION_SCRIPTS.md))
+- Set up automated daily backups (see [docs/AUTOMATION_SCRIPTS.md](docs/AUTOMATION_SCRIPTS.md))
 - Monitor chain health with regular validation
 - Use dedicated service accounts for automated operations
 - Keep comprehensive logs for compliance and debugging
@@ -877,11 +909,11 @@ For the most up-to-date information and detailed documentation, please refer to 
 ## 🤝 Support & Contributing
 
 ### Getting Help
-- 📖 Check [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for common issues
-- 💬 Review [EXAMPLES.md](EXAMPLES.md) for usage patterns
-- 🔐 See [SECURE_KEY_MANAGEMENT.md](SECURE_KEY_MANAGEMENT.md) for production security **NEW**
-- 🔧 Check [SIGNER_TROUBLESHOOTING.md](SIGNER_TROUBLESHOOTING.md) for --signer issues
-- 🏢 See [ENTERPRISE_GUIDE.md](ENTERPRISE_GUIDE.md) for advanced setups
+- 📖 Check [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for common issues
+- 💬 Review [docs/EXAMPLES.md](docs/EXAMPLES.md) for usage patterns
+- 🔐 See [docs/SECURE_KEY_MANAGEMENT.md](docs/SECURE_KEY_MANAGEMENT.md) for production security **NEW**
+- 🔧 Check [docs/SIGNER_TROUBLESHOOTING.md](docs/SIGNER_TROUBLESHOOTING.md) for --signer issues
+- 🏢 See [docs/ENTERPRISE_GUIDE.md](docs/ENTERPRISE_GUIDE.md) for advanced setups
 
 ### Project Information
 - **Version**: 1.0.1
