@@ -315,7 +315,15 @@ java -jar blockchain-cli.jar validate --quick
 
 # JSON output for automation
 java -jar blockchain-cli.jar validate --json
+
+# Detailed validation (shows comprehensive block-by-block validation results)
+java -jar blockchain-cli.jar validate --detailed
+
+# Detailed validation with JSON output
+java -jar blockchain-cli.jar validate --detailed --json
 ```
+
+> **Note:** The `--detailed` option provides comprehensive validation information including signature verification, timestamp validation, and key authorization checks for each block. This is particularly useful for debugging and auditing the blockchain.
 
 #### `add-key` - Add Authorized Key ✅
 
@@ -670,8 +678,14 @@ mvn test -Dtest="StatusCommandTest,BlockchainCLITest"
 # Run tests for a specific command
 mvn test -Dtest=ValidateCommandTest
 
+# Run detailed validation tests
+mvn test -Dtest=ValidateCommandDetailedTest
+
 # Run integration tests
 mvn test -Dtest=BlockchainCLIIntegrationTest
+
+# Run shell script tests for detailed validation
+./test-validate-detailed.sh
 ```
 
 ### Verified Commands
@@ -817,6 +831,7 @@ This project includes comprehensive documentation for different use cases:
 - **[docs/EXAMPLES.md](docs/EXAMPLES.md)** - Comprehensive examples and use cases
 - **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Complete troubleshooting guide
 - **[docs/DOCKER_GUIDE.md](docs/DOCKER_GUIDE.md)** - Docker deployment and usage
+- **[docs/TEST-SCRIPTS.md](docs/TEST-SCRIPTS.md)** - Test scripts documentation including detailed validation tests
 
 ### 🔐 Security & Key Management
 - **[docs/SECURE_KEY_MANAGEMENT.md](docs/SECURE_KEY_MANAGEMENT.md)** - Complete secure key management guide **NEW**
