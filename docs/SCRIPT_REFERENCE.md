@@ -17,6 +17,8 @@ The primary test script that runs the complete test suite for the Private Blockc
 
 **Usage:**
 ```bash
+#!/usr/bin/env zsh
+
 # Run all tests
 ./test-cli.sh
 
@@ -45,6 +47,8 @@ Tests the build configuration and environment setup for the Private Blockchain C
 
 **Usage:**
 ```bash
+#!/usr/bin/env zsh
+
 ./test-build-config.sh
 ```
 
@@ -62,6 +66,8 @@ Dedicated script to run all rollback tests in sequence.
 
 **Usage:**
 ```bash
+#!/usr/bin/env zsh
+
 ./run-rollback-tests.sh
 ```
 
@@ -76,6 +82,8 @@ Interactive script for manual rollback testing with menu options.
 
 **Usage:**
 ```bash
+#!/usr/bin/env zsh
+
 ./test-rollback-interactive.sh
 ```
 
@@ -90,6 +98,8 @@ Script to set up test data for rollback testing.
 
 **Usage:**
 ```bash
+#!/usr/bin/env zsh
+
 ./test-rollback-setup.sh
 ```
 
@@ -104,6 +114,8 @@ Functional test script for the key file implementation.
 
 **Usage:**
 ```bash
+#!/usr/bin/env zsh
+
 ./test_key_file_functionality.sh
 
 # Skip key generation
@@ -127,6 +139,8 @@ Utility script to clean corrupted SQLite database files.
 
 **Usage:**
 ```bash
+#!/usr/bin/env zsh
+
 ./clean-database.sh
 ```
 
@@ -141,6 +155,8 @@ Utility script for creating test keys for development and testing.
 
 **Usage:**
 ```bash
+#!/usr/bin/env zsh
+
 ./generate_test_keys.sh
 ```
 

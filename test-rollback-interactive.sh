@@ -38,7 +38,7 @@ fi
 
 # Function to display blockchain status
 function show_status() {
-    echo -e "${BLUE}Current blockchain status:${NC}"
+    echo -e "${BLUE}📊 Current blockchain status:${NC}"
     java -jar target/blockchain-cli.jar status
     echo ""
 }

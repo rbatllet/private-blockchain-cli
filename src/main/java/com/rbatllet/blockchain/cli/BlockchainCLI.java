@@ -97,7 +97,7 @@ public class BlockchainCLI implements Runnable {
      */
     public static void verbose(String message) {
         if (verbose) {
-            System.out.println("[VERBOSE] " + message);
+            System.out.println("🔍 [VERBOSE] " + message);
         }
     }
     

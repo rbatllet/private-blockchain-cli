@@ -15,8 +15,8 @@ NC='\033[0m' # No Color
 
 # Function to print colored messages
 function print_header() {
-    echo -e "${BLUE}$1${NC}"
-    echo "=============================================="
+    echo -e "${BLUE}📊 $1${NC}"
+    echo "==============================================="
 }
 
 function print_test() {

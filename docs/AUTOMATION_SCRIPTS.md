@@ -17,7 +17,7 @@ This document provides ready-to-use automation scripts for the Private Blockchai
 ### Daily Backup Script
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # File: daily_backup.sh
 # Purpose: Create daily blockchain backups with cleanup
 
@@ -60,7 +60,7 @@ fi
 ### Health Check Script
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # File: health_check.sh
 # Purpose: Comprehensive blockchain health monitoring
 
@@ -125,7 +125,7 @@ echo "[$(date)] ✅ Health check completed successfully" | tee -a $LOG_FILE
 ### Transaction Processing Script
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # File: process_transactions.sh
 # Purpose: Batch process pending transactions
 
@@ -167,7 +167,7 @@ echo "✅ Transaction processing completed"
 ### Weekly Full Backup
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # File: weekly_backup.sh
 # Purpose: Create weekly full backups with compression
 
@@ -204,7 +204,7 @@ echo "✅ Weekly backup completed: $BACKUP_DIR/blockchain_week_$WEEK.json.gz"
 ### Disaster Recovery Script
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # File: disaster_recovery.sh
 # Purpose: Complete disaster recovery from backup
 
@@ -255,7 +255,7 @@ fi
 ### Continuous Monitoring Script
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # File: continuous_monitor.sh
 # Purpose: Continuous blockchain monitoring with alerts
 
@@ -304,7 +304,7 @@ done
 ### Performance Benchmark Script
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # File: benchmark.sh
 # Purpose: Performance benchmarking and testing
 
@@ -353,7 +353,7 @@ echo "✅ Benchmark completed. Results saved to benchmark_*.txt"
 ### Pre-deployment Validation
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # File: pre_deploy_check.sh
 # Purpose: Pre-deployment validation for CI/CD
 
@@ -391,7 +391,7 @@ echo "✅ Pre-deployment validation completed successfully"
 ### Post-deployment Verification
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # File: post_deploy_verify.sh
 # Purpose: Post-deployment verification
 
@@ -439,7 +439,7 @@ echo "✅ Post-deployment verification completed successfully"
 ### Database Maintenance
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # File: db_maintenance.sh
 # Purpose: Database optimization and maintenance
 
@@ -477,7 +477,7 @@ echo "✅ Database maintenance completed"
 ### Log Rotation Script
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # File: rotate_logs.sh
 # Purpose: Log file rotation and cleanup
 
@@ -508,7 +508,7 @@ echo "✅ Log rotation completed"
 ### Docker Health Check
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # File: docker_health_check.sh
 # Purpose: Health check for Docker containers
 
@@ -577,7 +577,7 @@ services:
 ### Diagnostic Script
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # File: diagnose.sh
 # Purpose: Comprehensive system diagnostics
 
@@ -618,7 +618,7 @@ echo "✅ Diagnostics completed"
 ### Error Recovery Script
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # File: recover_errors.sh
 # Purpose: Automated error recovery
 
