@@ -303,7 +303,7 @@ $ java -jar blockchain-cli.jar add-block "Test data" --signer Alice
 
 ### Pattern 1: Workflow with Error Handling
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 
 SIGNER="ProjectManager"
 DATA="Project milestone completed"
@@ -321,7 +321,7 @@ fi
 
 ### Pattern 2: Batch Operations with Same Signer
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 
 SIGNER="DataProcessor"
 BATCH_ID="BATCH-$(date +%Y%m%d-%H%M%S)"
@@ -340,7 +340,7 @@ java -jar blockchain-cli.jar search "$BATCH_ID" --detailed
 
 ### Pattern 3: Role-Based Access Control Simulation
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 
 # Setup roles
 declare -A ROLES

@@ -19,8 +19,15 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
     
+    - name: Install ZSH
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y zsh
+      shell: bash
+        
     - name: Check Java version
       run: java -version
+      shell: zsh {0}
     
     - name: Create minimal dependency
       run: |
@@ -40,12 +47,15 @@ jobs:
         jar cf private-blockchain-1.0.2.jar com/
         mvn install:install-file -Dfile=private-blockchain-1.0.2.jar -DgroupId=com.rbatllet -DartifactId=private-blockchain -Dversion=1.0.2 -Dpackaging=jar
         cd ..
+      shell: zsh {0}
     
     - name: Compile only (no package)
       run: mvn clean compile
+      shell: zsh {0}
     
     - name: Package (skip tests)
       run: mvn package -DskipTests
+      shell: zsh {0}
     
     - name: List results
       run: |
@@ -53,3 +63,4 @@ jobs:
         ls -la target/ || echo "No target directory"
         echo "Looking for JAR files:"
         find . -name "*.jar" -type f | head -10
+      shell: zsh {0}

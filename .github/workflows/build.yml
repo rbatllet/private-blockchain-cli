@@ -27,6 +27,12 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     
+    - name: Install ZSH
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y zsh
+      shell: bash
+        
     - name: Checkout and build core blockchain dependency
       run: |
         echo "Cloning and building core blockchain..."
@@ -34,16 +40,19 @@ jobs:
         cd ../private-blockchain
         mvn clean install -DskipTests -q
         echo "Core blockchain installed to local repository"
+      shell: zsh {0}
     
     - name: Build CLI with tests
       run: |
         echo "Building CLI with full test suite..."
         mvn clean package
+      shell: zsh {0}
     
     - name: List generated files
       run: |
         echo "Generated JAR files:"
         ls -la target/*.jar
+      shell: zsh {0}
     
     - name: Upload CLI JAR artifacts
       uses: actions/upload-artifact@v4
@@ -68,3 +77,4 @@ jobs:
         echo ""
         echo "💾 JAR sizes:"
         du -h target/*.jar
+      shell: zsh {0}

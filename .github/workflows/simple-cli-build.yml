@@ -19,15 +19,23 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
     
+    - name: Install ZSH
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y zsh
+      shell: bash
+        
     - name: Build without core dependency (compilation test)
       run: |
         echo "Testing if CLI can compile without core..."
         mvn clean compile -DskipTests || echo "Compile failed - expected if core classes are used"
+      shell: zsh {0}
     
     - name: Package with skipped tests
       run: |
         echo "Packaging CLI (skipping tests and core dependency checks)..."
         mvn clean package -DskipTests -Dmaven.test.skip=true
+      shell: zsh {0}
     
     - name: List all generated files
       run: |
@@ -36,6 +44,7 @@ jobs:
         echo ""
         echo "All JAR files found:"
         find . -name "*.jar" | head -20
+      shell: zsh {0}
     
     - name: Upload any JARs found
       uses: actions/upload-artifact@v4

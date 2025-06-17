@@ -19,6 +19,12 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
     
+    - name: Install ZSH
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y zsh
+      shell: bash
+        
     - name: Show project structure
       run: |
         echo "=== PROJECT STRUCTURE ==="
@@ -26,6 +32,7 @@ jobs:
         echo ""
         echo "=== POM.XML CONTENT ==="
         cat pom.xml
+      shell: zsh {0}
     
     - name: Try compilation with verbose errors
       run: |
@@ -35,6 +42,7 @@ jobs:
         echo "=== TRYING COMPILE ==="
         mvn compile -X -e
       continue-on-error: true
+      shell: zsh {0}
     
     - name: Check if compilation worked
       run: |
@@ -43,12 +51,14 @@ jobs:
         echo ""
         echo "=== TARGET DIRECTORY CONTENT ==="
         ls -la target/ 2>/dev/null || echo "No target directory"
+      shell: zsh {0}
     
     - name: Try package without tests
       run: |
         echo "=== TRYING PACKAGE ==="
         mvn package -DskipTests -X -e
       continue-on-error: true
+      shell: zsh {0}
     
     - name: Final status check
       run: |
@@ -57,3 +67,4 @@ jobs:
         echo ""
         echo "=== ALL JAR FILES IN PROJECT ==="
         find . -name "*.jar" 2>/dev/null || echo "No JAR files found anywhere"
+      shell: zsh {0}

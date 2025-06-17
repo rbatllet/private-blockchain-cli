@@ -17,17 +17,25 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
     
+    - name: Install ZSH
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y zsh
+      shell: bash
+        
     - name: Test basic commands
       run: |
         java -version
         mvn -version
         echo "Project files:"
         ls -la
+      shell: zsh {0}
     
     - name: Check pom.xml
       run: |
         echo "=== POM.XML CONTENT ==="
         cat pom.xml
+      shell: zsh {0}
     
     - name: Test Maven without dependencies
       run: |
@@ -35,6 +43,7 @@ jobs:
         mvn help:effective-pom -q
         echo "Testing mvn validate..."
         mvn validate
+      shell: zsh {0}
     
     - name: Create dummy JAR manually
       run: |
@@ -44,6 +53,7 @@ jobs:
         cd target
         jar cf test-upload.jar test.txt
         ls -la *.jar
+      shell: zsh {0}
     
     - name: Test artifact upload
       uses: actions/upload-artifact@v4

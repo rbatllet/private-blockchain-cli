@@ -106,7 +106,7 @@ $ java -jar blockchain-cli.jar add-key "CorporateUser-New" --generate --store-pr
 
 ```bash
 # Script for bulk user setup
-#!/bin/bash
+#!/usr/bin/env zsh
 
 # Define user categories and their security levels
 EXECUTIVE_USERS=("CEO" "CFO" "CTO" "CHRO")
@@ -168,7 +168,7 @@ $ java -jar blockchain-cli.jar search "compliance" --json
 ### CI/CD Pipeline Integration
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # deploy.sh - Deployment script with blockchain logging
 
 ENVIRONMENT=$1

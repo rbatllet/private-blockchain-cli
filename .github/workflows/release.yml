@@ -29,6 +29,12 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     
+    - name: Install ZSH
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y zsh
+      shell: bash
+        
     - name: Checkout and build core blockchain dependency
       run: |
         echo "Cloning and building core blockchain for release..."
@@ -36,16 +42,20 @@ jobs:
         cd ../private-blockchain
         mvn clean install -DskipTests -q
         echo "Core blockchain installed to local repository"
+      shell: zsh {0}
     
     - name: Run CLI tests
       run: mvn clean test
+      shell: zsh {0}
     
     - name: Build CLI JARs
       run: mvn package
+      shell: zsh {0}
     
     - name: Get version from tag
       id: get_version
       run: echo "VERSION=${GITHUB_REF#refs/tags/cli-}" >> $GITHUB_OUTPUT
+      shell: zsh {0}
     
     - name: Create Release
       uses: softprops/action-gh-release@v1
@@ -64,6 +74,8 @@ jobs:
           
           ## Usage
           ```bash
+          #!/usr/bin/env zsh
+          
           # Using the CLI (recommended)
           java -jar blockchain-cli.jar --help
           

@@ -488,7 +488,7 @@ docker-compose --profile status up
 
 ### Docker Automation Script with Error Handling
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # save as: docker_blockchain_operations.sh
 
 DOCKER_IMAGE="blockchain-cli"
@@ -605,7 +605,7 @@ For comprehensive Docker usage, see [DOCKER_GUIDE.md](DOCKER_GUIDE.md).
 
 ### Daily Backup Script
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # save as: daily_backup.sh
 
 DATE=$(date +%Y%m%d)
@@ -632,7 +632,7 @@ fi
 
 ### Health Check Script
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # save as: health_check.sh
 
 echo "🏥 Blockchain Health Check: $(date)"

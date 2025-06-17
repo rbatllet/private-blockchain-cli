@@ -288,7 +288,7 @@ java -jar blockchain-cli.jar add-block "Production operation" --signer ExistingU
 ### Scenario 2: Bulk User Security Upgrade
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # Script to upgrade multiple users to secure keys
 
 users=("Manager" "Supervisor" "TeamLead" "SeniorDev")

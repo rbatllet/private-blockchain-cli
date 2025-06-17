@@ -509,7 +509,7 @@ java -jar blockchain-cli.jar --verbose status > debug.log 2>&1
 ### Quick System Test
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # save as: system_test.sh
 
 echo "🧪 Blockchain CLI System Test"
@@ -589,7 +589,7 @@ echo "🎉 All system tests passed!"
 ### Performance Benchmark
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # save as: performance_test.sh
 
 echo "⚡ Performance Benchmark"

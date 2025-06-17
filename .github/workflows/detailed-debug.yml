@@ -19,6 +19,12 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
     
+    - name: Install ZSH
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y zsh
+      shell: bash
+        
     - name: Show environment info
       run: |
         echo "=== ENVIRONMENT ==="
@@ -26,6 +32,7 @@ jobs:
         mvn -version
         pwd
         ls -la
+      shell: zsh {0}
     
     - name: Try to clone core repository
       run: |
@@ -34,6 +41,7 @@ jobs:
         echo "Clone successful, checking content:"
         ls -la ../private-blockchain/
       continue-on-error: true
+      shell: zsh {0}
     
     - name: Try to build core
       run: |
@@ -43,6 +51,7 @@ jobs:
         echo "Core build completed, checking local repository:"
         ls -la ~/.m2/repository/com/rbatllet/ || echo "No rbatllet artifacts found"
       continue-on-error: true
+      shell: zsh {0}
     
     - name: Check CLI dependencies
       run: |
@@ -52,6 +61,7 @@ jobs:
         echo "=== TRYING COMPILE ==="
         mvn clean compile -X
       continue-on-error: true
+      shell: zsh {0}
     
     - name: Check what was created
       run: |
@@ -60,12 +70,14 @@ jobs:
         echo ""
         echo "=== ALL FILES IN PROJECT ==="
         find . -name "*.jar" -o -name "*.class" | head -20
+      shell: zsh {0}
     
     - name: Try minimal package
       run: |
         echo "=== TRYING PACKAGE ==="
         mvn package -DskipTests -X
       continue-on-error: true
+      shell: zsh {0}
     
     - name: Final check
       run: |
@@ -78,3 +90,4 @@ jobs:
         echo ""
         echo "Maven repository:"
         find ~/.m2/repository -name "*.jar" | grep rbatllet || echo "No rbatllet JARs in Maven repo"
+      shell: zsh {0}

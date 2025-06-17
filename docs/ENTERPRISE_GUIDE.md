@@ -91,7 +91,7 @@ java -jar blockchain-cli.jar search "recent" --limit 5
 
 #### Health Check Script
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # save as: daily_health_check.sh
 
 echo "🌅 Daily Blockchain Health Check: $(date)"
@@ -124,7 +124,7 @@ echo "✅ Daily check completed"
 
 #### Comprehensive Monitoring Script
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # save as: enterprise_monitor.sh
 
 ALERT_EMAIL="blockchain-ops@company.com"
@@ -173,7 +173,7 @@ fi
 
 ### Audit Trail Generation
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # save as: generate_audit_report.sh
 
 REPORT_DIR="/audit/blockchain"
@@ -205,7 +205,7 @@ echo "✅ Audit report generated in $REPORT_DIR"
 
 ### Compliance Verification
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # save as: compliance_check.sh
 
 echo "🔍 Compliance Verification: $(date)"
@@ -243,7 +243,7 @@ echo "✅ Compliance check completed"
 
 #### Production Configuration
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # save as: production_setup.sh
 
 # Create production directory structure
@@ -299,7 +299,7 @@ mount -o noatime,data=writeback /dev/ssd1 /opt/blockchain/data
 
 #### Recovery Plan
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # save as: disaster_recovery.sh
 
 BACKUP_LOCATION="/backup/blockchain"
@@ -353,7 +353,7 @@ curl -f http://localhost:8080/health || exit 1
 
 #### Performance Monitoring
 ```bash
-#!/bin/bash
+#!/usr/bin/env zsh
 # save as: performance_monitor.sh
 
 # Monitor key performance indicators
