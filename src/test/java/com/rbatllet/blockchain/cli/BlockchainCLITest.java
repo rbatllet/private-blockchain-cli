@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import picocli.CommandLine;
-import com.rbatllet.blockchain.cli.util.ExitUtil;
+import com.rbatllet.blockchain.util.ExitUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

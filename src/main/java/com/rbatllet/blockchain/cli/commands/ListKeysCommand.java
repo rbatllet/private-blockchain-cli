@@ -5,7 +5,7 @@ import picocli.CommandLine.Option;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.entity.AuthorizedKey;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
-import com.rbatllet.blockchain.cli.util.ExitUtil;
+import com.rbatllet.blockchain.util.ExitUtil;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;

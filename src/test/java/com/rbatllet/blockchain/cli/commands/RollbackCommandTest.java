@@ -1,6 +1,6 @@
 package com.rbatllet.blockchain.cli.commands;
 
-import com.rbatllet.blockchain.cli.util.ExitUtil;
+import com.rbatllet.blockchain.util.ExitUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;

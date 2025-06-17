@@ -5,9 +5,9 @@ import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Option;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
-import com.rbatllet.blockchain.cli.security.SecureKeyStorage;
-import com.rbatllet.blockchain.cli.security.PasswordUtil;
-import com.rbatllet.blockchain.cli.util.ExitUtil;
+import com.rbatllet.blockchain.security.SecureKeyStorage;
+import com.rbatllet.blockchain.security.PasswordUtil;
+import com.rbatllet.blockchain.util.ExitUtil;
 import com.rbatllet.blockchain.util.CryptoUtil;
 
 import java.security.KeyPair;

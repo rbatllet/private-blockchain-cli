@@ -4,13 +4,10 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.entity.Block;
-import com.rbatllet.blockchain.entity.AuthorizedKey;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
-import com.rbatllet.blockchain.cli.util.ExitUtil;
 import com.rbatllet.blockchain.util.CryptoUtil;
-
-import java.security.PublicKey;
-import java.time.LocalDateTime;
+import com.rbatllet.blockchain.util.ExitUtil;
+import com.rbatllet.blockchain.util.validation.BlockValidationResult;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ArrayList;
@@ -22,17 +19,14 @@ import java.util.ArrayList;
          description = "Validate the entire blockchain integrity")
 public class ValidateCommand implements Runnable {
     
-    @Option(names = {"-d", "--detailed"}, 
-            description = "Show detailed validation results for each block")
-    boolean detailed = false;
+    @Option(names = {"-d", "--detailed"}, description = "Show detailed validation results for each block")
+    private boolean detailed = false;
     
-    @Option(names = {"-j", "--json"}, 
-            description = "Output result in JSON format")
-    boolean json = false;
+    @Option(names = {"-j", "--json"}, description = "Output result in JSON format")
+    private boolean json = false;
     
-    @Option(names = {"-q", "--quick"}, 
-            description = "Perform quick validation (chain integrity only)")
-    boolean quick = false;
+    @Option(names = {"-q", "--quick"}, description = "Perform quick validation (chain integrity only)")
+    private boolean quick = false;
     
     @Override
     public void run() {
@@ -74,59 +68,8 @@ public class ValidateCommand implements Runnable {
     }
     
     /**
-     * Class to store detailed validation results for a block
+     * Using the BlockValidationResult implementation from the core project
      */
-    /**
-     * Clase que encapsula los resultados de la validación de un bloque
-     * Se hace pública para permitir pruebas unitarias
-     */
-    public class BlockValidationResult {
-        private boolean valid = true;
-        private boolean previousHashValid = true;
-        private boolean blockNumberValid = true;
-        private boolean hashIntegrityValid = true;
-        private boolean signatureValid = true;
-        private boolean authorizedKeyValid = true;
-        private String errorMessage = null;
-        
-        public boolean isValid() {
-            return valid && previousHashValid && blockNumberValid && 
-                   hashIntegrityValid && signatureValid && authorizedKeyValid;
-        }
-        
-        public boolean isPreviousHashValid() { return previousHashValid; }
-        public void setPreviousHashValid(boolean valid) { 
-            this.previousHashValid = valid; 
-            if (!valid) this.valid = false;
-        }
-        
-        public boolean isBlockNumberValid() { return blockNumberValid; }
-        public void setBlockNumberValid(boolean valid) { 
-            this.blockNumberValid = valid; 
-            if (!valid) this.valid = false;
-        }
-        
-        public boolean isHashIntegrityValid() { return hashIntegrityValid; }
-        public void setHashIntegrityValid(boolean valid) { 
-            this.hashIntegrityValid = valid; 
-            if (!valid) this.valid = false;
-        }
-        
-        public boolean isSignatureValid() { return signatureValid; }
-        public void setSignatureValid(boolean valid) { 
-            this.signatureValid = valid; 
-            if (!valid) this.valid = false;
-        }
-        
-        public boolean isAuthorizedKeyValid() { return authorizedKeyValid; }
-        public void setAuthorizedKeyValid(boolean valid) { 
-            this.authorizedKeyValid = valid; 
-            if (!valid) this.valid = false;
-        }
-        
-        public String getErrorMessage() { return errorMessage; }
-        public void setErrorMessage(String message) { this.errorMessage = message; }
-    }
     
     private boolean performDetailedValidation(Blockchain blockchain) {
         try {
@@ -136,7 +79,7 @@ public class ValidateCommand implements Runnable {
             
             boolean isChainValid = true;
             
-            // Verificar el bloque génesis por separado
+            // Verify the genesis block separately
             if (!blocks.isEmpty()) {
                 Block genesisBlock = blocks.get(0);
                 boolean isGenesisValid = validateGenesisBlock(genesisBlock);
@@ -148,23 +91,23 @@ public class ValidateCommand implements Runnable {
                 return false;
             }
             
-            // Validar cada bloque individualmente con comprobaciones detalladas
+            // Validate each block individually with detailed checks
             List<BlockValidationResult> validationResults = new ArrayList<>();
             
             for (int i = 1; i < blocks.size(); i++) {
                 Block currentBlock = blocks.get(i);
                 Block previousBlock = blocks.get(i - 1);
                 
-                // Realizar validaciones detalladas y almacenar resultados
+                // Perform detailed validations and store results
                 BlockValidationResult result = validateBlockDetailed(blockchain, currentBlock, previousBlock);
                 validationResults.add(result);
                 
-                // Si algún bloque es inválido, la cadena es inválida
+                // If any block is invalid, the chain is invalid
                 if (!result.isValid()) {
                     isChainValid = false;
                 }
                 
-                // Mostrar resultados detallados si se solicita
+                // Show detailed results if requested
                 if (detailed && !json) {
                     showDetailedBlockValidation(currentBlock, result);
                 }
@@ -182,29 +125,31 @@ public class ValidateCommand implements Runnable {
     }
     
     /**
-     * Valida un bloque individual con validaciones detalladas
-     * Utiliza los métodos públicos de la clase Blockchain para realizar las validaciones
-     * Se hace público para permitir pruebas unitarias
+     * Validates an individual block with detailed validations
+     * Uses the core project's BlockValidationResult for validation results
+     * Made public to allow unit testing
      */
     public BlockValidationResult validateBlockDetailed(Blockchain blockchain, Block block, Block previousBlock) {
         BlockValidationResult result = new BlockValidationResult();
         
         try {
-            // Validar hash previo
+            // Validate previous hash
             boolean previousHashValid = block.getPreviousHash().equals(previousBlock.getHash());
             result.setPreviousHashValid(previousHashValid);
             if (!previousHashValid) {
                 result.setErrorMessage("Previous hash mismatch: expected " + previousBlock.getHash() + ", got " + block.getPreviousHash());
             }
             
-            // Validar número de bloque
-            boolean blockNumberValid = block.getBlockNumber() == previousBlock.getBlockNumber() + 1;
+            // Validate block number
+            long expectedNumber = previousBlock.getBlockNumber() + 1L;
+            long actualNumber = block.getBlockNumber();
+            boolean blockNumberValid = expectedNumber == actualNumber;
             result.setBlockNumberValid(blockNumberValid);
             if (!blockNumberValid) {
-                result.setErrorMessage("Block number mismatch: expected " + (previousBlock.getBlockNumber() + 1) + ", got " + block.getBlockNumber());
+                result.setErrorMessage("Block number mismatch: expected " + expectedNumber + ", got " + actualNumber);
             }
             
-            // Validar integridad del hash
+            // Validate hash integrity
             String calculatedHash = CryptoUtil.calculateHash(blockchain.buildBlockContent(block));
             boolean hashValid = block.getHash().equals(calculatedHash);
             result.setHashIntegrityValid(hashValid);
@@ -212,12 +157,12 @@ public class ValidateCommand implements Runnable {
                 result.setErrorMessage("Hash mismatch: expected " + calculatedHash + ", got " + block.getHash());
             }
             
-            // Validar firma digital
+            // Validate digital signature
             try {
-                PublicKey signerPublicKey = CryptoUtil.stringToPublicKey(block.getSignerPublicKey());
+                java.security.PublicKey signerPublicKey = CryptoUtil.stringToPublicKey(block.getSignerPublicKey());
                 boolean signatureValid = CryptoUtil.verifySignature(blockchain.buildBlockContent(block), 
-                                                                  block.getSignature(), 
-                                                                  signerPublicKey);
+                                                                   block.getSignature(), 
+                                                                   signerPublicKey);
                 result.setSignatureValid(signatureValid);
                 if (!signatureValid) {
                     result.setErrorMessage("Invalid digital signature");
@@ -227,22 +172,23 @@ public class ValidateCommand implements Runnable {
                 result.setErrorMessage("Error verifying signature: " + e.getMessage());
             }
             
-            // Validar autorización de la clave usando el método público de Blockchain
+            // Validate key authorization using Blockchain's public method
             boolean keyAuthorized = blockchain.wasKeyAuthorizedAt(block.getSignerPublicKey(), block.getTimestamp());
             result.setAuthorizedKeyValid(keyAuthorized);
             if (!keyAuthorized) {
                 result.setErrorMessage("Block signed by key that was not authorized at time of creation");
             }
             
+            // The overall validity is automatically calculated by the isValid() method
+            // based on all individual validation results
+            
             return result;
         } catch (Exception e) {
-            // No necesitamos setValid(false) porque los setters individuales ya actualizan valid
-            // cuando se establece un valor falso
             if (result.isPreviousHashValid() && result.isBlockNumberValid() && 
                 result.isHashIntegrityValid() && result.isSignatureValid() && 
                 result.isAuthorizedKeyValid()) {
-                // Solo si no se ha establecido ningún error específico
-                result.setPreviousHashValid(false); // Esto establecerá valid = false
+                // Only if no specific error has been set
+                result.setPreviousHashValid(false);
             }
             result.setErrorMessage("Error validating block: " + e.getMessage());
             return result;
@@ -281,33 +227,20 @@ public class ValidateCommand implements Runnable {
     }
     
     /**
-     * Helper method que utiliza el método público wasKeyAuthorizedAt de la clase Blockchain
-     */
-    private boolean wasKeyAuthorizedAt(Blockchain blockchain, String publicKeyString, LocalDateTime timestamp) {
-        try {
-            // Usar el método público de la clase Blockchain
-            return blockchain.wasKeyAuthorizedAt(publicKeyString, timestamp);
-        } catch (Exception e) {
-            BlockchainCLI.verbose("Error checking key authorization: " + e.getMessage());
-            return false;
-        }
-    }
-    
-    /**
      * Show detailed validation results for a block
      */
     private void showDetailedBlockValidation(Block block, BlockValidationResult result) {
         String overallStatus = result.isValid() ? "✅ VALID" : "❌ INVALID";
         System.out.println("📦 Block #" + block.getBlockNumber() + " - " + overallStatus);
         
-        // Mostrar información básica del bloque
+        // Show basic block information
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         System.out.println("   📅 Timestamp: " + block.getTimestamp().format(formatter));
         System.out.println("   🔗 Hash: " + truncateHash(block.getHash()));
         System.out.println("   🔗 Previous Hash: " + truncateHash(block.getPreviousHash()));
         System.out.println("   📝 Data Length: " + block.getData().length() + " chars");
         
-        // Mostrar resultados detallados de las validaciones
+        // Show detailed validation results
         System.out.println("   🔍 Validation Details:");
         System.out.println("      - Previous Hash: " + (result.isPreviousHashValid() ? "✅ Valid" : "❌ Invalid"));
         System.out.println("      - Block Number: " + (result.isBlockNumberValid() ? "✅ Valid" : "❌ Invalid"));
@@ -315,7 +248,7 @@ public class ValidateCommand implements Runnable {
         System.out.println("      - Digital Signature: " + (result.isSignatureValid() ? "✅ Valid" : "❌ Invalid"));
         System.out.println("      - Key Authorization: " + (result.isAuthorizedKeyValid() ? "✅ Valid" : "❌ Invalid"));
         
-        // Mostrar mensaje de error si existe
+        // Show error message if exists
         if (result.getErrorMessage() != null) {
             System.out.println("   ⚠️ Error: " + result.getErrorMessage());
         }

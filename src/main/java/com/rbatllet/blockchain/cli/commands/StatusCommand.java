@@ -4,7 +4,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
-import com.rbatllet.blockchain.cli.util.ExitUtil;
+import com.rbatllet.blockchain.util.ExitUtil;
 
 /**
  * Command to show blockchain status and statistics

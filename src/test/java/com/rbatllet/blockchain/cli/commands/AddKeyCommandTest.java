@@ -5,9 +5,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
-import com.rbatllet.blockchain.cli.util.ExitUtil;
+import com.rbatllet.blockchain.util.ExitUtil;
 
 import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 
@@ -16,9 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test suite for AddKeyCommand
  * 
- * DISABLED: These tests are causing JVM crashes, likely due to System.exit() calls
- * in the AddKeyCommand implementation. The command works fine in practice but
- * causes issues in the test environment.
+ * Note: These tests use ExitUtil.disableExit() to prevent System.exit() calls
+ * from terminating the JVM during test execution.
  */
 public class AddKeyCommandTest {
 
@@ -69,8 +70,32 @@ public class AddKeyCommandTest {
 
     @Test
     void testAddKeyWithGenerateAndStorePrivate() {
-        // This test requires password input, so we skip it for now
-        // Can be implemented with proper password mocking later
+        // Save original System.in
+        InputStream originalIn = System.in;
+        
+        try {
+            // Create a stream with the password input (password + confirmation)
+            String simulatedInput = "testPassword123\ntestPassword123\n";
+            ByteArrayInputStream testIn = new ByteArrayInputStream(simulatedInput.getBytes());
+            System.setIn(testIn);
+            
+            // Execute command with store-private flag
+            int exitCode = cli.execute("SecureTestUser", "--generate", "--store-private");
+            
+            // Check exit code
+            int realExitCode = ExitUtil.isExitDisabled() ? ExitUtil.getLastExitCode() : exitCode;
+            assertEquals(0, realExitCode, "Should succeed when generating key with store-private option");
+            
+            // Verify output contains expected messages
+            String output = outContent.toString();
+            assertTrue(output.contains("stored") || output.contains("secure") || 
+                      output.contains("private") || output.contains("SecureTestUser"),
+                      "Output should indicate private key was stored. Output: " + output);
+            
+        } finally {
+            // Restore original System.in
+            System.setIn(originalIn);
+        }
     }
 
     @Test 

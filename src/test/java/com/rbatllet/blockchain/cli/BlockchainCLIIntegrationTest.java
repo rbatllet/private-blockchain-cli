@@ -1,6 +1,7 @@
 package com.rbatllet.blockchain.cli;
 
-import com.rbatllet.blockchain.cli.util.ExitUtil;
+import com.rbatllet.blockchain.util.ExitUtil;
+import com.rbatllet.blockchain.cli.commands.HelpCommand;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
@@ -46,7 +47,7 @@ public class BlockchainCLIIntegrationTest {
         System.setOut(originalOut);
         System.setErr(originalErr);
         
-        // Re-enable System.exit() after testing
+        // Re-enable ExitUtil after tests
         ExitUtil.enableExit();
     }
 
@@ -190,7 +191,7 @@ public class BlockchainCLIIntegrationTest {
 
     @Test
     void testHelpSystem() {
-        CommandLine helpCli = new CommandLine(new com.rbatllet.blockchain.cli.commands.HelpCommand());
+        CommandLine helpCli = new CommandLine(new HelpCommand());
         
         // Test help command
         int helpCommandResult = helpCli.execute();

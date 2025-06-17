@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
+import com.rbatllet.blockchain.util.ExitUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -32,6 +33,9 @@ public class ValidateCommandTest {
         System.setErr(new PrintStream(errContent));
         System.setProperty("user.dir", tempDir.toString());
         
+        // Disable ExitUtil to prevent System.exit() calls during tests
+        ExitUtil.disableExit();
+        
         cli = new CommandLine(new ValidateCommand());
     }
 
@@ -39,6 +43,9 @@ public class ValidateCommandTest {
     void tearDown() {
         System.setOut(originalOut);
         System.setErr(originalErr);
+        
+        // Re-enable ExitUtil after tests
+        ExitUtil.enableExit();
     }
 
     @Test

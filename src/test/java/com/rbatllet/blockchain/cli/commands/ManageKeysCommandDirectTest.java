@@ -1,6 +1,6 @@
 package com.rbatllet.blockchain.cli.commands;
 
-import com.rbatllet.blockchain.cli.security.SecureKeyStorage;
+import com.rbatllet.blockchain.security.SecureKeyStorage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

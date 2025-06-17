@@ -1,12 +1,11 @@
 package com.rbatllet.blockchain.cli.commands;
 
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Option;
+import com.rbatllet.blockchain.security.SecureKeyStorage;
+import com.rbatllet.blockchain.util.ExitUtil;
+import com.rbatllet.blockchain.security.PasswordUtil;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
-import com.rbatllet.blockchain.cli.security.SecureKeyStorage;
-import com.rbatllet.blockchain.cli.security.PasswordUtil;
-import com.rbatllet.blockchain.cli.util.ExitUtil;
 import java.io.InputStream;
 
 /**
@@ -218,6 +217,7 @@ public class ManageKeysCommand implements Runnable {
         System.out.print("⚠️  Are you sure you want to delete the private key for '" + owner + "'? (yes/no): ");
         java.util.Scanner scanner = new java.util.Scanner(inputStream);
         String confirmation = scanner.nextLine().trim().toLowerCase();
+        scanner.close(); // Close the scanner to prevent resource leak
         
         if (!confirmation.equals("yes")) {
             throw new OperationCancelledException("User cancelled operation");

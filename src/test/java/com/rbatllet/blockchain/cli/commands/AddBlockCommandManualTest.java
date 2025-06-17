@@ -3,7 +3,7 @@ package com.rbatllet.blockchain.cli.commands;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.entity.AuthorizedKey;
 import com.rbatllet.blockchain.util.CryptoUtil;
-import com.rbatllet.blockchain.cli.util.ExitUtil;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;

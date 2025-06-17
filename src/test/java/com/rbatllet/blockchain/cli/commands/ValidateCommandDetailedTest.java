@@ -2,6 +2,8 @@ package com.rbatllet.blockchain.cli.commands;
 
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.entity.Block;
+import com.rbatllet.blockchain.util.validation.BlockValidationResult;
+import com.rbatllet.blockchain.util.ExitUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterEach;
@@ -10,7 +12,6 @@ import picocli.CommandLine;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -38,14 +39,14 @@ public class ValidateCommandDetailedTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        // Configurar la salida estándar para capturar la salida
+        // Configure standard output to capture output
         System.setOut(new PrintStream(outContent));
         System.setErr(new PrintStream(errContent));
         
-        // Configurar el directorio temporal para los datos de la blockchain
+        // Configure temporary directory for blockchain data
         System.setProperty("user.dir", tempDir.toString());
         
-        // Inicializar los comandos y la blockchain
+        // Initialize commands and blockchain
         validateCommand = new ValidateCommand();
         blockchain = new Blockchain();
         
@@ -56,6 +57,9 @@ public class ValidateCommandDetailedTest {
         blockchain = new Blockchain();
         // Clean and reinitialize the blockchain
         blockchain.clearAndReinitialize();
+        
+        // Disable ExitUtil to prevent System.exit() calls during tests
+        ExitUtil.disableExit();
         
         // Create a test key
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
@@ -77,12 +81,15 @@ public class ValidateCommandDetailedTest {
 
     @AfterEach
     void tearDown() {
-        // Restaurar la salida estándar
+        // Restore standard output
         System.setOut(originalOut);
         System.setErr(originalErr);
         
-        // Limpiar las propiedades del sistema
+        // Clear system properties
         System.clearProperty("user.dir");
+        System.clearProperty("blockchain.data.dir");
+        // Re-enable ExitUtil after tests
+        ExitUtil.enableExit();
     }
     
     /**
@@ -97,22 +104,30 @@ public class ValidateCommandDetailedTest {
         Block genesisBlock = blocks.get(0);
         Block testBlock = blocks.get(1);
         
-        // Test validation of the test block against genesis block
-        ValidateCommand.BlockValidationResult result = validateCommand.validateBlockDetailed(
+        // Verify that blocks are correctly configured
+        assertEquals(0, genesisBlock.getBlockNumber(), "Genesis block should have block number 0");
+        assertEquals(1, testBlock.getBlockNumber(), "Test block should have block number 1");
+        assertEquals(genesisBlock.getHash(), testBlock.getPreviousHash(), "Test block's previous hash should match genesis block hash");
+        
+        // Test validation of the test block against its previous block (genesis block)
+        BlockValidationResult result = validateCommand.validateBlockDetailed(
             blockchain, testBlock, genesisBlock);
         
         // Verify the result is not null
         assertNotNull(result);
         
-        // Verify the validation was successful
-        assertTrue(result.isValid());
+        // Verify each validation individually
+        assertTrue(result.isPreviousHashValid(), "Previous hash validation failed");
+        assertTrue(result.isBlockNumberValid(), "Block number validation failed");
+        assertTrue(result.isHashIntegrityValid(), "Hash integrity validation failed");
+        assertTrue(result.isSignatureValid(), "Signature validation failed");
+        assertTrue(result.isAuthorizedKeyValid(), "Authorized key validation failed");
         
-        // Verify all individual checks passed
-        assertTrue(result.isPreviousHashValid());
-        assertTrue(result.isBlockNumberValid());
-        assertTrue(result.isHashIntegrityValid());
-        assertTrue(result.isSignatureValid());
-        assertTrue(result.isAuthorizedKeyValid());
+        // Verify that the overall validation is successful
+        assertTrue(result.isValid(), "Overall validation failed");
+        
+        // Verify that there is no error message
+        assertNull(result.getErrorMessage(), "Error message should be null for valid blocks");
     }
     
     /**
@@ -136,7 +151,7 @@ public class ValidateCommandDetailedTest {
         corruptedBlock.setSignerPublicKey(testBlock.getSignerPublicKey());
         
         // Test validation of the corrupted block
-        ValidateCommand.BlockValidationResult result = validateCommand.validateBlockDetailed(
+        BlockValidationResult result = validateCommand.validateBlockDetailed(
             blockchain, corruptedBlock, genesisBlock);
         
         // Verify the validation failed
@@ -175,7 +190,7 @@ public class ValidateCommandDetailedTest {
         unauthorizedBlock.setSignerPublicKey(unauthorizedPublicKeyString);
         
         // Test validation of the block with unauthorized key
-        ValidateCommand.BlockValidationResult result = validateCommand.validateBlockDetailed(
+        BlockValidationResult result = validateCommand.validateBlockDetailed(
             blockchain, unauthorizedBlock, genesisBlock);
         
         // The block should fail validation

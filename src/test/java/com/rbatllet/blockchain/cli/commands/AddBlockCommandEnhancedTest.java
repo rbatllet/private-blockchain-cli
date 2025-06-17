@@ -5,16 +5,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
-import com.rbatllet.blockchain.cli.security.SecureKeyStorage;
-import com.rbatllet.blockchain.util.CryptoUtil;
-import com.rbatllet.blockchain.cli.util.ExitUtil;
+import com.rbatllet.blockchain.security.SecureKeyStorage;
+import com.rbatllet.blockchain.util.ExitUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.security.KeyPair;
 
 import static org.junit.jupiter.api.Assertions.*;
 

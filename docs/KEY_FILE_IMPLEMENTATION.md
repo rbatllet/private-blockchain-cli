@@ -15,7 +15,7 @@ The `--key-file` functionality has been **successfully implemented** and is now 
 
 ### Technical Implementation
 - **Modified File**: `src/main/java/com/rbatllet/blockchain/cli/commands/AddBlockCommand.java`
-- **New Import**: `import com.rbatllet.blockchain.cli.security.KeyFileLoader;`
+- **New Import**: `import com.rbatllet.blockchain.security.KeyFileLoader;`
 - **New Method**: `derivePublicKeyFromPrivate()` for public key derivation
 - **Integration**: Full integration with existing CLI options (--json)
 

@@ -1,7 +1,7 @@
 package com.rbatllet.blockchain.cli.commands;
 
 import com.rbatllet.blockchain.cli.BlockchainCLI;
-import com.rbatllet.blockchain.cli.util.ExitUtil;
+import com.rbatllet.blockchain.util.ExitUtil;
 import com.rbatllet.blockchain.util.CryptoUtil;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
@@ -17,7 +17,7 @@ import java.util.Base64;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test específic per la nova opció --verbose del AddBlockCommand
+ * Specific test for the new --verbose option of AddBlockCommand
  */
 @DisplayName("AddBlockCommand --verbose Tests")
 public class AddBlockCommandVerboseTest {

@@ -1,8 +1,8 @@
 package com.rbatllet.blockchain.cli.commands;
 
-import com.rbatllet.blockchain.cli.security.KeyFileLoader;
+import com.rbatllet.blockchain.security.KeyFileLoader;
+import com.rbatllet.blockchain.util.ExitUtil;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
-import com.rbatllet.blockchain.cli.util.ExitUtil;
 import com.rbatllet.blockchain.util.CryptoUtil;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
@@ -14,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.Base64;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,14 +30,12 @@ class AddBlockCommandKeyFileTest {
     
     private KeyPair testKeyPair;
     private PrivateKey testPrivateKey;
-    private PublicKey testPublicKey;
     
     @BeforeEach
     void setUp() {
         // Generate test key pair
         testKeyPair = CryptoUtil.generateKeyPair();
         testPrivateKey = testKeyPair.getPrivate();
-        testPublicKey = testKeyPair.getPublic();
     }
     
     @Nested
@@ -218,9 +215,6 @@ class AddBlockCommandKeyFileTest {
             System.setOut(new PrintStream(output));
             
             try {
-                // Test CLI command (would need mock or integration test setup)
-                String[] args = {"add-block", "Test data", "--key-file", keyFile.toString()};
-                
                 // Verify key can be loaded
                 PrivateKey loadedKey = KeyFileLoader.loadPrivateKeyFromFile(keyFile.toString());
                 assertNotNull(loadedKey);

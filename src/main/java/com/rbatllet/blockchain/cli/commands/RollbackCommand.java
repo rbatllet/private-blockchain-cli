@@ -2,10 +2,9 @@ package com.rbatllet.blockchain.cli.commands;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
-import com.rbatllet.blockchain.cli.util.ExitUtil;
+import com.rbatllet.blockchain.util.ExitUtil;
 import java.util.Scanner;
 
 /**
@@ -170,9 +169,10 @@ public class RollbackCommand implements Runnable {
     
     private boolean confirmRollback() {
         System.out.print("Are you absolutely sure you want to proceed? (type 'yes' to confirm): ");
-        Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine().trim();
-        return "yes".equalsIgnoreCase(input);
+        try (Scanner scanner = new Scanner(System.in)) {
+            String input = scanner.nextLine().trim();
+            return "yes".equalsIgnoreCase(input);
+        }
     }
     
     private void outputSuccessText(long currentBlocks, long finalBlocks, long removedBlocks) {
