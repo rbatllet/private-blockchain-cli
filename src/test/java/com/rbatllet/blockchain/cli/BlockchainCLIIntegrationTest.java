@@ -2,6 +2,7 @@ package com.rbatllet.blockchain.cli;
 
 import com.rbatllet.blockchain.util.ExitUtil;
 import com.rbatllet.blockchain.cli.commands.HelpCommand;
+import com.rbatllet.blockchain.cli.commands.ImportCommand;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
@@ -28,7 +29,6 @@ public class BlockchainCLIIntegrationTest {
     private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
     private final PrintStream originalErr = System.err;
-    private CommandLine mainCli;
 
     @BeforeEach
     void setUp() {
@@ -38,14 +38,15 @@ public class BlockchainCLIIntegrationTest {
         
         // Disable System.exit() for testing
         ExitUtil.disableExit();
-        
-        mainCli = new CommandLine(new BlockchainCLI());
     }
 
     @AfterEach
     void tearDown() {
         System.setOut(originalOut);
         System.setErr(originalErr);
+        
+        // Clear output buffers
+        clearOutput();
         
         // Re-enable ExitUtil after tests
         ExitUtil.enableExit();
@@ -334,6 +335,60 @@ public class BlockchainCLIIntegrationTest {
     private void clearOutput() {
         outContent.reset();
         errContent.reset();
+    }
+    
+    @Test
+    void testImportCommandJsonOutput() throws Exception {
+        // Create an instance of ImportCommand using reflection to access private method
+        ImportCommand importCommand = new ImportCommand();
+        java.lang.reflect.Method outputJsonMethod = ImportCommand.class.getDeclaredMethod(
+            "outputJson", boolean.class, String.class, long.class, int.class, long.class, int.class, boolean.class);
+        outputJsonMethod.setAccessible(true);
+        
+        // Call the outputJson method with test parameters
+        outputJsonMethod.invoke(importCommand, true, "test.json", 10L, 5, 15L, 8, true);
+        
+        // Get the output
+        String output = outContent.toString();
+        
+        // Verify JSON structure and values
+        assertTrue(output.contains("\"success\": true"), "JSON should contain success status");
+        assertTrue(output.contains("\"importFile\": \"test.json\""), "JSON should contain import file name");
+        assertTrue(output.contains("\"previousBlocks\": 10"), "JSON should contain previous blocks count");
+        assertTrue(output.contains("\"previousKeys\": 5"), "JSON should contain previous keys count");
+        assertTrue(output.contains("\"newBlocks\": 15"), "JSON should contain new blocks count");
+        assertTrue(output.contains("\"newKeys\": 8"), "JSON should contain new keys count");
+        assertTrue(output.contains("\"valid\": true"), "JSON should contain validation status");
+        assertTrue(output.contains("\"timestamp\": \""), "JSON should contain timestamp");
+        
+        clearOutput();
+    }
+    
+    @Test
+    void testImportCommandFormatFileSize() throws Exception {
+        // Create an instance of ImportCommand using reflection to access private method
+        ImportCommand importCommand = new ImportCommand();
+        java.lang.reflect.Method formatFileSizeMethod = ImportCommand.class.getDeclaredMethod(
+            "formatFileSize", long.class);
+        formatFileSizeMethod.setAccessible(true);
+        
+        // Test different file size ranges
+        // Bytes
+        assertEquals("500 bytes", formatFileSizeMethod.invoke(importCommand, 500L));
+        
+        // Kilobytes
+        assertEquals("1.0 KB", formatFileSizeMethod.invoke(importCommand, 1024L));
+        assertEquals("1.5 KB", formatFileSizeMethod.invoke(importCommand, 1536L));
+        
+        // Megabytes
+        long oneMB = 1024L * 1024L;
+        assertEquals("1.0 MB", formatFileSizeMethod.invoke(importCommand, oneMB));
+        assertEquals("2.5 MB", formatFileSizeMethod.invoke(importCommand, (long)(2.5 * oneMB)));
+        
+        // Gigabytes
+        long oneGB = 1024L * 1024L * 1024L;
+        assertEquals("1.0 GB", formatFileSizeMethod.invoke(importCommand, oneGB));
+        assertEquals("2.5 GB", formatFileSizeMethod.invoke(importCommand, (long)(2.5 * oneGB)));
     }
     
     /**

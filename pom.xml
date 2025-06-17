@@ -19,6 +19,7 @@
         <picocli.version>4.7.7</picocli.version>
         <java.version>21</java.version>
         <junit-jupiter.version>5.13.1</junit-jupiter.version>
+        <mockito.version>5.18.0</mockito.version>
         <private-blockchain.version>1.0.2</private-blockchain.version>
     </properties>
 
@@ -42,6 +43,22 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <!-- Mockito for mocking in tests -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <!-- Mockito JUnit Jupiter integration -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
