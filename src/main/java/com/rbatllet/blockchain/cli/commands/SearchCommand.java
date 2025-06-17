@@ -36,7 +36,7 @@ public class SearchCommand implements Runnable {
     
     @Option(names = {"-n", "--block-number"}, 
             description = "Search by block number")
-    Integer blockNumber;
+    Long blockNumber;
     
     @Option(names = {"--date-from"}, 
             description = "Search from date (yyyy-MM-dd)")

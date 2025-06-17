@@ -19,11 +19,11 @@ public class RollbackCommand implements Runnable {
     
     @Option(names = {"-b", "--blocks"}, 
             description = "Number of blocks to remove from the end")
-    Integer blocksToRemove;
+    Long blocksToRemove;
     
     @Option(names = {"-t", "--to-block"}, 
             description = "Rollback to specific block number (keeps blocks 0 to N)")
-    Integer targetBlock;
+    Long targetBlock;
     
     @Option(names = {"-y", "--yes", "--confirm"}, 
             description = "Skip confirmation prompt (USE WITH CAUTION)")
