@@ -31,7 +31,9 @@ public class AddBlockCommand implements Runnable {
     String data;
     
     @Option(names = {"-s", "--signer"}, 
-            description = "Name of the key signer (must be authorized)")
+            description = "Name of the key signer (must be authorized). If no private key is stored for this signer,\n" +
+                          "                  a demo mode will be activated that creates a temporary key for demonstration purposes.\n" +
+                          "                  Use 'add-key <signer-name> --generate --store-private' to store a permanent key.")
     String signerName;
     
     @Option(names = {"-k", "--key-file"}, 
@@ -133,16 +135,20 @@ public class AddBlockCommand implements Runnable {
                         ExitUtil.exit(1);
                     }
                 } else {
-                    // Fallback to demo mode if no private key is stored
+                    // DEMO MODE: Activated when a signer is specified but no private key is stored for them
+                    // This mode is intended for demonstration and learning purposes only
+                    // In a real-world scenario, you should always store the private key securely
                     verboseLog("No stored private key found for signer: " + signerName);
                     BlockchainCLI.info("⚠️  DEMO MODE: No stored private key found for signer: " + signerName);
                     BlockchainCLI.info("💡 Use 'add-key " + signerName + " --generate --store-private' to store private key");
                     
+                    // Generate a temporary key pair for this demonstration
                     keyPair = CryptoUtil.generateKeyPair();
                     publicKey = keyPair.getPublic();
                     privateKey = keyPair.getPrivate();
                     
-                    // Update the authorized key with the new temporary public key for this demo
+                    // Add the temporary public key to the blockchain's authorized keys
+                    // The key is backdated by 1 second to ensure it's valid for the current block
                     String tempPublicKeyString = CryptoUtil.publicKeyToString(publicKey);
                     LocalDateTime tempKeyTime = LocalDateTime.now().minusSeconds(1);
                     
