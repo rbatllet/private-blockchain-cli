@@ -1,6 +1,8 @@
 package com.rbatllet.blockchain.cli.commands;
 
 import picocli.CommandLine.Command;
+import com.rbatllet.blockchain.util.ExitUtil;
+import com.rbatllet.blockchain.cli.BlockchainCLI;
 
 /**
  * Command to show detailed help information
@@ -11,9 +13,10 @@ public class HelpCommand implements Runnable {
     
     @Override
     public void run() {
-        System.out.println("🔗 Private Blockchain CLI - Detailed Help");
-        System.out.println("=" .repeat(50));
-        System.out.println();
+        try {
+            System.out.println("🔗 Private Blockchain CLI - Detailed Help");
+            System.out.println("=" .repeat(50));
+            System.out.println();
         
         System.out.println("DESCRIPTION:");
         System.out.println("  Command line interface for managing a private blockchain.");
@@ -115,5 +118,15 @@ public class HelpCommand implements Runnable {
         System.out.println();
         
         System.out.println("For command-specific help: blockchain COMMAND --help");
+        } catch (SecurityException e) {
+            BlockchainCLI.error("Help command failed: Security error - " + e.getMessage());
+            ExitUtil.exit(1);
+        } catch (RuntimeException e) {
+            BlockchainCLI.error("Help command failed: Runtime error - " + e.getMessage());
+            ExitUtil.exit(1);
+        } catch (Exception e) {
+            BlockchainCLI.error("Help command failed: Unexpected error - " + e.getMessage());
+            ExitUtil.exit(1);
+        }
     }
 }

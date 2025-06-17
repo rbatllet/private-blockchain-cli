@@ -51,7 +51,7 @@ public class AddKeyCommand implements Runnable {
             
             // Validate owner name
             if (ownerName == null || ownerName.trim().isEmpty()) {
-                BlockchainCLI.error("Owner name cannot be empty");
+                BlockchainCLI.error("❌ Owner name cannot be empty");
                 ExitUtil.exit(1);
             }
             
@@ -76,7 +76,7 @@ public class AddKeyCommand implements Runnable {
                     
                     String password = PasswordUtil.readPasswordWithConfirmation("🔐 Enter password to protect private key: ");
                     if (password == null) {
-                        BlockchainCLI.error("Password input cancelled");
+                        BlockchainCLI.error("❌ Password input cancelled");
                         ExitUtil.exit(1);
                     }
                     
@@ -88,7 +88,7 @@ public class AddKeyCommand implements Runnable {
                         BlockchainCLI.info("🔒 Private key stored securely for: " + ownerName);
                         BlockchainCLI.info("💡 You can now use --signer " + ownerName + " with add-block command");
                     } else {
-                        BlockchainCLI.error("Failed to store private key");
+                        BlockchainCLI.error("❌ Failed to store private key");
                         ExitUtil.exit(1);
                     }
                 }
@@ -100,8 +100,7 @@ public class AddKeyCommand implements Runnable {
                 BlockchainCLI.verbose("Using provided public key");
                 
                 if (storePrivateKey) {
-                    BlockchainCLI.error("Cannot store private key when using provided public key");
-                    BlockchainCLI.error("Use --generate with --store-private to generate and store a key pair");
+                    BlockchainCLI.error("❌ Cannot store private key when using provided public key: Use --generate with --store-private to generate and store a key pair");
                     ExitUtil.exit(1);
                 }
             }
@@ -134,13 +133,25 @@ public class AddKeyCommand implements Runnable {
                 if (json) {
                     outputJson(false, ownerName, finalPublicKey, null);
                 } else {
-                    BlockchainCLI.error("Failed to add authorized key (key may already exist)");
+                    BlockchainCLI.error("❌ Failed to add authorized key: Key may already exist");
                 }
                 ExitUtil.exit(1);
             }
             
+        } catch (SecurityException e) {
+            BlockchainCLI.error("❌ Failed to add authorized key: Security error - " + e.getMessage());
+            if (BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
+        } catch (RuntimeException e) {
+            BlockchainCLI.error("❌ Failed to add authorized key: Runtime error - " + e.getMessage());
+            if (BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
         } catch (Exception e) {
-            BlockchainCLI.error("Failed to add authorized key: " + e.getMessage());
+            BlockchainCLI.error("❌ Failed to add authorized key: Unexpected error - " + e.getMessage());
             if (BlockchainCLI.verbose) {
                 e.printStackTrace();
             }

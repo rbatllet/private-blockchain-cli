@@ -61,8 +61,20 @@ public class ManageKeysCommand implements Runnable {
                 // Show help if no option provided
                 showUsage();
             }
+        } catch (SecurityException e) {
+            BlockchainCLI.error("❌ Error managing keys: Security error - " + e.getMessage());
+            if (BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
+        } catch (RuntimeException e) {
+            BlockchainCLI.error("❌ Error managing keys: Runtime error - " + e.getMessage());
+            if (BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
         } catch (Exception e) {
-            BlockchainCLI.error("Error managing keys: " + e.getMessage());
+            BlockchainCLI.error("❌ Error managing keys: Unexpected error - " + e.getMessage());
             if (BlockchainCLI.verbose) {
                 e.printStackTrace();
             }
@@ -106,7 +118,7 @@ public class ManageKeysCommand implements Runnable {
                 if (json) {
                     outputDeleteJson(owner, false);
                 } else {
-                    BlockchainCLI.error(result.errorMessage);
+                    BlockchainCLI.error("❌ " + result.errorMessage);
                 }
                 ExitUtil.exit(1);
             }
@@ -133,13 +145,13 @@ public class ManageKeysCommand implements Runnable {
     
     private void testStoredKey(String owner) {
         if (!SecureKeyStorage.hasPrivateKey(owner)) {
-            BlockchainCLI.error("No private key stored for: " + owner);
+            BlockchainCLI.error("❌ No private key stored for: " + owner);
             ExitUtil.exit(1);
         }
         
         String password = PasswordUtil.readPassword("🔐 Enter password for " + owner + ": ");
         if (password == null) {
-            BlockchainCLI.error("Password input cancelled");
+            BlockchainCLI.error("❌ Password input cancelled");
             ExitUtil.exit(1);
         }
         
@@ -215,9 +227,20 @@ public class ManageKeysCommand implements Runnable {
         
         // Confirm deletion
         System.out.print("⚠️  Are you sure you want to delete the private key for '" + owner + "'? (yes/no): ");
-        java.util.Scanner scanner = new java.util.Scanner(inputStream);
-        String confirmation = scanner.nextLine().trim().toLowerCase();
-        scanner.close(); // Close the scanner to prevent resource leak
+        // Read user confirmation
+        String confirmation;
+        java.util.Scanner scanner = null;
+        try {
+            scanner = new java.util.Scanner(inputStream);
+            confirmation = scanner.nextLine().trim().toLowerCase();
+        } finally {
+            // Only close the scanner if it's not using System.in
+            if (scanner != null && inputStream != System.in) {
+                scanner.close();
+            }
+            // We intentionally don't close the scanner when using System.in
+            // to avoid closing the standard input stream
+        }
         
         if (!confirmation.equals("yes")) {
             throw new OperationCancelledException("User cancelled operation");

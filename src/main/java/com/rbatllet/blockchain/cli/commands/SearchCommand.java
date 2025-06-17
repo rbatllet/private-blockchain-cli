@@ -109,8 +109,7 @@ public class SearchCommand implements Runnable {
                 results = blockchain.searchBlocksByContent(content);
                 
             } else {
-                BlockchainCLI.error("No search criteria specified");
-                System.out.println("Use one of: --content, --hash, --block-number, --date-from/--date-to, or provide a search term");
+                BlockchainCLI.error("❌ No search criteria specified: Use --content, --hash, --block-number, --date-from/--date-to, or provide a search term");
                 ExitUtil.exit(1);
             }
             
@@ -125,8 +124,20 @@ public class SearchCommand implements Runnable {
                 outputText(results, searchType);
             }
             
+        } catch (SecurityException e) {
+            BlockchainCLI.error("❌ Search failed: Security error - " + e.getMessage());
+            if (BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
+        } catch (RuntimeException e) {
+            BlockchainCLI.error("❌ Search failed: Runtime error - " + e.getMessage());
+            if (BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
         } catch (Exception e) {
-            BlockchainCLI.error("Search failed: " + e.getMessage());
+            BlockchainCLI.error("❌ Search failed: Unexpected error - " + e.getMessage());
             if (BlockchainCLI.verbose) {
                 e.printStackTrace();
             }
@@ -144,7 +155,7 @@ public class SearchCommand implements Runnable {
             return blockchain.getBlocksByDateRange(fromDate, toDate);
             
         } catch (DateTimeParseException e) {
-            BlockchainCLI.error("Invalid date format. Use yyyy-MM-dd");
+            BlockchainCLI.error("❌ Invalid date format: Use yyyy-MM-dd");
             ExitUtil.exit(1);
             return new ArrayList<>();
         }
@@ -162,7 +173,7 @@ public class SearchCommand implements Runnable {
             return blockchain.getBlocksByTimeRange(fromDateTime, toDateTime);
             
         } catch (DateTimeParseException e) {
-            BlockchainCLI.error("Invalid datetime format. Use yyyy-MM-dd HH:mm");
+            BlockchainCLI.error("❌ Invalid datetime format: Use yyyy-MM-dd HH:mm");
             ExitUtil.exit(1);
             return new ArrayList<>();
         }

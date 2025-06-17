@@ -58,8 +58,20 @@ public class ValidateCommand implements Runnable {
                 ExitUtil.exit(1);
             }
             
+        } catch (SecurityException e) {
+            BlockchainCLI.error("❌ Validation failed: Security error - " + e.getMessage());
+            if (BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
+        } catch (RuntimeException e) {
+            BlockchainCLI.error("❌ Validation failed: Runtime error - " + e.getMessage());
+            if (BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
         } catch (Exception e) {
-            BlockchainCLI.error("Validation failed: " + e.getMessage());
+            BlockchainCLI.error("❌ Validation failed: Unexpected error - " + e.getMessage());
             if (BlockchainCLI.verbose) {
                 e.printStackTrace();
             }
@@ -87,7 +99,7 @@ public class ValidateCommand implements Runnable {
                     isChainValid = false;
                 }
             } else {
-                BlockchainCLI.error("No blocks found in blockchain");
+                BlockchainCLI.error("❌ No blocks found in blockchain");
                 return false;
             }
             
@@ -203,12 +215,12 @@ public class ValidateCommand implements Runnable {
         final String GENESIS_PREVIOUS_HASH = "0";
         
         if (genesisBlock.getBlockNumber() != 0) {
-            BlockchainCLI.error("Genesis block has invalid block number: " + genesisBlock.getBlockNumber());
+            BlockchainCLI.error("❌ Genesis block has invalid block number: " + genesisBlock.getBlockNumber());
             isValid = false;
         }
         
         if (!GENESIS_PREVIOUS_HASH.equals(genesisBlock.getPreviousHash())) {
-            BlockchainCLI.error("Genesis block has invalid previous hash");
+            BlockchainCLI.error("❌ Genesis block has invalid previous hash");
             isValid = false;
         }
         
@@ -291,7 +303,7 @@ public class ValidateCommand implements Runnable {
             BlockchainCLI.success("Blockchain validation completed successfully!");
             System.out.println("💡 All blocks are properly linked and signatures are valid.");
         } else {
-            BlockchainCLI.error("Blockchain validation failed!");
+            BlockchainCLI.error("❌ Blockchain validation failed!");
             System.out.println("⚠️  The blockchain contains invalid blocks or broken links.");
             System.out.println("   Run with --detailed flag for more information.");
         }

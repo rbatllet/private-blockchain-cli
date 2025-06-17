@@ -45,13 +45,13 @@ public class RollbackCommand implements Runnable {
             
             // Validate input parameters
             if (blocksToRemove != null && targetBlock != null) {
-                BlockchainCLI.error("Cannot specify both --blocks and --to-block options");
+                BlockchainCLI.error("❌ Cannot specify both --blocks and --to-block options");
                 ExitUtil.exit(2);
                 return;
             }
             
             if (blocksToRemove == null && targetBlock == null) {
-                BlockchainCLI.error("Must specify either --blocks N or --to-block N");
+                BlockchainCLI.error("❌ Must specify either --blocks N or --to-block N");
                 ExitUtil.exit(2);
                 return;
             }
@@ -63,15 +63,13 @@ public class RollbackCommand implements Runnable {
             
             if (blocksToRemove != null) {
                 if (blocksToRemove <= 0) {
-                    BlockchainCLI.error("Number of blocks must be positive");
+                    BlockchainCLI.error("❌ Invalid block count: Number of blocks must be positive");
                     ExitUtil.exit(2);
                     return;
                 }
                 
                 if (blocksToRemove >= currentBlockCount) {
-                    BlockchainCLI.error("Cannot remove " + blocksToRemove + 
-                                      " blocks. Only " + currentBlockCount + 
-                                      " blocks exist (including genesis block)");
+                    BlockchainCLI.error("❌ Cannot remove " + blocksToRemove + " blocks: Only " + currentBlockCount + " blocks exist (including genesis block)");
                     ExitUtil.exit(1);
                     return;
                 }
@@ -81,14 +79,13 @@ public class RollbackCommand implements Runnable {
                 
             } else if (targetBlock != null) {
                 if (targetBlock < 0) {
-                    BlockchainCLI.error("Target block number cannot be negative");
+                    BlockchainCLI.error("❌ Invalid target block: Target block number cannot be negative");
                     ExitUtil.exit(2);
                     return;
                 }
                 
                 if (targetBlock >= currentBlockCount) {
-                    BlockchainCLI.error("Target block " + targetBlock + 
-                                      " does not exist. Current max block: " + (currentBlockCount - 1));
+                    BlockchainCLI.error("❌ Target block " + targetBlock + " does not exist: Current max block is " + (currentBlockCount - 1));
                     ExitUtil.exit(1);
                     return;
                 }
@@ -138,16 +135,30 @@ public class RollbackCommand implements Runnable {
                 if (json) {
                     outputErrorJson("Rollback operation failed");
                 } else {
-                    BlockchainCLI.error("Rollback operation failed");
+                    BlockchainCLI.error("❌ Rollback operation failed");
                 }
                 ExitUtil.exit(1);
             }
             
+        } catch (SecurityException e) {
+            if (json) {
+                outputErrorJson("Rollback failed: Security error - " + e.getMessage());
+            } else {
+                BlockchainCLI.error("❌ Rollback failed: Security error - " + e.getMessage());
+            }
+            ExitUtil.exit(1);
+        } catch (RuntimeException e) {
+            if (json) {
+                outputErrorJson("Rollback failed: Runtime error - " + e.getMessage());
+            } else {
+                BlockchainCLI.error("❌ Rollback failed: Runtime error - " + e.getMessage());
+            }
+            ExitUtil.exit(1);
         } catch (Exception e) {
             if (json) {
-                outputErrorJson("Rollback failed: " + e.getMessage());
+                outputErrorJson("Rollback failed: Unexpected error - " + e.getMessage());
             } else {
-                BlockchainCLI.error("Rollback failed: " + e.getMessage());
+                BlockchainCLI.error("❌ Rollback failed: Unexpected error - " + e.getMessage());
             }
             ExitUtil.exit(1);
         }

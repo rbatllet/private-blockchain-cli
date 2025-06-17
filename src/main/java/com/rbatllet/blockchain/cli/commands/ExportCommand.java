@@ -45,7 +45,7 @@ public class ExportCommand implements Runnable {
             
             // Validate output file path
             if (outputFile == null || outputFile.trim().isEmpty()) {
-                BlockchainCLI.error("Output file path cannot be empty");
+                BlockchainCLI.error("❌ Output file path cannot be empty");
                 ExitUtil.exit(1);
             }
             
@@ -54,8 +54,7 @@ public class ExportCommand implements Runnable {
             File file = outputPath.toFile();
             
             if (file.exists() && !overwrite) {
-                BlockchainCLI.error("File already exists: " + outputFile);
-                System.out.println("Use --overwrite flag to replace existing file");
+                BlockchainCLI.error("❌ File already exists: " + outputFile + ". Use --overwrite flag to replace existing file");
                 ExitUtil.exit(1);
             }
             
@@ -64,15 +63,14 @@ public class ExportCommand implements Runnable {
             if (parentDir != null && !parentDir.exists()) {
                 BlockchainCLI.verbose("Creating parent directories: " + parentDir.getAbsolutePath());
                 if (!parentDir.mkdirs()) {
-                    BlockchainCLI.error("Failed to create parent directories");
+                    BlockchainCLI.error("❌ Failed to create parent directories");
                     ExitUtil.exit(1);
                 }
             }
             
             // Validate format
             if (!"json".equalsIgnoreCase(format)) {
-                BlockchainCLI.error("Unsupported export format: " + format);
-                System.out.println("Supported formats: json");
+                BlockchainCLI.error("❌ Unsupported export format: " + format + ". Supported formats: json");
                 ExitUtil.exit(1);
             }
             
@@ -107,13 +105,25 @@ public class ExportCommand implements Runnable {
                 if (jsonOutput) {
                     outputJson(false, outputFile, blockCount, keyCount, 0);
                 } else {
-                    BlockchainCLI.error("Failed to export blockchain");
+                    BlockchainCLI.error("❌ Failed to export blockchain");
                 }
                 ExitUtil.exit(1);
             }
             
+        } catch (SecurityException e) {
+            BlockchainCLI.error("❌ Export failed: Security error - " + e.getMessage());
+            if (BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
+        } catch (RuntimeException e) {
+            BlockchainCLI.error("❌ Export failed: Runtime error - " + e.getMessage());
+            if (BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
         } catch (Exception e) {
-            BlockchainCLI.error("Export failed: " + e.getMessage());
+            BlockchainCLI.error("❌ Export failed: Unexpected error - " + e.getMessage());
             if (BlockchainCLI.verbose) {
                 e.printStackTrace();
             }

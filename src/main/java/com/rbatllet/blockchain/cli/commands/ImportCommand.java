@@ -49,7 +49,7 @@ public class ImportCommand implements Runnable {
             
             // Validate input file
             if (inputFile == null || inputFile.trim().isEmpty()) {
-                BlockchainCLI.error("Input file path cannot be empty");
+                BlockchainCLI.error("❌ Input file path cannot be empty");
                 ExitUtil.exit(1);
             }
             
@@ -57,12 +57,12 @@ public class ImportCommand implements Runnable {
             File file = inputPath.toFile();
             
             if (!file.exists()) {
-                BlockchainCLI.error("Import file does not exist: " + inputFile);
+                BlockchainCLI.error("❌ Import file does not exist: " + inputFile);
                 ExitUtil.exit(1);
             }
             
             if (!file.canRead()) {
-                BlockchainCLI.error("Cannot read import file: " + inputFile);
+                BlockchainCLI.error("❌ Cannot read import file: " + inputFile);
                 ExitUtil.exit(1);
             }
             
@@ -108,7 +108,7 @@ public class ImportCommand implements Runnable {
                 if (backupSuccess) {
                     BlockchainCLI.info("Backup created: " + backupFile);
                 } else {
-                    BlockchainCLI.error("Failed to create backup");
+                    BlockchainCLI.error("❌ Failed to create backup");
                     if (!force) {
                         ExitUtil.exit(1);
                     }
@@ -151,7 +151,7 @@ public class ImportCommand implements Runnable {
                 }
                 
                 if (!isValid && validateAfter) {
-                    BlockchainCLI.error("Warning: Imported blockchain failed validation!");
+                    BlockchainCLI.error("❌ Warning: Imported blockchain failed validation!");
                     if (!force) {
                         ExitUtil.exit(1);
                     }
@@ -161,13 +161,25 @@ public class ImportCommand implements Runnable {
                 if (json) {
                     outputJson(false, inputFile, currentBlocks, currentKeys, currentBlocks, currentKeys, false);
                 } else {
-                    BlockchainCLI.error("Failed to import blockchain");
+                    BlockchainCLI.error("❌ Failed to import blockchain");
                 }
                 ExitUtil.exit(1);
             }
             
+        } catch (SecurityException e) {
+            BlockchainCLI.error("❌ Import failed: Security error - " + e.getMessage());
+            if (BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
+        } catch (RuntimeException e) {
+            BlockchainCLI.error("❌ Import failed: Runtime error - " + e.getMessage());
+            if (BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
         } catch (Exception e) {
-            BlockchainCLI.error("Import failed: " + e.getMessage());
+            BlockchainCLI.error("❌ Import failed: Unexpected error - " + e.getMessage());
             if (BlockchainCLI.verbose) {
                 e.printStackTrace();
             }

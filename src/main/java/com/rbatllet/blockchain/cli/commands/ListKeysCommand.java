@@ -50,8 +50,20 @@ public class ListKeysCommand implements Runnable {
                 outputText(keys);
             }
             
+        } catch (SecurityException e) {
+            BlockchainCLI.error("❌ Failed to retrieve authorized keys: Security error - " + e.getMessage());
+            if (BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
+        } catch (RuntimeException e) {
+            BlockchainCLI.error("❌ Failed to retrieve authorized keys: Runtime error - " + e.getMessage());
+            if (BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
         } catch (Exception e) {
-            BlockchainCLI.error("Failed to retrieve authorized keys: " + e.getMessage());
+            BlockchainCLI.error("❌ Failed to retrieve authorized keys: Unexpected error - " + e.getMessage());
             if (BlockchainCLI.verbose) {
                 e.printStackTrace();
             }

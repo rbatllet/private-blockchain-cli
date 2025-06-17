@@ -48,8 +48,20 @@ public class BlockchainCLI implements Runnable {
         try {
             int exitCode = new CommandLine(new BlockchainCLI()).execute(args);
             ExitUtil.exit(exitCode);
+        } catch (SecurityException e) {
+            System.err.println("❌ Security error: " + e.getMessage());
+            if (verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
+        } catch (RuntimeException e) {
+            System.err.println("❌ Runtime error: " + e.getMessage());
+            if (verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
         } catch (Exception e) {
-            System.err.println("Unexpected error: " + e.getMessage());
+            System.err.println("❌ Unexpected error: " + e.getMessage());
             if (verbose) {
                 e.printStackTrace();
             }

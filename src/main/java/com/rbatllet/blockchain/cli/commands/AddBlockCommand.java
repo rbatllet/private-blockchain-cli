@@ -59,7 +59,7 @@ public class AddBlockCommand implements Runnable {
             
             // Validate data length
             if (data == null || data.trim().isEmpty()) {
-                BlockchainCLI.error("Block data cannot be empty");
+                BlockchainCLI.error("❌ Block data cannot be empty");
                 ExitUtil.exit(1);
             }
             
@@ -67,7 +67,7 @@ public class AddBlockCommand implements Runnable {
             
             // Check data length limits (we'll use simple length check)
             if (data.length() > blockchain.getMaxBlockDataLength()) {
-                BlockchainCLI.error("Block data exceeds maximum length limit");
+                BlockchainCLI.error("❌ Block data exceeds maximum length limit");
                 ExitUtil.exit(1);
             }
             
@@ -95,7 +95,7 @@ public class AddBlockCommand implements Runnable {
                     BlockchainCLI.info("Automatically authorized new key as: " + autoOwnerName);
                     System.out.println("🔑 Public Key: " + publicKeyString);
                 } else {
-                    BlockchainCLI.error("Failed to authorize generated key");
+                    BlockchainCLI.error("❌ Failed to authorize generated key");
                     ExitUtil.exit(1);
                 }
             } else if (signerName != null) {
@@ -104,8 +104,7 @@ public class AddBlockCommand implements Runnable {
                 
                 var authorizedKey = blockchain.getAuthorizedKeyByOwner(signerName);
                 if (authorizedKey == null) {
-                    BlockchainCLI.error("Signer '" + signerName + "' not found in authorized keys");
-                    BlockchainCLI.error("Use 'blockchain list-keys' to see available signers");
+                    BlockchainCLI.error("❌ Signer '" + signerName + "' not found in authorized keys: Use 'blockchain list-keys' to see available signers");
                     ExitUtil.exit(1);
                 }
                 
@@ -115,13 +114,13 @@ public class AddBlockCommand implements Runnable {
                     
                     String password = PasswordUtil.readPassword("🔐 Enter password for " + signerName + ": ");
                     if (password == null) {
-                        BlockchainCLI.error("Password input cancelled");
+                        BlockchainCLI.error("❌ Password input cancelled");
                         ExitUtil.exit(1);
                     }
                     
                     privateKey = SecureKeyStorage.loadPrivateKey(signerName, password);
                     if (privateKey == null) {
-                        BlockchainCLI.error("Failed to load private key (wrong password?)");
+                        BlockchainCLI.error("❌ Failed to load private key: Wrong password?");
                         ExitUtil.exit(1);
                     }
                     
@@ -130,8 +129,7 @@ public class AddBlockCommand implements Runnable {
                         publicKey = CryptoUtil.stringToPublicKey(authorizedKey.getPublicKey());
                         BlockchainCLI.info("✅ Using stored private key for signer: " + signerName);
                     } catch (Exception e) {
-                        BlockchainCLI.error("Failed to parse authorized public key for signer: " + signerName);
-                        BlockchainCLI.error("Error: " + e.getMessage());
+                        BlockchainCLI.error("❌ Failed to parse authorized public key for signer '" + signerName + "': " + e.getMessage());
                         ExitUtil.exit(1);
                     }
                 } else {
@@ -157,7 +155,7 @@ public class AddBlockCommand implements Runnable {
                         BlockchainCLI.info("🔑 DEMO: This simulates using the --signer functionality");
                         System.out.println("🔑 Temp Public Key: " + tempPublicKeyString);
                     } else {
-                        BlockchainCLI.error("Failed to create temporary demo key");
+                        BlockchainCLI.error("❌ Failed to create temporary demo key");
                         ExitUtil.exit(1);
                     }
                 }
@@ -167,7 +165,7 @@ public class AddBlockCommand implements Runnable {
                 
                 // Validate key file path
                 if (!KeyFileLoader.isValidKeyFilePath(keyFilePath)) {
-                    BlockchainCLI.error("Invalid key file path or file is not accessible: " + keyFilePath);
+                    BlockchainCLI.error("❌ Invalid key file path or file is not accessible: " + keyFilePath);
                     ExitUtil.exit(1);
                 }
                 
@@ -178,10 +176,10 @@ public class AddBlockCommand implements Runnable {
                 // Load private key from file
                 privateKey = KeyFileLoader.loadPrivateKeyFromFile(keyFilePath);
                 if (privateKey == null) {
-                    BlockchainCLI.error("Failed to load private key from file: " + keyFilePath);
-                    BlockchainCLI.error("Supported formats: PEM (PKCS#8), DER, Base64");
-                    BlockchainCLI.error("For PEM files, use PKCS#8 format:");
-                    BlockchainCLI.error("  openssl pkcs8 -topk8 -nocrypt -in rsa_key.pem -out pkcs8_key.pem");
+                    BlockchainCLI.error("❌ Failed to load private key from file: " + keyFilePath);
+                    BlockchainCLI.error("   Supported formats: PEM (PKCS#8), DER, Base64");
+                    BlockchainCLI.error("   For PEM files, use PKCS#8 format:");
+                    BlockchainCLI.error("   openssl pkcs8 -topk8 -nocrypt -in rsa_key.pem -out pkcs8_key.pem");
                     ExitUtil.exit(1);
                 }
                 
@@ -192,7 +190,7 @@ public class AddBlockCommand implements Runnable {
                     verboseLog("Key file: " + keyFilePath);
                     verboseLog("Format: " + format);
                 } catch (Exception e) {
-                    BlockchainCLI.error("Failed to derive public key from private key: " + e.getMessage());
+                    BlockchainCLI.error("❌ Failed to derive public key from private key: " + e.getMessage());
                     ExitUtil.exit(1);
                 }
                 
@@ -216,7 +214,7 @@ public class AddBlockCommand implements Runnable {
                         BlockchainCLI.info("✅ Auto-authorized key from file as: " + autoOwnerName);
                         System.out.println("🔑 Public Key: " + publicKeyString);
                     } else {
-                        BlockchainCLI.error("Failed to authorize key from file");
+                        BlockchainCLI.error("❌ Failed to authorize key from file");
                         ExitUtil.exit(1);
                     }
                 } else {
@@ -224,17 +222,17 @@ public class AddBlockCommand implements Runnable {
                 }
             } else {
                 // Default case: no signer specified, no key generation
-                BlockchainCLI.error("No signing method specified");
-                BlockchainCLI.error("Use one of the following options:");
-                BlockchainCLI.error("  --generate-key: Generate a new key pair");
-                BlockchainCLI.error("  --signer <n>: Use an existing authorized key");
-                BlockchainCLI.error("  --key-file <path>: Load private key from file (PEM/DER/Base64 supported)");
+                BlockchainCLI.error("❌ No signing method specified");
+                BlockchainCLI.error("   Use one of the following options:");
+                BlockchainCLI.error("   --generate-key: Generate a new key pair");
+                BlockchainCLI.error("   --signer <n>: Use an existing authorized key");
+                BlockchainCLI.error("   --key-file <path>: Load private key from file (PEM/DER/Base64 supported)");
                 ExitUtil.exit(1);
             }
             
             // Verify that keys are properly initialized
             if (privateKey == null || publicKey == null) {
-                BlockchainCLI.error("Failed to initialize cryptographic keys");
+                BlockchainCLI.error("❌ Failed to initialize cryptographic keys");
                 ExitUtil.exit(1);
             }
             
@@ -256,13 +254,25 @@ public class AddBlockCommand implements Runnable {
                 if (json) {
                     outputJson(false, blockchain.getBlockCount(), data);
                 } else {
-                    BlockchainCLI.error("Failed to add block to blockchain");
+                    BlockchainCLI.error("❌ Failed to add block to blockchain");
                 }
                 ExitUtil.exit(1);
             }
             
+        } catch (SecurityException e) {
+            BlockchainCLI.error("❌ Failed to add block: Security error - " + e.getMessage());
+            if (verbose || BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
+        } catch (RuntimeException e) {
+            BlockchainCLI.error("❌ Failed to add block: Runtime error - " + e.getMessage());
+            if (verbose || BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
         } catch (Exception e) {
-            BlockchainCLI.error("Failed to add block: " + e.getMessage());
+            BlockchainCLI.error("❌ Failed to add block: Unexpected error - " + e.getMessage());
             if (verbose || BlockchainCLI.verbose) {
                 e.printStackTrace();
             }
@@ -295,7 +305,6 @@ public class AddBlockCommand implements Runnable {
         System.out.println("  \"success\": " + success + ",");
         System.out.println("  \"blockNumber\": " + totalBlocks + ",");
         System.out.println("  \"data\": \"" + data.replace("\"", "\\\"") + "\",");
-        System.out.println("  \"totalBlocks\": " + totalBlocks + ",");
         System.out.println("  \"timestamp\": \"" + java.time.Instant.now() + "\"");
         System.out.println("}");
     }

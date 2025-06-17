@@ -314,7 +314,6 @@ public class BlockchainCLIIntegrationTest {
     @Test
     void testDatabasePersistence() throws Exception {
         CommandLine addKeyCli = new CommandLine(new com.rbatllet.blockchain.cli.commands.AddKeyCommand());
-        CommandLine listKeysCli = new CommandLine(new com.rbatllet.blockchain.cli.commands.ListKeysCommand());
         
         // Perform operations that should persist data
         assertEquals(0, addKeyCli.execute("PersistUser", "--generate"));

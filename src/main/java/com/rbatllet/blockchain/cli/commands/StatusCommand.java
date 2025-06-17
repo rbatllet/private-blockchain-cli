@@ -38,8 +38,14 @@ public class StatusCommand implements Runnable {
                 outputText(blockCount, authorizedKeys, isValid, detailed);
             }
             
+        } catch (SecurityException e) {
+            BlockchainCLI.error("❌ Failed to get blockchain status: Security error - " + e.getMessage());
+            ExitUtil.exit(1);
+        } catch (RuntimeException e) {
+            BlockchainCLI.error("❌ Failed to get blockchain status: Runtime error - " + e.getMessage());
+            ExitUtil.exit(1);
         } catch (Exception e) {
-            BlockchainCLI.error("Failed to get blockchain status: " + e.getMessage());
+            BlockchainCLI.error("❌ Failed to get blockchain status: Unexpected error - " + e.getMessage());
             ExitUtil.exit(1);
         }
     }
