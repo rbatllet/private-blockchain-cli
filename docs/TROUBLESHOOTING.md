@@ -16,7 +16,7 @@ Comprehensive troubleshooting guide for the Private Blockchain CLI.
 
 Before diving into solutions, use these diagnostic commands to identify issues:
 
-```bash
+```zsh
 # Quick health check
 java -jar blockchain-cli.jar status --json | jq
 
@@ -40,7 +40,7 @@ java -jar blockchain-cli.jar search --date-from $(date -d "7 days ago" +%Y-%m-%d
 **Symptoms**: `validate` command returns `"valid": false`
 
 **Diagnosis**:
-```bash
+```zsh
 # Get detailed validation report
 java -jar blockchain-cli.jar validate --detailed
 
@@ -49,7 +49,7 @@ java -jar blockchain-cli.jar search --date-from $(date -d "1 day ago" +%Y-%m-%d)
 ```
 
 **Solutions**:
-```bash
+```zsh
 # Option 1: Restore from recent backup
 java -jar blockchain-cli.jar import backups/latest_backup.json --validate-after
 
@@ -65,7 +65,7 @@ rm blockchain.db* && java -jar blockchain-cli.jar status
 **Symptoms**: `Unauthorized key attempting to add block`
 
 **Diagnosis**:
-```bash
+```zsh
 # Check available authorized keys
 java -jar blockchain-cli.jar list-keys --active-only
 
@@ -74,7 +74,7 @@ java -jar blockchain-cli.jar list-keys --detailed | grep "Alice"
 ```
 
 **Solutions**:
-```bash
+```zsh
 # Option 1: Add a new authorized key
 java -jar blockchain-cli.jar add-key "NewUser" --generate --show-private
 
@@ -90,7 +90,7 @@ java -jar blockchain-cli.jar add-block "Your data" --generate-key
 **Symptoms**: Export creates empty files or import fails
 
 **Diagnosis**:
-```bash
+```zsh
 # Check current blockchain state
 java -jar blockchain-cli.jar status --detailed
 
@@ -103,7 +103,7 @@ java -jar blockchain-cli.jar export test_export.json && ls -la test_export.json
 ```
 
 **Solutions**:
-```bash
+```zsh
 # Create directory if missing
 mkdir -p backups && chmod 755 backups
 
@@ -119,7 +119,7 @@ java -jar blockchain-cli.jar import backup_file.json --dry-run
 **Symptoms**: Commands take >30 seconds to complete
 
 **Diagnosis**:
-```bash
+```zsh
 # Check database size
 ls -lh blockchain.db*
 du -sh .
@@ -132,7 +132,7 @@ df -h .
 ```
 
 **Solutions**:
-```bash
+```zsh
 # Option 1: Increase JVM memory
 java -Xmx1024m -jar blockchain-cli.jar status
 
@@ -149,7 +149,7 @@ java -jar blockchain-cli.jar validate --quick
 **Symptoms**: Docker build fails or containers exit immediately
 
 **Diagnosis**:
-```bash
+```zsh
 # Check Docker status
 docker --version
 docker ps
@@ -163,7 +163,7 @@ docker run --rm hello-world
 ```
 
 **Solutions**:
-```bash
+```zsh
 # Rebuild image cleanly
 docker rmi blockchain-cli
 docker build --no-cache -t blockchain-cli .
@@ -178,7 +178,7 @@ docker run --rm blockchain-cli --version
 ## 📋 Step-by-Step Guide
 
 ### Step 1: Environment Check
-```bash
+```zsh
 # Verify Java version
 java -version | head -1
 
@@ -191,7 +191,7 @@ java -jar blockchain-cli.jar status
 ```
 
 ### Step 2: Database Issues
-```bash
+```zsh
 # Check database files
 ls -la blockchain.db*
 
@@ -203,7 +203,7 @@ java -jar blockchain-cli.jar status --json | jq '.isValid'
 ```
 
 ### Step 3: Key Management Issues
-```bash
+```zsh
 # List all keys
 java -jar blockchain-cli.jar list-keys --detailed
 
@@ -215,7 +215,7 @@ java -jar blockchain-cli.jar add-block "Test block $(date)" --generate-key
 ```
 
 ### Step 4: Data Integrity Check
-```bash
+```zsh
 # Full validation
 java -jar blockchain-cli.jar validate --detailed
 
@@ -233,7 +233,7 @@ java -jar blockchain-cli.jar import test_backup_*.json --dry-run
 **Problem**: Java is not installed or not in PATH.
 
 **Solution**:
-```bash
+```zsh
 # Check if Java is installed
 java -version
 
@@ -253,7 +253,7 @@ sudo apt update && sudo apt install openjdk-21-jdk
 
 **Solution**: This application requires Java 21+. Update your Java installation.
 
-```bash
+```zsh
 # Check current version
 java -version
 
@@ -267,7 +267,7 @@ export PATH=$JAVA_HOME/bin:$PATH
 **Problem**: JAR file path is incorrect.
 
 **Solution**:
-```bash
+```zsh
 # Make sure you're in the correct directory
 ls -la blockchain-cli.jar
 
@@ -285,7 +285,7 @@ ls -la target/blockchain-cli.jar
 **Problem**: Application runs out of memory with large blockchains.
 
 **Solution**:
-```bash
+```zsh
 # Increase JVM memory
 java -Xmx1024m -jar blockchain-cli.jar status
 
@@ -301,7 +301,7 @@ java -Xmx512m -XX:+PrintGCDetails -jar blockchain-cli.jar status
 **Problem**: Database operations are slow.
 
 **Diagnosis**:
-```bash
+```zsh
 # Check database size
 ls -lh blockchain.db*
 
@@ -313,7 +313,7 @@ iostat -x 1 5  # Linux
 ```
 
 **Solutions**:
-```bash
+```zsh
 # Optimize database
 sqlite3 blockchain.db "VACUUM;"
 
@@ -329,7 +329,7 @@ java -jar blockchain-cli.jar validate --quick
 **Problem**: Slow network operations.
 
 **Solutions**:
-```bash
+```zsh
 # Use local operations when possible
 java -jar blockchain-cli.jar status --json > status.json
 
@@ -347,7 +347,7 @@ gzip -c backup.json > backup.json.gz
 **Problem**: Docker build fails.
 
 **Diagnosis**:
-```bash
+```zsh
 # Check Docker installation
 docker --version
 docker info
@@ -361,7 +361,7 @@ ls -la target/blockchain-cli.jar
 ```
 
 **Solutions**:
-```bash
+```zsh
 # Clean Docker cache
 docker system prune -a
 
@@ -377,21 +377,21 @@ docker build --dry-run -t blockchain-cli .
 **Problem**: Container exits immediately.
 
 **Diagnosis**:
-```bash
+```zsh
 # Check container logs
 docker logs container_name
 
 # Run interactively
-docker run -it blockchain-cli /bin/bash
+docker run -it blockchain-cli /bin/zsh
 
 # Check entrypoint
 docker inspect blockchain-cli | jq '.[0].Config.Entrypoint'
 ```
 
 **Solutions**:
-```bash
+```zsh
 # Override entrypoint for debugging
-docker run -it --entrypoint=/bin/bash blockchain-cli
+docker run -it --entrypoint=/bin/zsh blockchain-cli
 
 # Check file permissions
 docker run --rm blockchain-cli ls -la /app
@@ -405,7 +405,7 @@ docker run --rm blockchain-cli echo "Hello World"
 **Problem**: Volume mounting fails or permissions denied.
 
 **Diagnosis**:
-```bash
+```zsh
 # Check host directory permissions
 ls -la blockchain-data/
 
@@ -417,7 +417,7 @@ docker run --rm -v $(pwd):/test alpine ls -la /test
 ```
 
 **Solutions**:
-```bash
+```zsh
 # Fix permissions
 sudo chown -R $USER:$USER blockchain-data
 
@@ -437,7 +437,7 @@ docker run --rm -v blockchain_data:/data blockchain-cli status
 
 For detailed debugging information, use the `--verbose` flag globally or with specific commands:
 
-```bash
+```zsh
 # Global verbose mode
 java -jar blockchain-cli.jar --verbose status
 
@@ -458,7 +458,7 @@ Verbose mode shows:
 
 If you're having problems with the `--key-file` option:
 
-```bash
+```zsh
 # Enable verbose mode to see detailed key loading information
 java -jar blockchain-cli.jar add-block "Test data" --key-file keys/private.pem --verbose
 
@@ -480,7 +480,7 @@ head -1 keys/private.pem
 
 #### Converting Key Formats
 
-```bash
+```zsh
 # Convert RSA key to PKCS#8 format (recommended)
 openssl pkcs8 -topk8 -in original_key.pem -out key_pkcs8.pem -nocrypt
 
@@ -493,7 +493,7 @@ openssl pkcs8 -topk8 -in key.pem -outform DER -out - -nocrypt | base64 > key.b64
 
 ### Logging Configuration
 
-```bash
+```zsh
 # Enable SQL logging (if available)
 java -Dhibernate.show_sql=true -jar blockchain-cli.jar status
 
@@ -508,7 +508,7 @@ java -jar blockchain-cli.jar --verbose status > debug.log 2>&1
 
 ### Quick System Test
 
-```bash
+```zsh
 #!/usr/bin/env zsh
 # save as: system_test.sh
 
@@ -588,7 +588,7 @@ echo "🎉 All system tests passed!"
 
 ### Performance Benchmark
 
-```bash
+```zsh
 #!/usr/bin/env zsh
 # save as: performance_test.sh
 

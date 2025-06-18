@@ -1,4 +1,4 @@
-# 🐳 Docker Guide for Blockchain CLI
+# 🐳 Docker Guide for Private Blockchain CLI
 
 Complete guide for using the Private Blockchain CLI with Docker.
 
@@ -15,27 +15,129 @@ Complete guide for using the Private Blockchain CLI with Docker.
 ## 🚀 Quick Start
 
 ### Build and Run
-```bash
-# 1. Build the Docker image (one-time setup)
-docker build -t blockchain-cli .
+```zsh
+#!/usr/bin/env zsh
 
-# 2. Basic usage - check if everything works
-docker run --rm blockchain-cli --version
-docker run --rm blockchain-cli status
+# Define default values
+VERSION="latest"
+DATA_DIR="$(pwd)/blockchain-data"
+BACKUP_DIR="$(pwd)/backups"
 
-# 3. Create data directory for persistent storage
+# Create directories if they don't exist
+mkdir -p "$DATA_DIR" "$BACKUP_DIR"
+
+# Run the Docker container with the provided arguments
+docker run --rm \
+  -v "$DATA_DIR":/app/data \
+  -v "$BACKUP_DIR":/backups \
+  --entrypoint /bin/zsh \
+  private-blockchain-cli:"$VERSION" \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar $*"
+```
+
+### Example Usage
+```zsh
+# 1. Clone the repository
+git clone https://github.com/rbatllet/privateBlockchain-cli.git
+cd privateBlockchain-cli
+
+# 2. Build the Docker image
+./build-docker.sh
+
+# 3. Create directories for persistent data
 mkdir -p blockchain-data backups
 
 # 4. Run with persistent data (recommended)
-docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli status --detailed
-docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli validate
+./run-docker.sh status --detailed
+./run-docker.sh validate
 
 # 5. Add a test block with auto-generated key
-docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli add-block "My first Docker block" --generate-key
+./run-docker.sh add-block "My first Docker block" --generate-key
 
 # 6. Search and export
-docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli search "Docker"
-docker run --rm -v $(pwd)/blockchain-data:/data -v $(pwd)/backups:/backups blockchain-cli export /backups/my-backup.json
+./run-docker.sh search "Docker"
+./run-docker.sh export /backups/my-backup.json
+```
+
+## 🔰 Docker Basics for Beginners
+
+If you're new to Docker, here are some essential commands to help you manage the blockchain Docker container:
+
+### Building and Rebuilding the Image
+
+```zsh
+# Build the Docker image for the first time
+./build-docker.sh
+
+# Rebuild the image (useful after code changes)
+./build-docker.sh --force
+
+# Build with a specific version tag
+./build-docker.sh 1.0.3
+```
+
+### Managing Containers
+
+```zsh
+# List all running containers
+docker ps
+
+# List all containers (including stopped ones)
+docker ps -a
+
+# Stop a specific container
+docker stop CONTAINER_ID
+
+# Stop all running blockchain containers
+docker ps -q --filter ancestor=private-blockchain-cli | xargs -r docker stop
+
+# Remove a stopped container
+docker rm CONTAINER_ID
+
+# Remove all stopped containers
+docker container prune
+```
+
+### Managing Images
+
+```zsh
+# List all Docker images
+docker images
+
+# Remove a specific image
+docker rmi private-blockchain-cli:latest
+
+# Remove all unused images
+docker image prune
+```
+
+### Troubleshooting
+
+```zsh
+# View logs of a running container
+docker logs CONTAINER_ID
+
+# Access a running container's shell
+docker exec -it CONTAINER_ID /bin/zsh
+
+# Check Docker system information
+docker info
+
+# Check Docker disk usage
+docker system df
+```
+
+### Data Management
+
+```zsh
+# Create directories for persistent data
+mkdir -p blockchain-data backups
+
+# Check contents of the data directory
+ls -la blockchain-data/
+
+# Back up the data directory
+cp -r blockchain-data/ blockchain-data-backup-$(date +%Y%m%d)
 ```
 
 ## 💻 Installation
@@ -43,60 +145,96 @@ docker run --rm -v $(pwd)/blockchain-data:/data -v $(pwd)/backups:/backups block
 ### Prerequisites
 - Docker installed and running
 - At least 1GB free disk space
+- Java JDK 21 (only needed if building the core project)
+- Maven (only needed if building the core project)
 
 ### Build Options
 
-#### Option 1: Standard Build
-```bash
-docker build -t blockchain-cli .
+#### Option 1: Using the Build Script (Recommended)
+The project includes a build script that automatically handles the core project dependency and builds the Docker image:
+
+```zsh
+# Build with default version (1.0.2)
+./build-docker.sh
+
+# Build with specific version
+./build-docker.sh 1.0.3
 ```
 
-#### Option 2: Multi-stage Build (smaller image)
-```bash
-docker build -t blockchain-cli:slim -f Dockerfile.slim .
+The script will:
+1. Check if the specified version of the core project exists in your local Maven repository
+2. If not found, offer to build and install it automatically
+3. Build the Docker image with the correct dependencies
+
+#### Option 2: Manual Build
+If you prefer to build manually, ensure the core project JAR is available in your local Maven repository first:
+
+```zsh
+# First, build and install the core project
+cd ../privateBlockchain
+mvn clean install -DskipTests
+
+# Then copy the JAR and build the Docker image
+cd ../privateBlockchain-cli
+cp ~/.m2/repository/com/rbatllet/private-blockchain/1.0.2/private-blockchain-1.0.2.jar .
+docker build -t private-blockchain-cli:1.0.2 .
 ```
 
 #### Option 3: No-cache Build (for updates)
-```bash
-docker build --no-cache -t blockchain-cli .
+```zsh
+./build-docker.sh --no-cache
 ```
 
 ## 🎯 Basic Usage
 
 ### Command Examples
-```bash
+```zsh
 # Version check
-docker run --rm blockchain-cli --version
+docker run --rm private-blockchain-cli:latest --version
 
 # Help
-docker run --rm blockchain-cli --help
+docker run --rm private-blockchain-cli:latest --help
 
 # Status without persistent data
-docker run --rm blockchain-cli status
+docker run --rm private-blockchain-cli:latest status
 
 # Status with persistent data
-docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli status --detailed
+./run-docker.sh status --detailed
 
 # Add authorized key
-docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli add-key "Alice" --generate
+./run-docker.sh add-key "Alice" --generate
 
 # List keys
-docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli list-keys --detailed
+./run-docker.sh list-keys --detailed
 
 # Add block
-docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli add-block "Hello Docker" --generate-key
+./run-docker.sh add-block "Hello Docker" --generate-key
 
 # Validate chain
-docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli validate --detailed
+./run-docker.sh validate --detailed
 
 # Search blocks
-docker run --rm -v $(pwd)/blockchain-data:/data blockchain-cli search "Hello"
+./run-docker.sh search "Hello"
 
 # Export blockchain
-docker run --rm -v $(pwd)/blockchain-data:/data -v $(pwd)/backups:/backups blockchain-cli export /backups/backup.json
+./run-docker.sh export /backups/my-backup.json
 
 # Import blockchain
-docker run --rm -v $(pwd)/blockchain-data:/data -v $(pwd)/backups:/backups blockchain-cli import /backups/backup.json --validate-after
+./run-docker.sh import /backups/my-backup.json --validate-after
+```
+
+### Using Different Versions
+You can specify which version of the image to use:
+
+```zsh
+# Using a specific version
+docker run --rm private-blockchain-cli:1.0.3 --version
+
+# Using the latest version (recommended for most cases)
+docker run --rm private-blockchain-cli:latest --version
+
+# Using an environment variable to specify version
+VERSION=1.0.2 docker run --rm private-blockchain-cli:$VERSION --version
 ```
 
 ## 🎼 Docker Compose
@@ -105,41 +243,57 @@ docker run --rm -v $(pwd)/blockchain-data:/data -v $(pwd)/backups:/backups block
 ```yaml
 # docker-compose.yml
 services:
-  blockchain-cli:
-    build: .
-    container_name: blockchain-cli
+  private-blockchain-cli:
+    image: private-blockchain-cli:${VERSION:-latest}
+    container_name: private-blockchain-cli
     volumes:
-      - ./blockchain-data:/data
+      - ./blockchain-data:/app/data
       - ./backups:/backups
     environment:
       - JAVA_OPTS=-Xmx512m
       - TZ=Europe/Madrid
-    command: ["status", "--detailed"]
+    entrypoint: ["/bin/zsh", "-c"]
+    command: ["cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar status --detailed"]
     profiles: ["default"]
+```
+
+### Using Environment Variables
+
+The docker-compose.yml file uses environment variables to avoid hardcoded versions:
+
+```zsh
+# Run with default version (latest)
+docker-compose up
+
+# Run with specific version
+VERSION=1.0.2 docker-compose up
+
+# Run with specific version and profile
+VERSION=1.0.3 docker-compose --profile validate up
 ```
 
 ### Available Profiles
 
 #### Default Profile
-```bash
+```zsh
 docker-compose --profile default up
 ```
 Shows blockchain status with detailed information.
 
 #### Validation Profile
-```bash
+```zsh
 docker-compose --profile validate up
 ```
 Validates blockchain integrity and outputs JSON results.
 
 #### Backup Profile
-```bash
+```zsh
 docker-compose --profile backup up
 ```
 Creates timestamped backup automatically.
 
 #### Interactive Profile
-```bash
+```zsh
 docker-compose --profile interactive up
 ```
 Starts interactive shell for manual operations.
@@ -148,48 +302,51 @@ Starts interactive shell for manual operations.
 ```yaml
 services:
   # Main service
-  blockchain-cli:
-    build: .
+  private-blockchain-cli:
+    image: private-blockchain-cli:${VERSION:-latest}
     volumes:
-      - ./blockchain-data:/data
+      - ./blockchain-data:/app/data
       - ./backups:/backups
-    command: ["status", "--detailed"]
+    entrypoint: ["/bin/zsh", "-c"]
+    command: ["cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar status --detailed"]
     profiles: ["default"]
 
   # Validator service
-  blockchain-validator:
-    build: .
+  private-blockchain-validator:
+    image: private-blockchain-cli:${VERSION:-latest}
     volumes:
-      - ./blockchain-data:/data
-    command: ["validate", "--detailed", "--json"]
+      - ./blockchain-data:/app/data
+    entrypoint: ["/bin/zsh", "-c"]
+    command: ["cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar validate --detailed --json"]
     profiles: ["validate"]
 
   # Backup service
-  blockchain-backup:
-    build: .
+  private-blockchain-backup:
+    image: private-blockchain-cli:${VERSION:-latest}
     volumes:
-      - ./blockchain-data:/data
+      - ./blockchain-data:/app/data
       - ./backups:/backups
-    entrypoint: ["sh", "-c"]
-    command: ["java -jar /app/blockchain-cli.jar export /backups/backup_$$(date +%Y%m%d_%H%M%S).json"]
+    entrypoint: ["/bin/zsh", "-c"]
+    command: ["cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar export /backups/backup_$$(date +%Y%m%d_%H%M%S).json"]
     profiles: ["backup"]
 
   # Interactive service
-  blockchain-interactive:
-    build: .
+  private-blockchain-interactive:
+    image: private-blockchain-cli:${VERSION:-latest}
     volumes:
-      - ./blockchain-data:/data
+      - ./blockchain-data:/app/data
       - ./backups:/backups
     stdin_open: true
     tty: true
-    entrypoint: ["/bin/bash"]
+    entrypoint: ["/bin/zsh", "-c"]
+    command: ["cd /app && ln -sf /app/data/blockchain.db blockchain.db && /bin/zsh"]
     profiles: ["interactive"]
 ```
 
 ## 📁 Volume Management
 
 ### Data Persistence
-```bash
+```zsh
 # Create persistent directories
 mkdir -p blockchain-data backups logs
 
@@ -198,25 +355,37 @@ chmod 755 blockchain-data backups logs
 
 # Run with mounted volumes
 docker run --rm \
-  -v $(pwd)/blockchain-data:/data \
+  -v $(pwd)/blockchain-data:/app/data \
   -v $(pwd)/backups:/backups \
   -v $(pwd)/logs:/logs \
-  blockchain-cli status --detailed
+  --entrypoint /bin/zsh \
+  private-blockchain-cli:latest \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar status --detailed"
 ```
 
 ### Volume Backup
-```bash
+
+```zsh
+# Create a backup of the blockchain data
+docker run --rm \
+  -v $(pwd)/blockchain-data:/app/data \
+  -v $(pwd)/backups:/backups \
+  --entrypoint /bin/zsh \
+  private-blockchain-cli:latest \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar export /backups/backup_$(date +%Y%m%d_%H%M%S).json"
+```
+```zsh
 # Backup volume data
 docker run --rm \
-  -v $(pwd)/blockchain-data:/data \
+  -v $(pwd)/blockchain-data:/app/data \
   -v $(pwd)/volume-backups:/backup \
-  alpine tar czf /backup/blockchain-data-$(date +%Y%m%d).tar.gz -C /data .
+  alpine tar czf /backup/blockchain-data-$(date +%Y%m%d).tar.gz -C /app/data .
 
 # Restore volume data
 docker run --rm \
-  -v $(pwd)/blockchain-data:/data \
+  -v $(pwd)/blockchain-data:/app/data \
   -v $(pwd)/volume-backups:/backup \
-  alpine tar xzf /backup/blockchain-data-20250611.tar.gz -C /data
+  alpine tar xzf /backup/blockchain-data-20250611.tar.gz -C /app/data
 ```
 
 ### Named Volumes
@@ -226,9 +395,10 @@ services:
   blockchain-cli:
     build: .
     volumes:
-      - blockchain_data:/data
+      - blockchain_data:/app/data
       - backup_data:/backups
-    command: ["status"]
+    entrypoint: ["/bin/zsh", "-c"]
+    command: ["cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar status"]
 
 volumes:
   blockchain_data:
@@ -309,18 +479,18 @@ networks:
 ```
 
 ### Environment Variables
-```bash
-# Runtime configuration
-export JAVA_OPTS="-Xmx2048m -XX:+UseG1GC"
-export BLOCKCHAIN_DATA_DIR="/data"
-export BACKUP_RETENTION_DAYS="30"
+```zsh
+# Set Java options
+JAVA_OPTS="-Xmx512m -Duser.timezone=UTC"
 
-# Run with environment
+# Run with environment variables
 docker run --rm \
   -e JAVA_OPTS="$JAVA_OPTS" \
   -e TZ="Europe/Madrid" \
-  -v $(pwd)/blockchain-data:/data \
-  blockchain-cli status --detailed
+  -v $(pwd)/blockchain-data:/app/data \
+  --entrypoint /bin/zsh \
+  blockchain-cli \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar status --detailed"
 ```
 
 ### Resource Limits
@@ -345,7 +515,7 @@ services:
 ## 🔧 Container Management
 
 ### Container Lifecycle
-```bash
+```zsh
 # Stop containers safely
 docker ps -q --filter ancestor=blockchain-cli | xargs -r docker stop
 
@@ -361,7 +531,7 @@ docker system prune -f
 ```
 
 ### Health Monitoring
-```bash
+```zsh
 # Check container health
 docker ps --filter ancestor=blockchain-cli
 
@@ -380,7 +550,7 @@ docker stats container_name
 ### Common Issues
 
 #### Issue: "Cannot connect to the Docker daemon"
-```bash
+```zsh
 # Start Docker service
 sudo systemctl start docker
 
@@ -390,7 +560,7 @@ newgrp docker
 ```
 
 #### Issue: "Build fails with Java errors"
-```bash
+```zsh
 # Check Java version in container
 docker run --rm openjdk:21-jdk-slim java -version
 
@@ -402,30 +572,29 @@ docker system df
 ```
 
 #### Issue: "Container exits immediately"
-```bash
+```zsh
 # Check container logs
 docker logs container_name
 
 # Run with interactive mode
-docker run -it blockchain-cli /bin/bash
+docker run -it blockchain-cli /bin/zsh
 
 # Test basic command
 docker run --rm blockchain-cli --version
 ```
 
 #### Issue: "Volume permissions"
-```bash
-# Fix permissions
-sudo chown -R $USER:$USER blockchain-data backups
-
-# Or run as specific user
+```zsh
+# Run as current user
 docker run --rm --user $(id -u):$(id -g) \
-  -v $(pwd)/blockchain-data:/data \
-  blockchain-cli status
+  -v $(pwd)/blockchain-data:/app/data \
+  --entrypoint /bin/zsh \
+  private-blockchain-cli:latest \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar status"
 ```
 
 #### Issue: "Out of disk space"
-```bash
+```zsh
 # Clean Docker system
 docker system prune -a
 
@@ -438,12 +607,12 @@ df -h
 ```
 
 ### Debug Mode
-```bash
+```zsh
 # Verbose output
 docker run --rm blockchain-cli --verbose status
 
 # Shell access for debugging
-docker run -it --entrypoint=/bin/bash blockchain-cli
+docker run -it --entrypoint=/bin/zsh blockchain-cli
 
 # Check container filesystem
 docker run --rm blockchain-cli ls -la /app
@@ -451,7 +620,7 @@ docker run --rm blockchain-cli ls -la /data
 ```
 
 ### Performance Optimization
-```bash
+```zsh
 # Increase memory limit
 docker run --rm -m 2g blockchain-cli status
 

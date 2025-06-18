@@ -5,7 +5,7 @@ This guide covers common issues and solutions when using the `--signer` paramete
 ## 📖 Quick Reference
 
 ### Valid Signing Methods
-```bash
+```zsh
 # Method 1: Use existing authorized user (RECOMMENDED)
 java -jar blockchain-cli.jar add-block "Your data" --signer Alice
 
@@ -31,17 +31,17 @@ java -jar blockchain-cli.jar add-block "Your data" --key-file path/to/key.pem
 **Solutions:**
 
 1. **Check available signers:**
-```bash
+```zsh
 java -jar blockchain-cli.jar list-keys
 ```
 
 2. **Add the missing signer (demo mode):**
-```bash
+```zsh
 java -jar blockchain-cli.jar add-key "UnknownUser" --generate
 ```
 
 3. **Add the missing signer (production mode):**
-```bash
+```zsh
 java -jar blockchain-cli.jar add-key "UnknownUser" --generate --store-private
 🔐 Enter password to protect private key: [hidden]
 🔒 Private key stored securely for: UnknownUser
@@ -59,19 +59,19 @@ java -jar blockchain-cli.jar add-key "UnknownUser" --generate --store-private
 **Solutions:**
 
 1. **Try again with correct password:**
-```bash
+```zsh
 java -jar blockchain-cli.jar add-block "Your data" --signer Alice
 🔐 Enter password for Alice: [correct_password]
 ```
 
 2. **Test password separately:**
-```bash
+```zsh
 java -jar blockchain-cli.jar manage-keys --test Alice
 🔐 Enter password for Alice: [password]
 ```
 
 3. **If password is forgotten, delete and recreate:**
-```bash
+```zsh
 java -jar blockchain-cli.jar manage-keys --delete Alice
 java -jar blockchain-cli.jar add-key "Alice" --generate --store-private
 # Note: This creates new keys, old signatures won't match
@@ -93,17 +93,17 @@ java -jar blockchain-cli.jar add-key "Alice" --generate --store-private
 **Solutions:**
 
 1. **Use existing signer (production mode):**
-```bash
+```zsh
 java -jar blockchain-cli.jar add-block "Your data" --signer Alice
 ```
 
 2. **Use existing signer (demo mode):**
-```bash
+```zsh
 java -jar blockchain-cli.jar add-block "Your data" --signer Bob  # Bob has no stored key
 ```
 
 3. **Generate new key:**
-```bash
+```zsh
 java -jar blockchain-cli.jar add-block "Your data" --generate-key
 ```
 
@@ -118,7 +118,7 @@ java -jar blockchain-cli.jar add-block "Your data" --generate-key
 **Cause:** Password doesn't meet security requirements.
 
 **Solution:**
-```bash
+```zsh
 # Use a strong password with letters and numbers
 java -jar blockchain-cli.jar add-key "Alice" --generate --store-private
 🔐 Enter password to protect private key: SecurePass123
@@ -132,12 +132,12 @@ Confirm password: SecurePass123
 **Solutions:**
 
 1. **Use an existing signer:**
-```bash
+```zsh
 java -jar blockchain-cli.jar add-block "Your data" --signer Alice
 ```
 
 2. **Generate a new key:**
-```bash
+```zsh
 java -jar blockchain-cli.jar add-block "Your data" --generate-key
 ```
 
@@ -156,7 +156,7 @@ Unknown option: '--signer'
 
 ### 1. Production Environment Setup (Secure Keys)
 
-```bash
+```zsh
 # Step 1: Create production users with stored private keys
 java -jar blockchain-cli.jar add-key "Manager" --generate --store-private
 java -jar blockchain-cli.jar add-key "Auditor" --generate --store-private
@@ -181,7 +181,7 @@ java -jar blockchain-cli.jar add-block "System backup verified" --signer SystemA
 
 ### 2. Development Environment Setup (Demo Mode)
 
-```bash
+```zsh
 # Step 1: Create development users without stored keys
 java -jar blockchain-cli.jar add-key "DevUser1" --generate
 java -jar blockchain-cli.jar add-key "DevUser2" --generate
@@ -198,7 +198,7 @@ java -jar blockchain-cli.jar add-block "Unit tests added" --signer DevUser2
 
 ### 3. Mixed Environment (Recommended)
 
-```bash
+```zsh
 # Production users with stored keys
 java -jar blockchain-cli.jar add-key "CEO" --generate --store-private
 java -jar blockchain-cli.jar add-key "CTO" --generate --store-private
@@ -219,7 +219,7 @@ java -jar blockchain-cli.jar add-block "Debug log entry" --signer Developer
 
 ### 4. Key Security Management
 
-```bash
+```zsh
 # Regular security checks
 java -jar blockchain-cli.jar manage-keys --list
 java -jar blockchain-cli.jar manage-keys --check ProductionUser
@@ -239,7 +239,7 @@ java -jar blockchain-cli.jar add-block "Project update" --signer MyUser
 
 ### 3. Temporary/Testing Entries
 
-```bash
+```zsh
 # For quick testing, use --generate-key
 java -jar blockchain-cli.jar add-block "Test entry" --generate-key
 java -jar blockchain-cli.jar add-block "Another test" --generate-key
@@ -248,7 +248,7 @@ java -jar blockchain-cli.jar add-block "Another test" --generate-key
 ## 🔍 Debugging Commands
 
 ### Check Current Blockchain State
-```bash
+```zsh
 # See overall status
 java -jar blockchain-cli.jar status --detailed
 
@@ -260,7 +260,7 @@ java -jar blockchain-cli.jar validate --detailed
 ```
 
 ### Verify Your Block Was Added
-```bash
+```zsh
 # Search for your specific data
 java -jar blockchain-cli.jar search "your data content"
 
@@ -283,7 +283,7 @@ When you use `--signer` with an existing user, the CLI operates in **Demo Mode**
 5. 💾 Stores the block successfully
 
 ### Example Output:
-```bash
+```zsh
 $ java -jar blockchain-cli.jar add-block "Test data" --signer Alice
 ℹ️  DEMO: Created temporary key for existing signer: Alice
 ℹ️  DEMO: This simulates using the --signer functionality
@@ -302,7 +302,7 @@ $ java -jar blockchain-cli.jar add-block "Test data" --signer Alice
 ## 🚀 Advanced Usage Patterns
 
 ### Pattern 1: Workflow with Error Handling
-```bash
+```zsh
 #!/usr/bin/env zsh
 
 SIGNER="ProjectManager"
@@ -320,7 +320,7 @@ fi
 ```
 
 ### Pattern 2: Batch Operations with Same Signer
-```bash
+```zsh
 #!/usr/bin/env zsh
 
 SIGNER="DataProcessor"
@@ -339,7 +339,7 @@ java -jar blockchain-cli.jar search "$BATCH_ID" --detailed
 ```
 
 ### Pattern 3: Role-Based Access Control Simulation
-```bash
+```zsh
 #!/usr/bin/env zsh
 
 # Setup roles
@@ -391,19 +391,19 @@ add_entry_with_role "guest" "This should fail"
 If you're still having issues:
 
 1. **Check CLI version:**
-```bash
+```zsh
 java -jar blockchain-cli.jar --version
 ```
 
 2. **Run validation:**
-```bash
+```zsh
 java -jar blockchain-cli.jar validate --detailed
 ```
 
 3. **Check logs:** Look for error messages in the console output
 
 4. **Reset if needed:**
-```bash
+```zsh
 # Backup first
 java -jar blockchain-cli.jar export backup_before_reset.json
 

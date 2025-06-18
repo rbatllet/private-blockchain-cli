@@ -70,19 +70,23 @@ jobs:
           ## Download Options
           - **blockchain-cli.jar**: Executable CLI JAR (Maven Shade - ~40MB - recommended)
           - **blockchain-cli-assembly-jar-with-dependencies.jar**: Alternative executable JAR (Maven Assembly - ~40MB)
-          - **private-blockchain-cli-1.0.2.jar**: Lightweight JAR (requires dependencies - ~53KB)
+          - **private-blockchain-cli-${{ steps.get_version.outputs.VERSION }}.jar**: Lightweight JAR (requires dependencies - ~53KB)
           
           ## Usage
-          ```bash
+          ```zsh
           #!/usr/bin/env zsh
           
           # Using the CLI (recommended)
           java -jar blockchain-cli.jar --help
           
           # Example commands
-          java -jar blockchain-cli.jar create-wallet
-          java -jar blockchain-cli.jar send-transaction --from <address> --to <address> --amount <amount>
-          java -jar blockchain-cli.jar balance --address <address>
+          java -jar blockchain-cli.jar status                     # Check blockchain status
+          java -jar blockchain-cli.jar add-key "Alice" --generate # Generate and add a new key
+          java -jar blockchain-cli.jar add-block "Block data" --signer "Alice" # Add a new block
+          java -jar blockchain-cli.jar list-keys --detailed      # List all authorized keys
+          java -jar blockchain-cli.jar validate --detailed       # Validate blockchain integrity
+          java -jar blockchain-cli.jar export /path/to/backup.json # Export blockchain to JSON
+          java -jar blockchain-cli.jar search "search term"       # Search blocks by content
           ```
           
           ## Requirements
@@ -91,7 +95,7 @@ jobs:
         files: |
           target/blockchain-cli.jar
           target/blockchain-cli-assembly-jar-with-dependencies.jar
-          target/private-blockchain-cli-1.0.2.jar
+          target/private-blockchain-cli-${{ steps.get_version.outputs.VERSION }}.jar
         draft: false
         prerelease: false
       env:

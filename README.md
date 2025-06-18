@@ -57,7 +57,7 @@ Before using this application, make sure you have:
 
 ### Checking Java Version
 
-```bash
+```zsh
 java -version
 ```
 
@@ -72,7 +72,7 @@ java version "21.0.1" or higher
 
 The fastest way to get started without installing Java locally:
 
-```bash
+```zsh
 # Clone and build
 git clone <repository-url>
 cd privateBlockchain-cli
@@ -92,7 +92,7 @@ docker run --rm blockchain-cli status
 
 ### Option 3: Building from Source
 
-```bash
+```zsh
 # Clone the repository
 git clone <repository-url>
 cd privateBlockchain-cli
@@ -107,7 +107,7 @@ mvn clean package
 
 ### Using Docker (Easiest) 🐳
 
-```bash
+```zsh
 # Build once
 docker build -t blockchain-cli .
 
@@ -125,7 +125,7 @@ docker run --rm blockchain-cli status
 
 ### 1. Check if the CLI is working
 
-```bash
+```zsh
 java -jar blockchain-cli.jar --version
 ```
 
@@ -136,13 +136,13 @@ Expected output:
 
 ### 2. View help information
 
-```bash
+```zsh
 java -jar blockchain-cli.jar --help
 ```
 
 ### 3. Check blockchain status
 
-```bash
+```zsh
 java -jar blockchain-cli.jar status
 ```
 
@@ -158,13 +158,13 @@ This will initialize the blockchain database (if it doesn't exist) and show curr
 
 ### 4. Add your first authorized user
 
-```bash
+```zsh
 java -jar blockchain-cli.jar add-key "Alice" --generate --show-private
 ```
 
 ### 5. Add your first block
 
-```bash
+```zsh
 java -jar blockchain-cli.jar add-block "My first blockchain entry" --signer Alice
 ```
 
@@ -173,7 +173,7 @@ The `--signer` parameter now works seamlessly with existing authorized users. Wh
 
 ### 6. Verify everything worked
 
-```bash
+```zsh
 java -jar blockchain-cli.jar validate --detailed
 ```
 
@@ -181,7 +181,7 @@ java -jar blockchain-cli.jar validate --detailed
 
 Here's a complete workflow that demonstrates all major features including the new secure private key management:
 
-```bash
+```zsh
 # 1. Check initial status
 java -jar blockchain-cli.jar status
 
@@ -228,7 +228,7 @@ java -jar blockchain-cli.jar validate --json
 ### Advanced Security Workflows
 
 #### Enterprise Production Workflow
-```bash
+```zsh
 # Setup secure keys for department heads
 java -jar blockchain-cli.jar add-key "ChiefFinancialOfficer" --generate --store-private
 java -jar blockchain-cli.jar add-key "TechnicalDirector" --generate --store-private
@@ -244,7 +244,7 @@ java -jar blockchain-cli.jar add-block "System Architecture Updated" --signer Te
 ```
 
 #### Migration from Demo to Production
-```bash
+```zsh
 # Current demo users
 java -jar blockchain-cli.jar list-keys
 
@@ -258,7 +258,7 @@ java -jar blockchain-cli.jar add-block "First production transaction" --signer A
 ```
 
 #### Mixed Environment (Demo + Production)
-```bash
+```zsh
 # Production users with stored keys
 java -jar blockchain-cli.jar add-key "ProductionManager" --generate --store-private
 
@@ -291,7 +291,7 @@ java -jar blockchain-cli.jar add-block "Test data" --signer TestUser1
 
 Display current blockchain statistics and health information.
 
-```bash
+```zsh
 # Basic status
 java -jar blockchain-cli.jar status
 
@@ -306,7 +306,7 @@ java -jar blockchain-cli.jar status --detailed
 
 Check the integrity of the entire blockchain with comprehensive validation.
 
-```bash
+```zsh
 # Full validation
 java -jar blockchain-cli.jar validate
 
@@ -329,7 +329,7 @@ java -jar blockchain-cli.jar validate --detailed --json
 
 Add authorized keys to the blockchain for signing blocks.
 
-```bash
+```zsh
 # Generate new key pair automatically
 java -jar blockchain-cli.jar add-key "Alice" --generate
 
@@ -341,7 +341,7 @@ java -jar blockchain-cli.jar add-key "Bob" --generate --show-private
 
 List all authorized keys in the blockchain.
 
-```bash
+```zsh
 # Basic listing
 java -jar blockchain-cli.jar list-keys
 
@@ -356,7 +356,7 @@ java -jar blockchain-cli.jar list-keys --json
 
 Manage securely stored private keys for production signing.
 
-```bash
+```zsh
 # List all stored private keys
 java -jar blockchain-cli.jar manage-keys --list
 🔐 Stored Private Keys:
@@ -392,7 +392,7 @@ java -jar blockchain-cli.jar manage-keys --list --json
 
 Add a new block to the blockchain. Requires an authorized key for signing.
 
-```bash
+```zsh
 # Method 1: Use existing authorized signer (RECOMMENDED)
 java -jar blockchain-cli.jar add-block "Transaction data" --signer Alice
 
@@ -423,7 +423,7 @@ java -jar blockchain-cli.jar add-block "Secure data" --key-file alice.pem
 
 **Common Use Cases:**
 
-```bash
+```zsh
 # Corporate environment - multiple signers
 java -jar blockchain-cli.jar add-block "Monthly report submitted" --signer Manager
 java -jar blockchain-cli.jar add-block "Budget approved" --signer CFO
@@ -448,7 +448,7 @@ java -jar blockchain-cli.jar add-block "Base64 format" --key-file keys/key.b64
 
 **Error Handling:**
 
-```bash
+```zsh
 # Error: Signer doesn't exist
 $ java -jar blockchain-cli.jar add-block "Test" --signer UnknownUser
 ❌ Error: Signer 'UnknownUser' not found in authorized keys
@@ -467,7 +467,7 @@ $ java -jar blockchain-cli.jar add-block "Test data"
 
 Export blockchain data to a file for backup or migration.
 
-```bash
+```zsh
 # Basic export
 java -jar blockchain-cli.jar export backup.json
 
@@ -479,7 +479,7 @@ java -jar blockchain-cli.jar export backup.json --overwrite
 
 Import blockchain data from a file.
 
-```bash
+```zsh
 # Import with automatic backup
 java -jar blockchain-cli.jar import backup.json --backup
 
@@ -491,7 +491,7 @@ java -jar blockchain-cli.jar import data.json --dry-run
 
 Search for blocks by various criteria with powerful filtering options.
 
-```bash
+```zsh
 # Search by content (case-insensitive)
 java -jar blockchain-cli.jar search "transaction"
 
@@ -506,7 +506,7 @@ java -jar blockchain-cli.jar search "data" --limit 10 --json
 
 **⚠️ DANGEROUS OPERATION:** Remove recent blocks from the blockchain. This operation is irreversible!
 
-```bash
+```zsh
 # Remove last 3 blocks (with confirmation prompt)
 java -jar blockchain-cli.jar rollback --blocks 3
 
@@ -533,7 +533,7 @@ java -jar blockchain-cli.jar rollback --to-block 8 --json
 
 Show comprehensive help information.
 
-```bash
+```zsh
 java -jar blockchain-cli.jar help
 ```
 
@@ -569,20 +569,20 @@ For detailed command usage, examples, and advanced scenarios, see [docs/EXAMPLES
 If you're upgrading from an earlier version without secure key management:
 
 #### Step 1: Check Current State
-```bash
+```zsh
 # See what you currently have
 java -jar blockchain-cli.jar list-keys --detailed
 java -jar blockchain-cli.jar status --detailed
 ```
 
 #### Step 2: Backup Everything
-```bash
+```zsh
 # Create a complete backup before upgrading workflows
 java -jar blockchain-cli.jar export pre_upgrade_backup_$(date +%Y%m%d).json
 ```
 
 #### Step 3: Upgrade Users to Secure Keys (Optional)
-```bash
+```zsh
 # Existing users continue to work in demo mode
 # Optionally upgrade important users to production mode:
 java -jar blockchain-cli.jar add-key "ImportantUser" --generate --store-private
@@ -621,7 +621,7 @@ java -jar blockchain-cli.jar add-key "ImportantUser" --generate --store-private
 
 ### Build Steps
 
-```bash
+```zsh
 # 1. Clone the repository
 git clone <repository-url>
 cd privateBlockchain-cli
@@ -643,7 +643,7 @@ ls -la target/blockchain-cli.jar
 
 Use the provided test script:
 
-```bash
+```zsh
 chmod +x test-cli.sh
 ./test-cli.sh
 ```
@@ -668,7 +668,7 @@ The project includes **enterprise-grade testing** with full coverage:
 
 ### Quick Test Execution
 
-```bash
+```zsh
 # Run the comprehensive test script (recommended)
 ./test-cli.sh
 
@@ -692,7 +692,7 @@ mvn test -Dtest=BlockchainCLIIntegrationTest
 
 All commands have been thoroughly tested and verified:
 
-```bash
+```zsh
 # Core functionality ✅
 java -jar blockchain-cli.jar --version              # Returns: 1.0.2
 java -jar blockchain-cli.jar --help                 # Shows comprehensive help
@@ -731,7 +731,7 @@ For comprehensive testing information, see [docs/ROLLBACK_TESTING.md](docs/ROLLB
 
 The rollback functionality includes comprehensive testing tools:
 
-```bash
+```zsh
 # Run complete rollback test suite
 ./run-rollback-tests.sh
 
