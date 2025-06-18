@@ -112,15 +112,49 @@ public class BlockchainCLITest {
     }
 
     @Test
-    void testUtilityMethods() {
-        // Test that utility methods don't throw exceptions
-        assertDoesNotThrow(() -> {
-            BlockchainCLI.verbose = true;
-            BlockchainCLI.verbose("Test verbose message");
-            BlockchainCLI.error("Test error message");
-            BlockchainCLI.success("Test success message");
-            BlockchainCLI.info("Test info message");
-        });
+    void testVerboseMethodWhenEnabled() {
+        // Test verbose method when verbose flag is enabled
+        BlockchainCLI.verbose = true;
+        BlockchainCLI.verbose("Test verbose message");
+        String output = outContent.toString();
+        assertTrue(output.contains("Test verbose message"), "Output should contain verbose message");
+        assertTrue(output.contains("🔍 [VERBOSE]"), "Output should contain verbose indicator");
+    }
+    
+    @Test
+    void testVerboseMethodWhenDisabled() {
+        // Test verbose method when verbose flag is disabled
+        BlockchainCLI.verbose = false;
+        BlockchainCLI.verbose("Test verbose message");
+        String output = outContent.toString();
+        assertFalse(output.contains("Test verbose message"), "Output should not contain verbose message when disabled");
+    }
+    
+    @Test
+    void testErrorMethod() {
+        // Test error method
+        BlockchainCLI.error("Test error message");
+        String error = errContent.toString();
+        assertTrue(error.contains("Test error message"), "Error output should contain error message");
+        assertTrue(error.contains("❌ Error:"), "Error output should contain error indicator");
+    }
+    
+    @Test
+    void testSuccessMethod() {
+        // Test success method
+        BlockchainCLI.success("Test success message");
+        String output = outContent.toString();
+        assertTrue(output.contains("Test success message"), "Output should contain success message");
+        assertTrue(output.contains("✅"), "Output should contain success indicator");
+    }
+    
+    @Test
+    void testInfoMethod() {
+        // Test info method
+        BlockchainCLI.info("Test info message");
+        String output = outContent.toString();
+        assertTrue(output.contains("Test info message"), "Output should contain info message");
+        assertTrue(output.contains("ℹ️"), "Output should contain info indicator");
     }
 
     @Test
@@ -128,8 +162,101 @@ public class BlockchainCLITest {
         // Test that main method handles args correctly
         assertDoesNotThrow(() -> {
             String[] args = {"--version"};
-            // We can't easily test main() without ExitUtil.exit, so just verify structure
-            assertNotNull(args);
+            BlockchainCLI.main(args);
+            String output = outContent.toString();
+            assertTrue(output.contains("1.0.2"));
+        });
+    }
+    
+    @Test
+    void testMainMethodWithInvalidArgs() {
+        // Test that main method handles invalid arguments correctly
+        assertDoesNotThrow(() -> {
+            // Create an invalid command that will trigger error handling
+            String[] args = {"--invalid-flag"};
+            BlockchainCLI.main(args);
+            
+            // The main method should handle this gracefully and not throw exceptions
+            // We don't check specific output here, just that it doesn't crash
+        });
+    }
+    
+    @Test
+    void testMainMethodWithNullArgs() {
+        // Test that main method handles null arguments gracefully
+        assertDoesNotThrow(() -> {
+            // Pass null args to main method
+            BlockchainCLI.main(null);
+            
+            // The main method should handle this gracefully and not throw exceptions
+            // We don't check specific output here, just that it doesn't crash
+        });
+    }
+    
+    @Test
+    void testVerboseWithMultipleMessages() {
+        // Test verbose method with multiple messages
+        BlockchainCLI.verbose = true;
+        
+        // Send multiple verbose messages
+        BlockchainCLI.verbose("First verbose message");
+        BlockchainCLI.verbose("Second verbose message");
+        BlockchainCLI.verbose("Third verbose message with special chars: !@#$%^&*()");
+        
+        String output = outContent.toString();
+        assertTrue(output.contains("First verbose message"), "Output should contain first verbose message");
+        assertTrue(output.contains("Second verbose message"), "Output should contain second verbose message");
+        assertTrue(output.contains("Third verbose message"), "Output should contain third verbose message");
+    }
+    
+    @Test
+    void testErrorWithMultipleMessages() {
+        // Test error method with multiple messages
+        BlockchainCLI.error("First error message");
+        BlockchainCLI.error("Second error message");
+        BlockchainCLI.error("Third error message with special chars: !@#$%^&*()");
+        
+        String error = errContent.toString();
+        assertTrue(error.contains("First error message"), "Error output should contain first error message");
+        assertTrue(error.contains("Second error message"), "Error output should contain second error message");
+        assertTrue(error.contains("Third error message"), "Error output should contain third error message");
+    }
+    
+    @Test
+    void testSuccessWithMultipleMessages() {
+        // Test success method with multiple messages
+        BlockchainCLI.success("First success message");
+        BlockchainCLI.success("Second success message");
+        BlockchainCLI.success("Third success message with special chars: !@#$%^&*()");
+        
+        String output = outContent.toString();
+        assertTrue(output.contains("First success message"), "Output should contain first success message");
+        assertTrue(output.contains("Second success message"), "Output should contain second success message");
+        assertTrue(output.contains("Third success message"), "Output should contain third success message");
+    }
+    
+    @Test
+    void testInfoWithMultipleMessages() {
+        // Test info method with multiple messages
+        BlockchainCLI.info("First info message");
+        BlockchainCLI.info("Second info message");
+        BlockchainCLI.info("Third info message with special chars: !@#$%^&*()");
+        
+        String output = outContent.toString();
+        assertTrue(output.contains("First info message"), "Output should contain first info message");
+        assertTrue(output.contains("Second info message"), "Output should contain second info message");
+        assertTrue(output.contains("Third info message"), "Output should contain third info message");
+    }
+    
+    @Test
+    void testMainMethodWithEmptyArgs() {
+        // Test that main method handles empty args correctly - should show help
+        assertDoesNotThrow(() -> {
+            BlockchainCLI.main(new String[0]);
+            String output = outContent.toString();
+            // Should show default help
+            assertTrue(output.contains("Private Blockchain CLI"), "Should show CLI header");
+            assertTrue(output.contains("Available commands:"), "Should list available commands");
         });
     }
 }
