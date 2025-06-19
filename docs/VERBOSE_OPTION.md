@@ -15,7 +15,7 @@ La opción `--verbose` proporciona información detallada durante la ejecución 
 
 ### Uso
 
-```bash
+```zsh
 # Uso como opción global
 java -jar blockchain-cli.jar --verbose [comando] [opciones]
 
@@ -54,7 +54,7 @@ Los tests funcionales para la opción `--verbose` están integrados en los scrip
 
 ### Ejemplo Básico
 
-```bash
+```zsh
 java -jar blockchain-cli.jar --verbose status
 ```
 
@@ -71,7 +71,7 @@ Bloques: 42
 
 ### Ejemplo con --key-file
 
-```bash
+```zsh
 java -jar blockchain-cli.jar add-block "Test data" --key-file keys/private.pem --verbose
 ```
 

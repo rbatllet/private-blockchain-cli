@@ -15,7 +15,7 @@ Comprehensive examples and use cases for the Private Blockchain CLI, featuring t
 ## 🚀 Quick Start Examples
 
 ### Example 1: First-Time Setup with Secure Keys
-```bash
+```zsh
 # Step 1: Check if CLI is working
 java -jar blockchain-cli.jar --version
 # Expected: 1.0.2
@@ -72,7 +72,7 @@ java -jar blockchain-cli.jar validate --detailed
 ## 🔐 Secure Key Management Examples
 
 ### Example 1: Setting Up Production Environment
-```bash
+```zsh
 # Create secure production users
 java -jar blockchain-cli.jar add-key "CEO" --generate --store-private
 java -jar blockchain-cli.jar add-key "CFO" --generate --store-private  
@@ -98,7 +98,7 @@ java -jar blockchain-cli.jar add-block "Security Audit Completed" --signer CTO
 ```
 
 ### Example 2: Mixed Environment (Production + Development)
-```bash
+```zsh
 # Production users with stored keys
 java -jar blockchain-cli.jar add-key "ProductionUser" --generate --store-private
 java -jar blockchain-cli.jar add-key "AuditUser" --generate --store-private
@@ -124,7 +124,7 @@ java -jar blockchain-cli.jar add-block "Test data for debugging" --signer DevUse
 ```
 
 ### Example 3: Key Lifecycle Management
-```bash
+```zsh
 # Create user with stored key
 java -jar blockchain-cli.jar add-key "TempUser" --generate --store-private
 
@@ -142,7 +142,7 @@ java -jar blockchain-cli.jar add-block "Post-deletion operation" --signer TempUs
 ```
 
 ### Example 2: Daily Operations with Role-Based Signing
-```bash
+```zsh
 # Morning: Check blockchain health
 java -jar blockchain-cli.jar status --detailed
 
@@ -165,7 +165,7 @@ java -jar blockchain-cli.jar validate --json
 ## 🎯 Advanced Signer Workflows
 
 ### Workflow 1: Multi-Department Corporate Environment
-```bash
+```zsh
 # Setup: Create department-specific signers
 java -jar blockchain-cli.jar add-key "HR-Director" --generate
 java -jar blockchain-cli.jar add-key "Finance-Manager" --generate
@@ -186,7 +186,7 @@ java -jar blockchain-cli.jar search "HR-Director\|Finance-Manager\|IT-Administra
 ```
 
 ### Workflow 2: Project Management with Milestone Tracking
-```bash
+```zsh
 # Setup: Create project team signers
 java -jar blockchain-cli.jar add-key "Project-Manager" --generate  
 java -jar blockchain-cli.jar add-key "Lead-Developer" --generate
@@ -204,7 +204,7 @@ java -jar blockchain-cli.jar search "PROJECT\|DEVELOPMENT\|TESTING\|REVIEW" --js
 ```
 
 ### Workflow 3: Error Handling and Troubleshooting
-```bash
+```zsh
 # Common error scenarios and solutions
 
 # Error 1: Trying to use non-existent signer
@@ -240,7 +240,7 @@ java -jar blockchain-cli.jar add-block "Verbose example" --key-file keys/private
 ```
 
 ### Example 3: Multi-User Setup
-```bash
+```zsh
 # Setup multiple users for a team
 java -jar blockchain-cli.jar add-key "Alice-Manager" --generate
 java -jar blockchain-cli.jar add-key "Bob-Developer" --generate  
@@ -258,7 +258,7 @@ java -jar blockchain-cli.jar add-block "Security audit passed" --signer Charlie-
 ## 🎯 Real-World Use Cases
 
 ### Use Case 1: Document Audit Trail with Role-Based Approval
-```bash
+```zsh
 # Setup for document management system with different roles
 java -jar blockchain-cli.jar add-key "Document-Author" --generate
 java -jar blockchain-cli.jar add-key "Legal-Reviewer" --generate
@@ -277,7 +277,7 @@ java -jar blockchain-cli.jar export audit_reports/contract_abc_full_$(date +%Y%m
 ```
 
 ### Use Case 2: Supply Chain with Multi-Party Verification
-```bash
+```zsh
 # Setup supply chain participants with specific roles
 java -jar blockchain-cli.jar add-key "Manufacturer-QC" --generate
 java -jar blockchain-cli.jar add-key "Logistics-Coordinator" --generate  
@@ -301,7 +301,7 @@ java -jar blockchain-cli.jar search "QUALITY-CHECK\|QC Inspector" --detailed > c
 ```
 
 ### Use Case 3: Corporate Governance with Board Meeting Records
-```bash
+```zsh
 # Setup corporate governance participants
 java -jar blockchain-cli.jar add-key "Board-Secretary" --generate
 java -jar blockchain-cli.jar add-key "Board-Chairman" --generate
@@ -324,7 +324,7 @@ java -jar blockchain-cli.jar export governance/board_meeting_$(date +%Y%m%d)_com
 ```
 
 ### Use Case 4: Software Development Lifecycle with DevOps Pipeline
-```bash
+```zsh
 # Setup development team with specialized roles
 java -jar blockchain-cli.jar add-key "Feature-Developer" --generate
 java -jar blockchain-cli.jar add-key "Code-Reviewer" --generate
@@ -351,7 +351,7 @@ java -jar blockchain-cli.jar search "PRODUCTION-DEPLOY\|RELEASE-COMPLETE" --json
 ## 🔧 Advanced Scenarios
 
 ### Scenario 1: Backup & Recovery Workflow
-```bash
+```zsh
 # Create comprehensive backup
 java -jar blockchain-cli.jar export backups/full_backup_$(date +%Y%m%d_%H%M%S).json
 
@@ -367,7 +367,7 @@ java -jar blockchain-cli.jar list-keys --detailed
 ```
 
 ### Scenario 2: Security Incident Response
-```bash
+```zsh
 # Immediately create incident backup
 java -jar blockchain-cli.jar export incident_backups/security_incident_$(date +%Y%m%d_%H%M%S).json
 
@@ -383,7 +383,7 @@ java -jar blockchain-cli.jar validate --detailed >> incident_report.txt
 ```
 
 ### Scenario 3: Data Migration
-```bash
+```zsh
 # Export from old system
 java -jar blockchain-cli.jar export migration/old_system_$(date +%Y%m%d).json
 
@@ -396,7 +396,7 @@ java -jar blockchain-cli.jar search --date-from 2025-01-01 --limit 100 > migrati
 ```
 
 ### Scenario 4: Compliance Reporting
-```bash
+```zsh
 # Generate monthly compliance report
 java -jar blockchain-cli.jar search --date-from $(date -d "1 month ago" +%Y-%m-%d) --date-to $(date +%Y-%m-%d) --json > compliance/monthly_$(date +%Y_%m).json
 
@@ -410,7 +410,7 @@ java -jar blockchain-cli.jar export compliance/full_blockchain_$(date +%Y-%m-%d)
 ## 🛠 Docker Examples with --signer
 
 ### Docker Quick Start with Multi-User Setup
-```bash
+```zsh
 # Build once, use everywhere
 docker build -t blockchain-cli .
 
@@ -472,7 +472,7 @@ services:
 ```
 
 **Usage:**
-```bash
+```zsh
 # Run as admin
 docker-compose --profile admin up
 
@@ -487,7 +487,7 @@ docker-compose --profile status up
 ```
 
 ### Docker Automation Script with Error Handling
-```bash
+```zsh
 #!/usr/bin/env zsh
 # save as: docker_blockchain_operations.sh
 
@@ -583,7 +583,7 @@ esac
 ```
 
 **Usage:**
-```bash
+```zsh
 chmod +x docker_blockchain_operations.sh
 
 # Initial setup
@@ -604,7 +604,7 @@ For comprehensive Docker usage, see [DOCKER_GUIDE.md](DOCKER_GUIDE.md).
 ## 📊 Automation Scripts
 
 ### Daily Backup Script
-```bash
+```zsh
 #!/usr/bin/env zsh
 # save as: daily_backup.sh
 
@@ -631,7 +631,7 @@ fi
 ```
 
 ### Health Check Script
-```bash
+```zsh
 #!/usr/bin/env zsh
 # save as: health_check.sh
 

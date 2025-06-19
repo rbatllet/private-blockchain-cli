@@ -16,7 +16,7 @@ Best practices and guidelines for using the Private Blockchain CLI in enterprise
 ### Key Management
 
 #### Secure Key Generation
-```bash
+```zsh
 # 1. Always save private keys securely when shown
 java -jar blockchain-cli.jar add-key "Alice" --generate --show-private > secure_keys/alice_private.txt
 chmod 600 secure_keys/alice_private.txt
@@ -32,7 +32,7 @@ echo "Alice: MIIBIjAN..." > key_registry.txt
 ```
 
 #### Key Storage
-```bash
+```zsh
 # Create secure key storage directory
 mkdir -p /secure/blockchain/keys
 chmod 700 /secure/blockchain/keys
@@ -49,7 +49,7 @@ gpg --encrypt --recipient admin@company.com keys_backup_*.tar.gz
 ### Data Protection
 
 #### Sensitive Data Handling
-```bash
+```zsh
 # 1. Regular backups with timestamps
 java -jar blockchain-cli.jar export backups/auto_backup_$(date +%Y%m%d_%H%M%S).json
 
@@ -68,7 +68,7 @@ echo "Data checksum: $(echo 'sensitive data' | sha256sum)" | java -jar blockchai
 ### Efficient Operations
 
 #### Batch Processing
-```bash
+```zsh
 # 1. Use JSON output for automation (faster)
 STATUS=$(java -jar blockchain-cli.jar status --json)
 BLOCKS=$(echo $STATUS | jq -r '.blockCount')
@@ -90,7 +90,7 @@ java -jar blockchain-cli.jar search "recent" --limit 5
 ### Daily Operations
 
 #### Health Check Script
-```bash
+```zsh
 #!/usr/bin/env zsh
 # save as: daily_health_check.sh
 
@@ -123,7 +123,7 @@ echo "✅ Daily check completed"
 ### Health Monitoring
 
 #### Comprehensive Monitoring Script
-```bash
+```zsh
 #!/usr/bin/env zsh
 # save as: enterprise_monitor.sh
 
@@ -172,7 +172,7 @@ fi
 ## 📊 Compliance & Auditing
 
 ### Audit Trail Generation
-```bash
+```zsh
 #!/usr/bin/env zsh
 # save as: generate_audit_report.sh
 
@@ -204,7 +204,7 @@ echo "✅ Audit report generated in $REPORT_DIR"
 ```
 
 ### Compliance Verification
-```bash
+```zsh
 #!/usr/bin/env zsh
 # save as: compliance_check.sh
 
@@ -242,7 +242,7 @@ echo "✅ Compliance check completed"
 ### Environment Setup
 
 #### Production Configuration
-```bash
+```zsh
 #!/usr/bin/env zsh
 # save as: production_setup.sh
 
@@ -281,7 +281,7 @@ systemctl start blockchain-monitor
 ```
 
 #### Resource Allocation
-```bash
+```zsh
 # JVM tuning for production
 export JAVA_OPTS="-Xmx4096m -Xms2048m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
 
@@ -298,7 +298,7 @@ mount -o noatime,data=writeback /dev/ssd1 /opt/blockchain/data
 ### Disaster Recovery
 
 #### Recovery Plan
-```bash
+```zsh
 #!/usr/bin/env zsh
 # save as: disaster_recovery.sh
 
@@ -337,7 +337,7 @@ fi
 ### Scaling Strategies
 
 #### Horizontal Scaling
-```bash
+```zsh
 # Load balancer configuration (example)
 # For multiple blockchain instances
 
@@ -352,7 +352,7 @@ curl -f http://localhost:8080/health || exit 1
 ```
 
 #### Performance Monitoring
-```bash
+```zsh
 #!/usr/bin/env zsh
 # save as: performance_monitor.sh
 

@@ -29,7 +29,7 @@ The Private Blockchain CLI now supports **secure private key storage** alongside
 
 ### Step 1: Create User with Secure Key Storage
 
-```bash
+```zsh
 # Create user with stored private key
 java -jar blockchain-cli.jar add-key "Alice" --generate --store-private
 🔐 Enter password to protect private key: [hidden]
@@ -41,7 +41,7 @@ Confirm password: [hidden]
 
 ### Step 2: Verify Key Storage
 
-```bash
+```zsh
 # Check if key is stored
 java -jar blockchain-cli.jar manage-keys --check Alice
 ✅ Private key is stored for: Alice
@@ -56,7 +56,7 @@ java -jar blockchain-cli.jar manage-keys --list
 
 ### Step 3: Use Secure Key for Signing
 
-```bash
+```zsh
 # Sign block with stored private key
 java -jar blockchain-cli.jar add-block "Secure production data" --signer Alice
 🔐 Enter password for Alice: [hidden]
@@ -68,7 +68,7 @@ java -jar blockchain-cli.jar add-block "Secure production data" --signer Alice
 
 ### Workflow 1: Multi-Department Enterprise Setup
 
-```bash
+```zsh
 # Setup phase: Create department heads with secure keys
 echo "Setting up enterprise blockchain with secure key management..."
 
@@ -107,7 +107,7 @@ java -jar blockchain-cli.jar add-block "Code review completed for authentication
 
 ### Workflow 2: Financial Services Compliance
 
-```bash
+```zsh
 # Setup compliance-ready environment
 echo "Setting up financial services blockchain with compliance controls..."
 
@@ -138,7 +138,7 @@ java -jar blockchain-cli.jar add-block "Data validation completed for daily repo
 
 ### Workflow 3: Healthcare Records Management
 
-```bash
+```zsh
 # Setup healthcare environment with HIPAA compliance focus
 echo "Setting up healthcare blockchain with secure patient data controls..."
 
@@ -168,7 +168,7 @@ java -jar blockchain-cli.jar add-block "Appointment scheduling system updated wi
 
 ### Password Security
 
-```bash
+```zsh
 # ✅ Strong password examples
 SecurePass123!
 MyHospital2025#
@@ -182,7 +182,7 @@ blockchain
 
 ### Key Rotation Policy
 
-```bash
+```zsh
 # Monthly key rotation for high-security users
 echo "Performing monthly key rotation for CEO..."
 
@@ -201,7 +201,7 @@ java -jar blockchain-cli.jar manage-keys --delete CEO
 
 ### Access Control Management
 
-```bash
+```zsh
 # Regular security audits
 echo "Performing quarterly security audit..."
 
@@ -223,7 +223,7 @@ java -jar blockchain-cli.jar add-block "Security Audit Completed: All executive 
 
 #### Issue 1: Forgotten Password
 
-```bash
+```zsh
 # Symptom: Cannot access stored private key
 java -jar blockchain-cli.jar add-block "Test" --signer Alice
 🔐 Enter password for Alice: [wrong_password]
@@ -237,7 +237,7 @@ java -jar blockchain-cli.jar add-key "Alice" --generate --store-private
 
 #### Issue 2: Key File Corruption
 
-```bash
+```zsh
 # Symptom: Error loading key even with correct password
 ❌ Error loading private key: Invalid key format
 
@@ -248,7 +248,7 @@ java -jar blockchain-cli.jar add-key "CorruptedUser" --generate --store-private
 
 #### Issue 3: Security Compliance Audit
 
-```bash
+```zsh
 # Generate compliance report
 echo "Generating security compliance report..."
 
@@ -271,7 +271,7 @@ done
 
 ### Scenario 1: Demo to Production Migration
 
-```bash
+```zsh
 # Existing demo user
 java -jar blockchain-cli.jar add-block "Demo operation" --signer ExistingUser
 ⚠️  DEMO MODE: No stored private key found for signer: ExistingUser
@@ -287,7 +287,7 @@ java -jar blockchain-cli.jar add-block "Production operation" --signer ExistingU
 
 ### Scenario 2: Bulk User Security Upgrade
 
-```bash
+```zsh
 #!/usr/bin/env zsh
 # Script to upgrade multiple users to secure keys
 
@@ -318,7 +318,7 @@ echo "🎉 Bulk security upgrade completed!"
 
 ### Scenario 3: Disaster Recovery
 
-```bash
+```zsh
 # Backup all critical key metadata (not the keys themselves!)
 echo "Creating disaster recovery backup..."
 

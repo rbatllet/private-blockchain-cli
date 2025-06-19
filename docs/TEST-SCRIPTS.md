@@ -8,7 +8,7 @@ This document describes the test scripts available to validate the functionality
 
 General script to test the basic CLI commands.
 
-```bash
+```zsh
 ./test-cli.sh
 ```
 
@@ -16,7 +16,7 @@ General script to test the basic CLI commands.
 
 Specialized script to test the detailed validation functionality of the blockchain.
 
-```bash
+```zsh
 ./test-validate-detailed.sh
 ```
 
@@ -41,7 +41,7 @@ This script specifically tests the detailed validation functionality of the bloc
 
 ### How to Run
 
-```bash
+```zsh
 # Make sure the script has execution permissions
 chmod +x test-validate-detailed.sh
 

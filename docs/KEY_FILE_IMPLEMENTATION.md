@@ -28,7 +28,7 @@ The `--key-file` functionality has been **successfully implemented** and is now 
 
 The implementation is working perfectly. Here's proof:
 
-```bash
+```zsh
 # Generate a test key
 cd test-keys
 openssl genpkey -algorithm RSA -out test_key.pem
@@ -49,7 +49,7 @@ java -jar target/blockchain-cli-assembly-jar-with-dependencies.jar \
 ## 📖 Usage Documentation
 
 ### Basic Syntax
-```bash
+```zsh
 blockchain add-block <data> --key-file <path-to-key-file> [--json]
 ```
 
@@ -59,7 +59,7 @@ blockchain add-block <data> --key-file <path-to-key-file> [--json]
 3. **Base64 Raw**: `--key-file private_key_base64.key`
 
 ### Examples
-```bash
+```zsh
 # Basic usage
 blockchain add-block "Transaction data" --key-file /path/to/key.pem
 

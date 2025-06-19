@@ -16,7 +16,7 @@ This document provides a comprehensive reference of all scripts available in the
 The primary test script that runs the complete test suite for the Private Blockchain CLI.
 
 **Usage:**
-```bash
+```zsh
 #!/usr/bin/env zsh
 
 # Run all tests
@@ -46,7 +46,7 @@ SKIP_SECURE_TESTS=true ./test-cli.sh
 Tests the build configuration and environment setup for the Private Blockchain CLI.
 
 **Usage:**
-```bash
+```zsh
 #!/usr/bin/env zsh
 
 ./test-build-config.sh
@@ -65,7 +65,7 @@ Tests the build configuration and environment setup for the Private Blockchain C
 Dedicated script to run all rollback tests in sequence.
 
 **Usage:**
-```bash
+```zsh
 #!/usr/bin/env zsh
 
 ./run-rollback-tests.sh
@@ -81,7 +81,7 @@ Dedicated script to run all rollback tests in sequence.
 Interactive script for manual rollback testing with menu options.
 
 **Usage:**
-```bash
+```zsh
 #!/usr/bin/env zsh
 
 ./test-rollback-interactive.sh
@@ -97,7 +97,7 @@ Interactive script for manual rollback testing with menu options.
 Script to set up test data for rollback testing.
 
 **Usage:**
-```bash
+```zsh
 #!/usr/bin/env zsh
 
 ./test-rollback-setup.sh
@@ -113,7 +113,7 @@ Script to set up test data for rollback testing.
 Functional test script for the key file implementation.
 
 **Usage:**
-```bash
+```zsh
 #!/usr/bin/env zsh
 
 ./test_key_file_functionality.sh
@@ -138,7 +138,7 @@ Functional test script for the key file implementation.
 Utility script to clean corrupted SQLite database files.
 
 **Usage:**
-```bash
+```zsh
 #!/usr/bin/env zsh
 
 ./clean-database.sh
@@ -154,7 +154,7 @@ Utility script to clean corrupted SQLite database files.
 Utility script for creating test keys for development and testing.
 
 **Usage:**
-```bash
+```zsh
 #!/usr/bin/env zsh
 
 ./generate_test_keys.sh

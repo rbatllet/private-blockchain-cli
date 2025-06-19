@@ -58,7 +58,7 @@
 ## 🔐 Practical Examples Documented
 
 ### Business/Enterprise Usage
-```bash
+```zsh
 # Create department manager with secure key
 java -jar blockchain-cli.jar add-key "DepartmentManager" --generate --store-private
 # Sign important business documents
@@ -66,7 +66,7 @@ java -jar blockchain-cli.jar add-block "Q4 Budget Approved" --signer DepartmentM
 ```
 
 ### Healthcare/Regulated Industries
-```bash
+```zsh
 # Medical staff with mandatory secure keys
 java -jar blockchain-cli.jar add-key "ChiefMedicalOfficer" --generate --store-private
 # Sign patient care records
@@ -74,7 +74,7 @@ java -jar blockchain-cli.jar add-block "Patient treatment updated" --signer Chie
 ```
 
 ### Development/Testing (Demo Mode)
-```bash
+```zsh
 # Quick development without passwords
 java -jar blockchain-cli.jar add-key "Developer" --generate
 java -jar blockchain-cli.jar add-block "Feature implemented" --signer Developer
@@ -82,7 +82,7 @@ java -jar blockchain-cli.jar add-block "Feature implemented" --signer Developer
 ```
 
 ### Mixed Environments
-```bash
+```zsh
 # Production users with secure keys
 java -jar blockchain-cli.jar add-key "ProductionManager" --generate --store-private
 
@@ -101,7 +101,7 @@ java -jar blockchain-cli.jar add-key "DevLead" --generate
 - Maintained backward compatibility
 
 ### Example Integration Commands
-```bash
+```zsh
 # Quick tests (default)
 ./test-cli.sh
 
@@ -134,7 +134,7 @@ SKIP_SECURE_TESTS=true ./test-cli.sh
 ### Real Key Loading Examples
 
 #### Production Mode (Secure Keys)
-```bash
+```zsh
 # Store private key securely
 java -jar blockchain-cli.jar add-key "Manager" --generate --store-private
 🔐 Enter password: [SecurePass123]
@@ -147,7 +147,7 @@ java -jar blockchain-cli.jar add-block "Important data" --signer Manager
 ```
 
 #### Demo Mode (Temporary Keys)
-```bash
+```zsh
 # Create user without stored key
 java -jar blockchain-cli.jar add-key "Developer" --generate
 
@@ -158,7 +158,7 @@ java -jar blockchain-cli.jar add-block "Test data" --signer Developer
 ```
 
 ### Key Management Operations
-```bash
+```zsh
 # List stored keys
 java -jar blockchain-cli.jar manage-keys --list
 
@@ -175,7 +175,7 @@ java -jar blockchain-cli.jar manage-keys --delete Manager
 ## ✅ Validation Results
 
 ### Compilation Success
-```bash
+```zsh
 $ mvn test-compile
 [INFO] BUILD SUCCESS
 [INFO] Total time: 2.532 s

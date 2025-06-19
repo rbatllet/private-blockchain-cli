@@ -22,12 +22,12 @@ The rollback functionality allows you to remove recent blocks from the blockchai
 The `rollback` command provides two main methods for removing blocks:
 
 1. **Remove N most recent blocks**:
-   ```bash
+   ```zsh
    blockchain rollback --blocks <N>
    ```
 
 2. **Rollback to a specific block number**:
-   ```bash
+   ```zsh
    blockchain rollback --to-block <N>
    ```
    Note: Block numbers are stored as `Long` values
@@ -52,7 +52,7 @@ Before running rollback tests, ensure:
 
 ### Test Environment Setup
 
-```bash
+```zsh
 # Create a test directory
 mkdir -p blockchain-test
 cd blockchain-test
@@ -77,7 +77,7 @@ The Private Blockchain CLI includes several scripts for testing rollback functio
 
 ### Running the Rollback Tests
 
-```bash
+```zsh
 # Run all tests including rollback tests
 ./test-cli.sh
 
@@ -121,7 +121,7 @@ For thorough testing, follow these step-by-step procedures:
 
 ### Test 1: Basic Rollback Functionality
 
-```bash
+```zsh
 # 1. Check current blockchain status
 java -jar blockchain-cli.jar status
 
@@ -146,7 +146,7 @@ java -jar blockchain-cli.jar validate
 
 ### Test 2: Rollback to Specific Block
 
-```bash
+```zsh
 # 1. Check current blockchain status and note block numbers
 java -jar blockchain-cli.jar status
 
@@ -175,7 +175,7 @@ java -jar blockchain-cli.jar validate
 
 Test how the system handles errors:
 
-```bash
+```zsh
 # Invalid parameters
 java -jar blockchain-cli.jar rollback --blocks -1
 java -jar blockchain-cli.jar rollback --to-block -5
@@ -192,7 +192,7 @@ java -jar blockchain-cli.jar rollback --blocks 1000
 
 Test the JSON output format:
 
-```bash
+```zsh
 # JSON output with dry run
 java -jar blockchain-cli.jar rollback --blocks 1 --dry-run --json
 
@@ -204,7 +204,7 @@ java -jar blockchain-cli.jar rollback --blocks 1 --yes --json
 
 Test data consistency after rollback:
 
-```bash
+```zsh
 # 1. Export blockchain before rollback
 java -jar blockchain-cli.jar export before-rollback.json
 
@@ -242,7 +242,7 @@ jq '.blocks | length' after-rollback.json
 
 If rollback testing causes issues:
 
-```bash
+```zsh
 # Import from backup
 java -jar blockchain-cli.jar import backup.json --force
 
@@ -255,14 +255,14 @@ java -jar blockchain-cli.jar validate
 1. **Always use `--dry-run` first** to preview changes before actual rollback
 
 2. **Create backups before testing**:
-   ```bash
+   ```zsh
    java -jar blockchain-cli.jar export backup-$(date +%Y%m%d-%H%M%S).json
    ```
 
 3. **Test in isolated environments** before production
 
 4. **Combine with validation**:
-   ```bash
+   ```zsh
    java -jar blockchain-cli.jar rollback --blocks 1 --yes && \
    java -jar blockchain-cli.jar validate
    ```

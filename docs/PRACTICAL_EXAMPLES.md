@@ -25,7 +25,7 @@ $ java -jar blockchain-cli.jar add-block "Learning: Completed blockchain tutoria
 
 ### Scenario: Staged Security Implementation
 
-```bash
+```zsh
 # Phase 1: Start with demo mode for all users
 $ java -jar blockchain-cli.jar add-key "Manager" --generate
 $ java -jar blockchain-cli.jar add-key "Supervisor" --generate
@@ -53,7 +53,7 @@ $ java -jar blockchain-cli.jar manage-keys --list
 
 ### Complete Key Lifecycle Management
 
-```bash
+```zsh
 # 1. Create user with secure key storage
 $ java -jar blockchain-cli.jar add-key "CorporateUser" --generate --store-private
 🔐 Enter password to protect private key: [CorporateSecure123]
@@ -104,7 +104,7 @@ $ java -jar blockchain-cli.jar add-key "CorporateUser-New" --generate --store-pr
 
 ### Bulk Key Management for Organizations
 
-```bash
+```zsh
 # Script for bulk user setup
 #!/usr/bin/env zsh
 
@@ -145,7 +145,7 @@ echo "Organizational setup complete!"
 
 ### Monitoring and Auditing
 
-```bash
+```zsh
 # Regular security audit commands
 $ java -jar blockchain-cli.jar manage-keys --list --json > security-audit-$(date +%Y%m%d).json
 
@@ -167,7 +167,7 @@ $ java -jar blockchain-cli.jar search "compliance" --json
 
 ### CI/CD Pipeline Integration
 
-```bash
+```zsh
 #!/usr/bin/env zsh
 # deploy.sh - Deployment script with blockchain logging
 
@@ -289,7 +289,7 @@ CREATE TRIGGER audit_financial_records
 
 ### Password Recommendations
 
-```bash
+```zsh
 # Strong password examples for secure keys
 SecureFinance2024!
 HealthcareSecure#123
