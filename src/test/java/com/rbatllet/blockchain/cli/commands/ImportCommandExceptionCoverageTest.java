@@ -128,7 +128,7 @@ public class ImportCommandExceptionCoverageTest {
         
         // Verify JSON output includes validation status
         String output = outContent.toString();
-        assertTrue(output.contains("\"valid\":"), "Should include validation status in JSON");
+        assertTrue(output.contains("\"validation\":"), "Should include validation status in JSON");
     }
     
     @Test

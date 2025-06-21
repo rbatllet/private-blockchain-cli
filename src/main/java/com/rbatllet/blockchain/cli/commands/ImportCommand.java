@@ -6,6 +6,7 @@ import picocli.CommandLine.Parameters;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
 import com.rbatllet.blockchain.util.ExitUtil;
+import com.rbatllet.blockchain.validation.ChainValidationResult;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -85,7 +86,7 @@ public class ImportCommand implements Runnable {
                 // For dry run, we'll just validate the file can be read
                 // In a real implementation, this would parse and validate without saving
                 if (json) {
-                    outputJson(true, inputFile, currentBlocks, currentKeys, 0, 0, true);
+                    outputJson(true, inputFile, currentBlocks, currentKeys, 0, 0, null, true);
                 } else {
                     System.out.println("🧪 Dry run completed successfully");
                     System.out.println("📄 Import file appears valid: " + inputFile);
@@ -127,23 +128,34 @@ public class ImportCommand implements Runnable {
                 BlockchainCLI.verbose("Import completed. New state: " + newBlocks + " blocks, " + newKeys + " keys");
                 
                 // Validate if requested
+                ChainValidationResult validationResult = null;
                 boolean isValid = true;
                 if (validateAfter) {
                     BlockchainCLI.verbose("Validating imported blockchain...");
-                    isValid = blockchain.validateChain();
+                    validationResult = blockchain.validateChainDetailed();
+                    isValid = validationResult.isFullyCompliant();
                 }
                 
                 if (json) {
-                    outputJson(true, inputFile, currentBlocks, currentKeys, newBlocks, newKeys, isValid);
+                    outputJson(true, inputFile, currentBlocks, currentKeys, newBlocks, newKeys, validationResult);
                 } else {
                     BlockchainCLI.success("Blockchain imported successfully!");
                     System.out.println("📄 Import file: " + inputFile);
                     System.out.println("📊 Blocks: " + currentBlocks + " → " + newBlocks);
                     System.out.println("🔑 Keys: " + currentKeys + " → " + newKeys);
                     
-                    if (validateAfter) {
-                        String validationStatus = isValid ? "✅ VALID" : "❌ INVALID";
-                        System.out.println("🔍 Validation: " + validationStatus);
+                    if (validateAfter && validationResult != null) {
+                        if (validationResult.isStructurallyIntact()) {
+                            if (validationResult.isFullyCompliant()) {
+                                System.out.println("🔍 Validation: ✅ FULLY VALID");
+                            } else {
+                                System.out.println("🔍 Validation: ⚠️ STRUCTURALLY INTACT (authorization issues)");
+                                System.out.println("   🔄 Revoked blocks: " + validationResult.getRevokedBlocks());
+                            }
+                        } else {
+                            System.out.println("🔍 Validation: ❌ INVALID (structural problems)");
+                            System.out.println("   💥 Invalid blocks: " + validationResult.getInvalidBlocks());
+                        }
                     }
                     
                     System.out.println("📅 Import time: " + java.time.LocalDateTime.now().format(
@@ -159,7 +171,7 @@ public class ImportCommand implements Runnable {
                 
             } else {
                 if (json) {
-                    outputJson(false, inputFile, currentBlocks, currentKeys, currentBlocks, currentKeys, false);
+                    outputJson(false, inputFile, currentBlocks, currentKeys, currentBlocks, currentKeys, null);
                 } else {
                     BlockchainCLI.error("❌ Failed to import blockchain");
                 }
@@ -195,7 +207,12 @@ public class ImportCommand implements Runnable {
     }
     
     private void outputJson(boolean success, String file, long oldBlocks, int oldKeys, 
-                           long newBlocks, int newKeys, boolean valid) {
+                           long newBlocks, int newKeys, ChainValidationResult validationResult) {
+        outputJson(success, file, oldBlocks, oldKeys, newBlocks, newKeys, validationResult, false);
+    }
+    
+    private void outputJson(boolean success, String file, long oldBlocks, int oldKeys, 
+                           long newBlocks, int newKeys, ChainValidationResult validationResult, boolean isDryRun) {
         System.out.println("{");
         System.out.println("  \"success\": " + success + ",");
         System.out.println("  \"importFile\": \"" + file + "\",");
@@ -203,7 +220,20 @@ public class ImportCommand implements Runnable {
         System.out.println("  \"previousKeys\": " + oldKeys + ",");
         System.out.println("  \"newBlocks\": " + newBlocks + ",");
         System.out.println("  \"newKeys\": " + newKeys + ",");
-        System.out.println("  \"valid\": " + valid + ",");
+        
+        if (validationResult != null) {
+            System.out.println("  \"validation\": {");
+            System.out.println("    \"isFullyCompliant\": " + validationResult.isFullyCompliant() + ",");
+            System.out.println("    \"isStructurallyIntact\": " + validationResult.isStructurallyIntact() + ",");
+            System.out.println("    \"revokedBlocks\": " + validationResult.getRevokedBlocks() + ",");
+            System.out.println("    \"invalidBlocks\": " + validationResult.getInvalidBlocks() + ",");
+            System.out.println("    \"summary\": \"" + validationResult.getSummary() + "\"");
+            System.out.println("  },");
+        } else {
+            System.out.println("  \"validation\": null,");
+        }
+        
+        System.out.println("  \"isDryRun\": " + isDryRun + ",");
         System.out.println("  \"timestamp\": \"" + java.time.Instant.now() + "\"");
         System.out.println("}");
     }

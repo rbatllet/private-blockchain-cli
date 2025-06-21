@@ -211,9 +211,10 @@ public class ImportCommandRunCoverageTest {
         // Run the command
         importCommand.run();
         
-        // Verify JSON output
+        // Verify JSON output - now using the new validation structure
         String output = outContent.toString();
-        assertTrue(output.contains("\"valid\":"), "Should include validation status in JSON");
+        assertTrue(output.contains("\"validation\":") || output.contains("\"validation\": null"), 
+                  "Should include validation status in JSON");
     }
     
     @Test

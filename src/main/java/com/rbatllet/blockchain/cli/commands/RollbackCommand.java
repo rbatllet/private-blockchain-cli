@@ -104,14 +104,20 @@ public class RollbackCommand implements Runnable {
                 if (json) {
                     outputDryRunJson(currentBlockCount, finalBlockCount, blocksToDelete);
                 } else {
+                    // Always ensure there's output for dry run mode
+                    System.out.println();
                     System.out.println("🔍 DRY RUN MODE - No changes made");
+                    System.out.println("This was a simulation only. No blocks were actually removed.");
+                    // Ensure output is flushed
+                    System.out.flush();
                 }
                 return;
             }
             
             // Confirmation prompt (unless skipped)
             if (!skipConfirmation && !confirmRollback()) {
-                System.out.println("⚠️ Rollback cancelled by user");
+                System.out.println("⚠️ Operation cancelled by user");
+                System.out.flush();
                 return;
             }
             
@@ -176,6 +182,8 @@ public class RollbackCommand implements Runnable {
         System.out.println("⚠️  WARNING: This operation is IRREVERSIBLE!");
         System.out.println("⚠️  Removed blocks cannot be recovered!");
         System.out.println();
+        // Ensure output is flushed
+        System.out.flush();
     }
     
     private boolean confirmRollback() {
@@ -191,6 +199,7 @@ public class RollbackCommand implements Runnable {
         System.out.println("📊 Removed " + removedBlocks + " blocks");
         System.out.println("📊 Blockchain now has " + finalBlocks + " blocks");
         System.out.println("💡 Run 'blockchain validate' to verify chain integrity");
+        System.out.flush();
     }
     
     private void outputSuccessJson(long currentBlocks, long finalBlocks, long removedBlocks) {
@@ -202,6 +211,7 @@ public class RollbackCommand implements Runnable {
         System.out.println("  \"currentBlockCount\": " + finalBlocks + ",");
         System.out.println("  \"timestamp\": \"" + java.time.Instant.now() + "\"");
         System.out.println("}");
+        System.out.flush();
     }
     
     private void outputDryRunJson(long currentBlocks, long finalBlocks, long toRemove) {
@@ -210,8 +220,10 @@ public class RollbackCommand implements Runnable {
         System.out.println("  \"operation\": \"rollback\",");
         System.out.println("  \"wouldRemove\": " + toRemove + ",");
         System.out.println("  \"currentBlockCount\": " + currentBlocks + ",");
-        System.out.println("  \"finalBlockCount\": " + finalBlocks + "");
+        System.out.println("  \"finalBlockCount\": " + finalBlocks);
         System.out.println("}");
+        // Ensure output is flushed
+        System.out.flush();
     }
     
     private void outputErrorJson(String errorMessage) {
@@ -220,5 +232,6 @@ public class RollbackCommand implements Runnable {
         System.out.println("  \"error\": \"" + errorMessage.replace("\"", "\\\"") + "\",");
         System.out.println("  \"timestamp\": \"" + java.time.Instant.now() + "\"");
         System.out.println("}");
+        System.out.flush();
     }
 }

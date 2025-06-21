@@ -149,14 +149,24 @@ public class ImportCommandCoverageTest {
     @Test
     @DisplayName("Should output JSON format correctly")
     void shouldOutputJsonFormatCorrectly() {
-        // Test private method using reflection
+        // Test private method using reflection with updated signature
         try {
+            // Create a mock ChainValidationResult
+            com.rbatllet.blockchain.validation.ChainValidationResult validationResult = 
+                org.mockito.Mockito.mock(com.rbatllet.blockchain.validation.ChainValidationResult.class);
+            org.mockito.Mockito.when(validationResult.isFullyCompliant()).thenReturn(true);
+            org.mockito.Mockito.when(validationResult.isStructurallyIntact()).thenReturn(true);
+            org.mockito.Mockito.when(validationResult.getRevokedBlocks()).thenReturn(0);
+            org.mockito.Mockito.when(validationResult.getInvalidBlocks()).thenReturn(0);
+            org.mockito.Mockito.when(validationResult.getSummary()).thenReturn("Chain is fully valid");
+            
             java.lang.reflect.Method jsonMethod = ImportCommand.class.getDeclaredMethod(
-                "outputJson", boolean.class, String.class, long.class, int.class, long.class, int.class, boolean.class);
+                "outputJson", boolean.class, String.class, long.class, int.class, 
+                long.class, int.class, com.rbatllet.blockchain.validation.ChainValidationResult.class, boolean.class);
             jsonMethod.setAccessible(true);
             
             // Call the method with test values
-            jsonMethod.invoke(importCommand, true, "test.json", 5L, 2, 10L, 3, true);
+            jsonMethod.invoke(importCommand, true, "test.json", 5L, 2, 10L, 3, validationResult, false);
             
             // Verify JSON output format
             String output = outContent.toString();
@@ -166,7 +176,9 @@ public class ImportCommandCoverageTest {
             assertTrue(output.contains("\"previousKeys\": 2"), "Should include previous keys count");
             assertTrue(output.contains("\"newBlocks\": 10"), "Should include new blocks count");
             assertTrue(output.contains("\"newKeys\": 3"), "Should include new keys count");
-            assertTrue(output.contains("\"valid\": true"), "Should include validation status");
+            assertTrue(output.contains("\"validation\""), "Should include validation object");
+            assertTrue(output.contains("\"isFullyCompliant\": true"), "Should include isFullyCompliant status");
+            assertTrue(output.contains("\"isDryRun\": false"), "Should include isDryRun status");
             assertTrue(output.contains("\"timestamp\""), "Should include timestamp");
         } catch (Exception e) {
             fail("Failed to test outputJson method: " + e.getMessage());

@@ -131,7 +131,7 @@ java -jar blockchain-cli.jar --version
 
 Expected output:
 ```
-1.0.2
+1.0.3
 ```
 
 ### 2. View help information
@@ -694,7 +694,7 @@ All commands have been thoroughly tested and verified:
 
 ```zsh
 # Core functionality ✅
-java -jar blockchain-cli.jar --version              # Returns: 1.0.2
+java -jar blockchain-cli.jar --version              # Returns: 1.0.3
 java -jar blockchain-cli.jar --help                 # Shows comprehensive help
 java -jar blockchain-cli.jar status                 # Shows blockchain status
 java -jar blockchain-cli.jar validate               # Full chain validation
@@ -931,7 +931,7 @@ For the most up-to-date information and detailed documentation, please refer to 
 - 🏢 See [docs/ENTERPRISE_GUIDE.md](docs/ENTERPRISE_GUIDE.md) for advanced setups
 
 ### Project Information
-- **Version**: 1.0.2
+- **Version**: 1.0.3
 - **Java Compatibility**: 21+
 - **License**: MIT License - see [LICENSE](LICENSE) file for details
 - **Build Status**: All tests passing ✅

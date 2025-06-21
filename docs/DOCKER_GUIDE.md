@@ -154,7 +154,7 @@ cp -r blockchain-data/ blockchain-data-backup-$(date +%Y%m%d)
 The project includes a build script that automatically handles the core project dependency and builds the Docker image:
 
 ```zsh
-# Build with default version (1.0.2)
+# Build with default version (1.0.3)
 ./build-docker.sh
 
 # Build with specific version
@@ -176,8 +176,8 @@ mvn clean install -DskipTests
 
 # Then copy the JAR and build the Docker image
 cd ../privateBlockchain-cli
-cp ~/.m2/repository/com/rbatllet/private-blockchain/1.0.2/private-blockchain-1.0.2.jar .
-docker build -t private-blockchain-cli:1.0.2 .
+cp ~/.m2/repository/com/rbatllet/private-blockchain/1.0.3/private-blockchain-1.0.3.jar .
+docker build -t private-blockchain-cli:1.0.3 .
 ```
 
 #### Option 3: No-cache Build (for updates)
@@ -234,7 +234,7 @@ docker run --rm private-blockchain-cli:1.0.3 --version
 docker run --rm private-blockchain-cli:latest --version
 
 # Using an environment variable to specify version
-VERSION=1.0.2 docker run --rm private-blockchain-cli:$VERSION --version
+VERSION=1.0.3 docker run --rm private-blockchain-cli:$VERSION --version
 ```
 
 ## 🎼 Docker Compose
@@ -266,7 +266,7 @@ The docker-compose.yml file uses environment variables to avoid hardcoded versio
 docker-compose up
 
 # Run with specific version
-VERSION=1.0.2 docker-compose up
+VERSION=1.0.3 docker-compose up
 
 # Run with specific version and profile
 VERSION=1.0.3 docker-compose --profile validate up

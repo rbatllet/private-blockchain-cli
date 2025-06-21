@@ -341,12 +341,23 @@ public class BlockchainCLIIntegrationTest {
     void testImportCommandJsonOutput() throws Exception {
         // Create an instance of ImportCommand using reflection to access private method
         ImportCommand importCommand = new ImportCommand();
+        
+        // Create a mock ChainValidationResult
+        com.rbatllet.blockchain.validation.ChainValidationResult validationResult = 
+            org.mockito.Mockito.mock(com.rbatllet.blockchain.validation.ChainValidationResult.class);
+        org.mockito.Mockito.when(validationResult.isFullyCompliant()).thenReturn(true);
+        org.mockito.Mockito.when(validationResult.isStructurallyIntact()).thenReturn(true);
+        org.mockito.Mockito.when(validationResult.getRevokedBlocks()).thenReturn(0);
+        org.mockito.Mockito.when(validationResult.getInvalidBlocks()).thenReturn(0);
+        org.mockito.Mockito.when(validationResult.getSummary()).thenReturn("Chain is fully valid");
+        
         java.lang.reflect.Method outputJsonMethod = ImportCommand.class.getDeclaredMethod(
-            "outputJson", boolean.class, String.class, long.class, int.class, long.class, int.class, boolean.class);
+            "outputJson", boolean.class, String.class, long.class, int.class, 
+            long.class, int.class, com.rbatllet.blockchain.validation.ChainValidationResult.class, boolean.class);
         outputJsonMethod.setAccessible(true);
         
         // Call the outputJson method with test parameters
-        outputJsonMethod.invoke(importCommand, true, "test.json", 10L, 5, 15L, 8, true);
+        outputJsonMethod.invoke(importCommand, true, "test.json", 10L, 5, 15L, 8, validationResult, false);
         
         // Get the output
         String output = outContent.toString();
@@ -358,7 +369,7 @@ public class BlockchainCLIIntegrationTest {
         assertTrue(output.contains("\"previousKeys\": 5"), "JSON should contain previous keys count");
         assertTrue(output.contains("\"newBlocks\": 15"), "JSON should contain new blocks count");
         assertTrue(output.contains("\"newKeys\": 8"), "JSON should contain new keys count");
-        assertTrue(output.contains("\"valid\": true"), "JSON should contain validation status");
+        assertTrue(output.contains("\"validation\""), "JSON should contain validation object");
         assertTrue(output.contains("\"timestamp\": \""), "JSON should contain timestamp");
         
         clearOutput();

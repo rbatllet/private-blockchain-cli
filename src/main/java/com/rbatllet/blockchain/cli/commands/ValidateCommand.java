@@ -5,12 +5,9 @@ import picocli.CommandLine.Option;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.entity.Block;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
-import com.rbatllet.blockchain.util.CryptoUtil;
 import com.rbatllet.blockchain.util.ExitUtil;
-import com.rbatllet.blockchain.util.validation.BlockValidationResult;
+import com.rbatllet.blockchain.validation.ChainValidationResult;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Command to validate the blockchain integrity
@@ -37,20 +34,29 @@ public class ValidateCommand implements Runnable {
             
             // Get basic chain information
             long blockCount = blockchain.getBlockCount();
-            boolean isValid;
+            ChainValidationResult validationResult;
             
             if (quick) {
                 BlockchainCLI.verbose("Performing quick validation...");
-                isValid = blockchain.validateChain();
+                // Use the new official API for quick validation
+                validationResult = blockchain.validateChainDetailed();
             } else {
                 BlockchainCLI.verbose("Performing detailed validation...");
-                isValid = performDetailedValidation(blockchain);
+                // Use the new official API for detailed validation
+                validationResult = blockchain.validateChainDetailed();
+                
+                // If detailed is requested and not json, show extra information
+                if (detailed && !json) {
+                    showDetailedValidationResults(blockchain, validationResult);
+                }
             }
             
+            boolean isValid = validationResult.isFullyCompliant();
+            
             if (json) {
-                outputJson(isValid, blockCount, blockchain);
+                outputJson(validationResult, blockCount, blockchain);
             } else {
-                outputText(isValid, blockCount, blockchain);
+                outputText(validationResult, blockCount, blockchain);
             }
             
             // Exit with error code if validation failed
@@ -80,207 +86,61 @@ public class ValidateCommand implements Runnable {
     }
     
     /**
-     * Using the BlockValidationResult implementation from the core project
+     * Show detailed validation results using the new validation API
      */
-    
-    private boolean performDetailedValidation(Blockchain blockchain) {
+    private void showDetailedValidationResults(Blockchain blockchain, ChainValidationResult result) {
         try {
-            List<Block> blocks = blockchain.getAllBlocks();
-            
-            BlockchainCLI.verbose("Validating " + blocks.size() + " blocks...");
-            
-            boolean isChainValid = true;
-            
-            // Verify the genesis block separately
-            if (!blocks.isEmpty()) {
-                Block genesisBlock = blocks.get(0);
-                boolean isGenesisValid = validateGenesisBlock(genesisBlock);
-                if (!isGenesisValid) {
-                    isChainValid = false;
-                }
-            } else {
-                BlockchainCLI.error("❌ No blocks found in blockchain");
-                return false;
-            }
-            
-            // Validate each block individually with detailed checks
-            List<BlockValidationResult> validationResults = new ArrayList<>();
-            
-            for (int i = 1; i < blocks.size(); i++) {
-                Block currentBlock = blocks.get(i);
-                Block previousBlock = blocks.get(i - 1);
-                
-                // Perform detailed validations and store results
-                BlockValidationResult result = validateBlockDetailed(blockchain, currentBlock, previousBlock);
-                validationResults.add(result);
-                
-                // If any block is invalid, the chain is invalid
-                if (!result.isValid()) {
-                    isChainValid = false;
-                }
-                
-                // Show detailed results if requested
-                if (detailed && !json) {
-                    showDetailedBlockValidation(currentBlock, result);
-                }
-            }
-            
-            return isChainValid;
-            
-        } catch (Exception e) {
-            BlockchainCLI.verbose("Error during detailed validation: " + e.getMessage());
-            if (BlockchainCLI.verbose) {
-                e.printStackTrace();
-            }
-            return false;
-        }
-    }
-    
-    /**
-     * Validates an individual block with detailed validations
-     * Uses the core project's BlockValidationResult for validation results
-     * Made public to allow unit testing
-     */
-    public BlockValidationResult validateBlockDetailed(Blockchain blockchain, Block block, Block previousBlock) {
-        BlockValidationResult result = new BlockValidationResult();
-        
-        try {
-            // Validate previous hash
-            boolean previousHashValid = block.getPreviousHash().equals(previousBlock.getHash());
-            result.setPreviousHashValid(previousHashValid);
-            if (!previousHashValid) {
-                result.setErrorMessage("Previous hash mismatch: expected " + previousBlock.getHash() + ", got " + block.getPreviousHash());
-            }
-            
-            // Validate block number
-            long expectedNumber = previousBlock.getBlockNumber() + 1L;
-            long actualNumber = block.getBlockNumber();
-            boolean blockNumberValid = expectedNumber == actualNumber;
-            result.setBlockNumberValid(blockNumberValid);
-            if (!blockNumberValid) {
-                result.setErrorMessage("Block number mismatch: expected " + expectedNumber + ", got " + actualNumber);
-            }
-            
-            // Validate hash integrity
-            String calculatedHash = CryptoUtil.calculateHash(blockchain.buildBlockContent(block));
-            boolean hashValid = block.getHash().equals(calculatedHash);
-            result.setHashIntegrityValid(hashValid);
-            if (!hashValid) {
-                result.setErrorMessage("Hash mismatch: expected " + calculatedHash + ", got " + block.getHash());
-            }
-            
-            // Validate digital signature
-            try {
-                java.security.PublicKey signerPublicKey = CryptoUtil.stringToPublicKey(block.getSignerPublicKey());
-                boolean signatureValid = CryptoUtil.verifySignature(blockchain.buildBlockContent(block), 
-                                                                   block.getSignature(), 
-                                                                   signerPublicKey);
-                result.setSignatureValid(signatureValid);
-                if (!signatureValid) {
-                    result.setErrorMessage("Invalid digital signature");
-                }
-            } catch (Exception e) {
-                result.setSignatureValid(false);
-                result.setErrorMessage("Error verifying signature: " + e.getMessage());
-            }
-            
-            // Validate key authorization using Blockchain's public method
-            boolean keyAuthorized = blockchain.wasKeyAuthorizedAt(block.getSignerPublicKey(), block.getTimestamp());
-            result.setAuthorizedKeyValid(keyAuthorized);
-            if (!keyAuthorized) {
-                result.setErrorMessage("Block signed by key that was not authorized at time of creation");
-            }
-            
-            // The overall validity is automatically calculated by the isValid() method
-            // based on all individual validation results
-            
-            return result;
-        } catch (Exception e) {
-            if (result.isPreviousHashValid() && result.isBlockNumberValid() && 
-                result.isHashIntegrityValid() && result.isSignatureValid() && 
-                result.isAuthorizedKeyValid()) {
-                // Only if no specific error has been set
-                result.setPreviousHashValid(false);
-            }
-            result.setErrorMessage("Error validating block: " + e.getMessage());
-            return result;
-        }
-    }
-    
-    /**
-     * Validate genesis block specifically
-     */
-    private boolean validateGenesisBlock(Block genesisBlock) {
-        boolean isValid = true;
-        final String GENESIS_PREVIOUS_HASH = "0";
-        
-        if (genesisBlock.getBlockNumber() != 0) {
-            BlockchainCLI.error("❌ Genesis block has invalid block number: " + genesisBlock.getBlockNumber());
-            isValid = false;
-        }
-        
-        if (!GENESIS_PREVIOUS_HASH.equals(genesisBlock.getPreviousHash())) {
-            BlockchainCLI.error("❌ Genesis block has invalid previous hash");
-            isValid = false;
-        }
-        
-        if (detailed && !json) {
-            String status = isValid ? "✅ VALID" : "❌ INVALID";
-            System.out.println("📦 Genesis Block - " + status);
-            
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            System.out.println("   📅 Timestamp: " + genesisBlock.getTimestamp().format(formatter));
-            System.out.println("   🔗 Hash: " + truncateHash(genesisBlock.getHash()));
-            System.out.println("   📝 Data: " + genesisBlock.getData());
             System.out.println();
+            System.out.println("🔍 Detailed Validation Report");
+            System.out.println("=" .repeat(50));
+            
+            // Show general summary
+            System.out.println("📊 Summary: " + result.getSummary());
+            System.out.println();
+            
+            // Show detailed report if available
+            String detailedReport = result.getDetailedReport();
+            if (detailedReport != null && !detailedReport.trim().isEmpty()) {
+                System.out.println("📋 Detailed Report:");
+                System.out.println(detailedReport);
+                System.out.println();
+            }
+            
+            // Show specific information about revoked/invalid blocks
+            if (result.getRevokedBlocks() > 0) {
+                System.out.println("⚠️ Revoked Blocks: " + result.getRevokedBlocks());
+                System.out.println("   These blocks were signed by keys that were later revoked.");
+                System.out.println();
+            }
+            
+            if (result.getInvalidBlocks() > 0) {
+                System.out.println("❌ Invalid Blocks: " + result.getInvalidBlocks());
+                System.out.println("   These blocks have structural or cryptographic problems.");
+                System.out.println();
+            }
+            
+        } catch (Exception e) {
+            BlockchainCLI.verbose("Error showing detailed validation results: " + e.getMessage());
         }
-        
-        return isValid;
     }
     
-    /**
-     * Show detailed validation results for a block
-     */
-    private void showDetailedBlockValidation(Block block, BlockValidationResult result) {
-        String overallStatus = result.isValid() ? "✅ VALID" : "❌ INVALID";
-        System.out.println("📦 Block #" + block.getBlockNumber() + " - " + overallStatus);
-        
-        // Show basic block information
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        System.out.println("   📅 Timestamp: " + block.getTimestamp().format(formatter));
-        System.out.println("   🔗 Hash: " + truncateHash(block.getHash()));
-        System.out.println("   🔗 Previous Hash: " + truncateHash(block.getPreviousHash()));
-        System.out.println("   📝 Data Length: " + block.getData().length() + " chars");
-        
-        // Show detailed validation results
-        System.out.println("   🔍 Validation Details:");
-        System.out.println("      - Previous Hash: " + (result.isPreviousHashValid() ? "✅ Valid" : "❌ Invalid"));
-        System.out.println("      - Block Number: " + (result.isBlockNumberValid() ? "✅ Valid" : "❌ Invalid"));
-        System.out.println("      - Hash Integrity: " + (result.isHashIntegrityValid() ? "✅ Valid" : "❌ Invalid"));
-        System.out.println("      - Digital Signature: " + (result.isSignatureValid() ? "✅ Valid" : "❌ Invalid"));
-        System.out.println("      - Key Authorization: " + (result.isAuthorizedKeyValid() ? "✅ Valid" : "❌ Invalid"));
-        
-        // Show error message if exists
-        if (result.getErrorMessage() != null) {
-            System.out.println("   ⚠️ Error: " + result.getErrorMessage());
-        }
-        
-        System.out.println();
-    }
-    
-    private String truncateHash(String hash) {
-        if (hash == null) return "null";
-        return hash.length() > 32 ? 
-            hash.substring(0, 16) + "..." + hash.substring(hash.length() - 16) :
-            hash;
-    }
-    
-    private void outputText(boolean isValid, long blockCount, Blockchain blockchain) {
+    private void outputText(ChainValidationResult validationResult, long blockCount, Blockchain blockchain) {
         System.out.println("🔍 Blockchain Validation Results");
         System.out.println("=" .repeat(50));
         
-        String status = isValid ? "✅ VALID" : "❌ INVALID";
-        System.out.println("🔗 Chain Status: " + status);
+        // Use the new API to show more detailed information
+        if (validationResult.isStructurallyIntact()) {
+            if (validationResult.isFullyCompliant()) {
+                System.out.println("🔗 Chain Status: ✅ FULLY VALID");
+            } else {
+                System.out.println("🔗 Chain Status: ⚠️ STRUCTURALLY INTACT (authorization issues)");
+                System.out.println("   🔄 Revoked blocks: " + validationResult.getRevokedBlocks());
+            }
+        } else {
+            System.out.println("🔗 Chain Status: ❌ INVALID (structural problems)");
+            System.out.println("   💥 Invalid blocks: " + validationResult.getInvalidBlocks());
+        }
+        
         System.out.println("📊 Total Blocks: " + blockCount);
         
         try {
@@ -298,10 +158,16 @@ public class ValidateCommand implements Runnable {
         }
         
         System.out.println();
+        System.out.println("📋 Validation Summary: " + validationResult.getSummary());
+        System.out.println();
         
-        if (isValid) {
+        if (validationResult.isFullyCompliant()) {
             BlockchainCLI.success("Blockchain validation completed successfully!");
             System.out.println("💡 All blocks are properly linked and signatures are valid.");
+        } else if (validationResult.isStructurallyIntact()) {
+            BlockchainCLI.error("⚠️ Blockchain has authorization issues!");
+            System.out.println("💡 The chain structure is intact but some blocks were signed by revoked keys.");
+            System.out.println("   Run with --detailed flag for more information.");
         } else {
             BlockchainCLI.error("❌ Blockchain validation failed!");
             System.out.println("⚠️  The blockchain contains invalid blocks or broken links.");
@@ -309,9 +175,15 @@ public class ValidateCommand implements Runnable {
         }
     }
     
-    private void outputJson(boolean isValid, long blockCount, Blockchain blockchain) {
+    private void outputJson(ChainValidationResult validationResult, long blockCount, Blockchain blockchain) {
         System.out.println("{");
-        System.out.println("  \"valid\": " + isValid + ",");
+        System.out.println("  \"validation\": {");
+        System.out.println("    \"isFullyCompliant\": " + validationResult.isFullyCompliant() + ",");
+        System.out.println("    \"isStructurallyIntact\": " + validationResult.isStructurallyIntact() + ",");
+        System.out.println("    \"revokedBlocks\": " + validationResult.getRevokedBlocks() + ",");
+        System.out.println("    \"invalidBlocks\": " + validationResult.getInvalidBlocks() + ",");
+        System.out.println("    \"summary\": \"" + validationResult.getSummary() + "\"");
+        System.out.println("  },");
         System.out.println("  \"totalBlocks\": " + blockCount + ",");
         
         try {

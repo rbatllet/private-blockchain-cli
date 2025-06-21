@@ -173,19 +173,20 @@ public class ImportCommandComplexCoverageTest {
     @Test
     @DisplayName("Should handle outputJson method with different parameters")
     void shouldHandleOutputJsonMethod() throws Exception {
-        // Access the private outputJson method using reflection
+        // Access the private outputJson method using reflection with updated signature
         Method outputJsonMethod = ImportCommand.class.getDeclaredMethod(
-            "outputJson", boolean.class, String.class, long.class, int.class, long.class, int.class, boolean.class);
+            "outputJson", boolean.class, String.class, long.class, int.class, 
+            long.class, int.class, com.rbatllet.blockchain.validation.ChainValidationResult.class, boolean.class);
         outputJsonMethod.setAccessible(true);
         
-        // Test with success=true
-        outputJsonMethod.invoke(importCommand, true, "test.json", 5L, 2, 10L, 4, true);
+        // Test with success=true (null validation result)
+        outputJsonMethod.invoke(importCommand, true, "test.json", 5L, 2, 10L, 4, null, false);
         String successOutput = outContent.toString();
         assertTrue(successOutput.contains("\"success\": true"), "Should output success as true");
         
         // Clear output and test with success=false
         outContent.reset();
-        outputJsonMethod.invoke(importCommand, false, "test.json", 5L, 2, 5L, 2, false);
+        outputJsonMethod.invoke(importCommand, false, "test.json", 5L, 2, 5L, 2, null, false);
         String failureOutput = outContent.toString();
         assertTrue(failureOutput.contains("\"success\": false"), "Should output success as false");
     }

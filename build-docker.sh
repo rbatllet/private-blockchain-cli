@@ -9,7 +9,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Default version if not specified
-DEFAULT_VERSION="1.0.2"
+DEFAULT_VERSION="1.0.3"
 VERSION=${1:-$DEFAULT_VERSION}
 
 # Ensure VERSION is not empty

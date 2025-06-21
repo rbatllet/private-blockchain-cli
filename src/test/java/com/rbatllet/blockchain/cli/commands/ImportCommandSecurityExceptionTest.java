@@ -280,12 +280,12 @@ public class ImportCommandSecurityExceptionTest {
             @Override
             public void run() {
                 try {
-                    // We need to use reflection to access the private outputJson method
+                    // We need to use reflection to access the private outputJson method with updated signature
                     Method outputJsonMethod = ImportCommand.class.getDeclaredMethod(
                         "outputJson", boolean.class, String.class, long.class, int.class, 
-                        long.class, int.class, boolean.class);
+                        long.class, int.class, com.rbatllet.blockchain.validation.ChainValidationResult.class, boolean.class);
                     outputJsonMethod.setAccessible(true);
-                    outputJsonMethod.invoke(this, true, inputFile, 0L, 0, 1L, 1, true);
+                    outputJsonMethod.invoke(this, true, inputFile, 0L, 0, 1L, 1, null, false);
                 } catch (Exception e) {
                     System.err.println("Error during JSON output: " + e.getMessage());
                     e.printStackTrace(System.err);

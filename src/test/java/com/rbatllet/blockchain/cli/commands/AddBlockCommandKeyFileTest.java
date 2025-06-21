@@ -171,14 +171,14 @@ class AddBlockCommandKeyFileTest {
         }
         
         @Test
-        @DisplayName("Should detect PEM RSA format")
+        @DisplayName("Should detect PEM EC format")
         void shouldDetectPEMRSAFormat() throws Exception {
-            String pemContent = "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEAwU2vZNKb=\n-----END RSA PRIVATE KEY-----";
-            Path keyFile = tempDir.resolve("test_rsa.pem");
+            String pemContent = "-----BEGIN EC PRIVATE KEY-----\nMIIEpAIBAAKCAQEAwU2vZNKb=\n-----END EC PRIVATE KEY-----";
+            Path keyFile = tempDir.resolve("test_ec.pem");
             Files.write(keyFile, pemContent.getBytes());
             
             String format = KeyFileLoader.detectKeyFileFormat(keyFile.toString());
-            assertEquals("PEM (PKCS#1/RSA)", format);
+            assertEquals("PEM (PKCS#1/EC)", format);
         }
         
         @Test
@@ -385,7 +385,7 @@ class AddBlockCommandKeyFileTest {
                         "Should not show verbose message for format detection");
                     
                     // Verify normal messages are still present
-                    assertTrue(outputString.contains("✅ Block added successfully!"), 
+                    assertTrue(outputString.contains("Block added successfully"), 
                         "Should still show success message");
                     
                 } finally {

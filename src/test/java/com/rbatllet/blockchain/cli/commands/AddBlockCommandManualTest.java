@@ -38,7 +38,9 @@ public class AddBlockCommandManualTest {
         System.setErr(new PrintStream(errContent));
         System.setProperty("user.dir", tempDir.toString());
         
+        // Create blockchain and ensure clean state
         blockchain = new Blockchain();
+        blockchain.clearAndReinitialize();
     }
 
     @AfterEach
@@ -49,8 +51,12 @@ public class AddBlockCommandManualTest {
 
     @Test
     void testSignerParameterBugFixDirectly() {
-        // Test 1: Create an authorized key first
-        KeyPair testKeyPair = CryptoUtil.generateKeyPair();
+        // Test 1: Create an authorized key first using the main project pattern
+        CryptoUtil.KeyInfo testKeyInfo = CryptoUtil.createRootKey();
+        KeyPair testKeyPair = new KeyPair(
+            CryptoUtil.stringToPublicKey(testKeyInfo.getPublicKeyEncoded()),
+            CryptoUtil.stringToPrivateKey(testKeyInfo.getPrivateKeyEncoded())
+        );
         String publicKeyString = CryptoUtil.publicKeyToString(testKeyPair.getPublic());
         
         boolean keyAdded = blockchain.addAuthorizedKey(publicKeyString, "TestUser");
@@ -68,9 +74,25 @@ public class AddBlockCommandManualTest {
         assertTrue(allKeys.size() > 0, "Should have at least one authorized key");
         
         // Test 4: Add a block using a different key (simulating the CLI functionality)
-        KeyPair signingKeyPair = CryptoUtil.generateKeyPair();
+        // Use the same pattern as the main project tests for better compatibility
+        CryptoUtil.KeyInfo signingKeyInfo = CryptoUtil.createRootKey();
+        KeyPair signingKeyPair = new KeyPair(
+            CryptoUtil.stringToPublicKey(signingKeyInfo.getPublicKeyEncoded()),
+            CryptoUtil.stringToPrivateKey(signingKeyInfo.getPrivateKeyEncoded())
+        );
         String signingPublicKey = CryptoUtil.publicKeyToString(signingKeyPair.getPublic());
-        blockchain.addAuthorizedKey(signingPublicKey, "TempSigner");
+        
+        // Add some debugging
+        System.out.println("Generated key algorithm: " + signingKeyPair.getPrivate().getAlgorithm());
+        System.out.println("Generated public key: " + signingPublicKey.substring(0, 20) + "...");
+        
+        boolean keyAddedSuccess = blockchain.addAuthorizedKey(signingPublicKey, "TempSigner");
+        assertTrue(keyAddedSuccess, "Should be able to add the signing key as authorized");
+        
+        // Verify the key was actually added
+        AuthorizedKey addedKey = blockchain.getAuthorizedKeyByOwner("TempSigner");
+        assertNotNull(addedKey, "Should find the newly added authorized key");
+        assertEquals(signingPublicKey, addedKey.getPublicKey(), "Public key should match");
         
         boolean blockAdded = blockchain.addBlock("Test block data", 
                                                signingKeyPair.getPrivate(), 
@@ -98,9 +120,18 @@ public class AddBlockCommandManualTest {
 
     @Test
     void testMultipleSigners() {
-        // Test with multiple signers
-        KeyPair keyPair1 = CryptoUtil.generateKeyPair();
-        KeyPair keyPair2 = CryptoUtil.generateKeyPair();
+        // Test with multiple signers using the main project pattern
+        CryptoUtil.KeyInfo keyInfo1 = CryptoUtil.createRootKey();
+        CryptoUtil.KeyInfo keyInfo2 = CryptoUtil.createRootKey();
+        
+        KeyPair keyPair1 = new KeyPair(
+            CryptoUtil.stringToPublicKey(keyInfo1.getPublicKeyEncoded()),
+            CryptoUtil.stringToPrivateKey(keyInfo1.getPrivateKeyEncoded())
+        );
+        KeyPair keyPair2 = new KeyPair(
+            CryptoUtil.stringToPublicKey(keyInfo2.getPublicKeyEncoded()),
+            CryptoUtil.stringToPrivateKey(keyInfo2.getPrivateKeyEncoded())
+        );
         
         String publicKey1 = CryptoUtil.publicKeyToString(keyPair1.getPublic());
         String publicKey2 = CryptoUtil.publicKeyToString(keyPair2.getPublic());
