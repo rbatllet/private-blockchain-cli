@@ -13,32 +13,9 @@ import com.rbatllet.blockchain.util.CryptoUtil;
 import com.rbatllet.blockchain.util.ExitUtil;
 
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.Signature;
-import java.security.interfaces.ECPrivateKey;
-import java.security.spec.ECGenParameterSpec;
-import java.security.spec.ECParameterSpec;
-import java.security.spec.ECPoint;
-import java.security.spec.ECPublicKeySpec;
-import java.security.KeyFactory;
-import java.math.BigInteger;
-
-// BouncyCastle imports
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.jce.ECNamedCurveTable;
-import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
-import org.bouncycastle.math.ec.ECCurve;
-import org.bouncycastle.jce.spec.ECPrivateKeySpec;
-import java.security.spec.ECParameterSpec;
-import java.security.spec.ECPoint;
-import java.security.spec.ECPublicKeySpec;
-import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.security.KeyPair;
-import java.security.spec.RSAPrivateCrtKeySpec;
-import java.security.spec.RSAPublicKeySpec;
 
 /**
  * Command to add a new block to the blockchain

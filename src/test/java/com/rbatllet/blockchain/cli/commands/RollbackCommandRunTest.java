@@ -1,6 +1,5 @@
 package com.rbatllet.blockchain.cli.commands;
 
-import com.rbatllet.blockchain.cli.BlockchainCLI;
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.util.ExitUtil;
 import com.rbatllet.blockchain.util.CryptoUtil;
@@ -8,16 +7,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.nio.file.Path;
 import java.security.KeyPair;
-import java.util.regex.Pattern;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

@@ -35,9 +35,9 @@ public class StatusCommand implements Runnable {
             boolean isValid = validationResult.isFullyCompliant();
             
             if (json) {
-                outputJson(blockCount, authorizedKeys, validationResult);
+                outputJson(blockCount, authorizedKeys, validationResult, isValid);
             } else {
-                outputText(blockCount, authorizedKeys, validationResult, detailed);
+                outputText(blockCount, authorizedKeys, validationResult, detailed, isValid);
             }
             
         } catch (SecurityException e) {
@@ -52,11 +52,11 @@ public class StatusCommand implements Runnable {
         }
     }
     
-    private void outputJson(long blockCount, int authorizedKeys, ChainValidationResult validationResult) {
+    private void outputJson(long blockCount, int authorizedKeys, ChainValidationResult validationResult, boolean isValid) {
         System.out.println("{");
         System.out.println("  \"blockCount\": " + blockCount + ",");
         System.out.println("  \"authorizedKeys\": " + authorizedKeys + ",");
-        System.out.println("  \"isValid\": " + validationResult.isFullyCompliant() + ",");
+        System.out.println("  \"isValid\": " + isValid + ",");
         System.out.println("  \"isStructurallyIntact\": " + validationResult.isStructurallyIntact() + ",");
         System.out.println("  \"revokedBlocks\": " + validationResult.getRevokedBlocks() + ",");
         System.out.println("  \"invalidBlocks\": " + validationResult.getInvalidBlocks() + ",");
@@ -64,7 +64,7 @@ public class StatusCommand implements Runnable {
         System.out.println("}");
     }
     
-    private void outputText(long blockCount, int authorizedKeys, ChainValidationResult validationResult, boolean detailed) {
+    private void outputText(long blockCount, int authorizedKeys, ChainValidationResult validationResult, boolean detailed, boolean isValid) {
         System.out.println("🔗 Blockchain Status");
         System.out.println("=" .repeat(50));
         System.out.println("📊 Total blocks: " + blockCount);
@@ -72,7 +72,7 @@ public class StatusCommand implements Runnable {
         
         // Use new API to show more detailed information
         if (validationResult.isStructurallyIntact()) {
-            if (validationResult.isFullyCompliant()) {
+            if (isValid) {
                 System.out.println("✅ Chain integrity: FULLY VALID");
             } else {
                 System.out.println("⚠️ Chain integrity: STRUCTURALLY INTACT (but has authorization issues)");
