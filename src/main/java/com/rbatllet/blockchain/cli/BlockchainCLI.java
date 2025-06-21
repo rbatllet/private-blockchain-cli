@@ -39,7 +39,7 @@ public class BlockchainCLI implements Runnable {
     
     @Option(names = {"-v", "--verbose"}, 
             description = "Enable verbose output")
-    public static boolean verbose = false;
+    public static volatile boolean verbose = false;
     
     /**
      * Main method - entry point for CLI
