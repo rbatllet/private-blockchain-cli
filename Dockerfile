@@ -80,11 +80,8 @@ RUN chsh -s /usr/bin/zsh root && \
 # Set working directory
 WORKDIR /app
 
-# Copy JAR files from builder stage
-COPY --from=builder /build/target/*.jar /app/
-
-# Rename the JAR to a standard name for easier reference
-RUN find /app -name "*.jar" -type f -exec mv {} /app/blockchain-cli.jar \;
+# Copy the main JAR file from builder stage
+COPY --from=builder /build/target/blockchain-cli.jar /app/blockchain-cli.jar
 
 # List files in app directory
 RUN ls -la /app/
