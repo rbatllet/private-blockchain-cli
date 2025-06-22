@@ -85,7 +85,7 @@ function run_cli_test() {
 function clean_database() {
     if [[ "${SKIP_DB_CLEANUP:-}" != "true" ]]; then
         echo "🧹 Cleaning blockchain database..."
-        rm -f ~/.blockchain/blockchain.db*
+        rm -f "$SCRIPT_DIR/blockchain.db*"
         echo "✅ Database cleaned"
     else
         echo "⏭️ Database cleanup skipped (SKIP_DB_CLEANUP=true)"
