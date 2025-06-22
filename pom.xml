@@ -140,8 +140,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <!-- Suppress warnings about overlapping files -->
-                            <quiet>false</quiet>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
