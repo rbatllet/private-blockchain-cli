@@ -159,13 +159,34 @@
                                         <exclude>META-INF/NOTICE.txt</exclude>
                                         <exclude>META-INF/NOTICE.md</exclude>
                                         <exclude>META-INF/DEPENDENCIES</exclude>
+                                        <!-- Manifests from dependencies (let transformer create a new one) -->
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
                                     </excludes>
+                                </filter>
+                                <!-- Exclude log4j2.xml from dependency to avoid conflicts -->
+                                <filter>
+                                    <artifact>com.rbatllet:private-blockchain</artifact>
+                                    <excludes>
+                                        <exclude>log4j2.xml</exclude>
+                                    </excludes>
+                                </filter>
+                                <!-- Keep our own MANIFEST.MF -->
+                                <filter>
+                                    <artifact>com.rbatllet:private-blockchain-cli</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
                                 </filter>
                             </filters>
                             <transformers>
-                                <!-- Main class transformer -->
+                                <!-- Main class transformer with proper manifest handling -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.rbatllet.blockchain.cli.BlockchainCLI</mainClass>
+                                    <manifestEntries>
+                                        <Built-By>Private Blockchain CLI</Built-By>
+                                        <Implementation-Version>${project.version}</Implementation-Version>
+                                        <Implementation-Title>${project.name}</Implementation-Title>
+                                    </manifestEntries>
                                 </transformer>
                                 <!-- Services transformer for SPI -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
