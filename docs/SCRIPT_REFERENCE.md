@@ -108,7 +108,7 @@ Script to set up test data for rollback testing.
 - Sets up specific block configurations for testing
 - Prepares environment for rollback tests
 
-### test_key_file_functionality.sh
+### test-key-file-functionality.sh
 
 Functional test script for the key file implementation.
 
@@ -116,13 +116,13 @@ Functional test script for the key file implementation.
 ```zsh
 #!/usr/bin/env zsh
 
-./test_key_file_functionality.sh
+./test-key-file-functionality.sh
 
 # Skip key generation
-./test_key_file_functionality.sh --skip-keygen
+./test-key-file-functionality.sh --skip-keygen
 
 # Show debug information
-./test_key_file_functionality.sh --debug
+./test-key-file-functionality.sh --debug
 ```
 
 **Features:**
@@ -149,7 +149,7 @@ Utility script to clean corrupted SQLite database files.
 - Attempts to repair corrupted databases if possible
 - Provides detailed output of actions taken
 
-### generate_test_keys.sh
+### generate-test-keys.sh
 
 Utility script for creating test keys for development and testing.
 
@@ -157,7 +157,7 @@ Utility script for creating test keys for development and testing.
 ```zsh
 #!/usr/bin/env zsh
 
-./generate_test_keys.sh
+./generate-test-keys.sh
 ```
 
 **Features:**

@@ -31,20 +31,22 @@ This CLI application provides a secure interface for managing a private blockcha
 
 ### Key Features
 
-✅ **Complete Implementation** - All 8 core commands fully working  
+✅ **Complete Implementation** - All core commands fully working  
+✅ **Modern Cryptography** - ECDSA with SHA3-256 and hierarchical key management  
 ✅ **Secure Architecture** - Cryptographic key management and validation  
 ✅ **Multiple Output Formats** - Text, JSON, and detailed views  
-✅ **Robust Testing** - 14 tests with 100% pass rate  
+✅ **Robust Testing** - Comprehensive test coverage  
 ✅ **Production Ready** - Enterprise-grade error handling and logging  
 ✅ **Easy to Use** - Clear help system and examples  
 
-### 🔐 NEW: Secure Key Management Features
+### 🔐 Secure Key Management Features
 
-✅ **Production-Grade Security** - AES-128 encrypted private key storage  
-✅ **Password Protection** - Strong password validation and secure input  
+✅ **Production-Grade Security** - AES-256 encrypted private key storage  
+✅ **Modern Cryptography** - ECDSA with secp256r1 curve and SHA3-256 hashing  
+✅ **Hierarchical Keys** - Root, intermediate, and operational key support  
+✅ **Password Protection** - Strong password validation with PBKDF2 key derivation  
 ✅ **Dual Mode Operation** - Demo mode for testing, production mode for real use  
-✅ **Key Lifecycle Management** - Complete CRUD operations for stored keys  
-✅ **Migration Support** - Seamless upgrade from demo to production workflows  
+✅ **Key Lifecycle** - Complete key rotation and revocation support  
 ✅ **Audit Trail** - Track key usage and operations  
 
 ## 📦 Prerequisites
@@ -152,14 +154,21 @@ This will initialize the blockchain database (if it doesn't exist) and show curr
 🔗 Blockchain Status
 ==================================================
 📊 Total blocks: 1
-👥 Authorized keys: 0
+🔑 Authorized keys: 0
+🔒 Cryptographic Suite: ECDSA-SHA3-256 (secp256r1)
 ✅ Chain integrity: VALID
+⚠️  Run 'validate --detailed' for comprehensive validation
 ```
 
 ### 4. Add your first authorized user
 
 ```zsh
+# Generate a new ECDSA key pair (secp256r1 curve)
 java -jar blockchain-cli.jar add-key "Alice" --generate --show-private
+
+# For production use with secure key storage:
+# java -jar blockchain-cli.jar add-key "Admin" --generate --store-private
+# You'll be prompted to enter a secure password
 ```
 
 ### 5. Add your first block
@@ -171,10 +180,20 @@ java -jar blockchain-cli.jar add-block "My first blockchain entry" --signer Alic
 **✨ NEW: Enhanced --signer functionality**
 The `--signer` parameter now works seamlessly with existing authorized users. When you specify an existing signer, the CLI creates a demo mode signature that simulates real-world usage.
 
-### 6. Verify everything worked
+### 6. Verify everything worked with detailed validation
 
 ```zsh
+# Basic validation
+java -jar blockchain-cli.jar validate
+
+# For comprehensive validation including key status and cryptographic integrity
 java -jar blockchain-cli.jar validate --detailed
+
+# Example output will show:
+# - Block structure validation
+# - Signature verification using ECDSA
+# - Key revocation status
+# - Cryptographic hash integrity (SHA3-256)
 ```
 
 ### Complete Workflow Example

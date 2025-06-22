@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <!-- Pattern for CLI application -->
+        <Property name="PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Property>
+    </Properties>
+
+    <Appenders>
+        <!-- Console for development -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${PATTERN}"/>
+        </Console>
+        
+        <!-- File for application logs -->
+        <RollingFile name="AppLogFile" fileName="logs/blockchain-cli.log" 
+                     filePattern="logs/blockchain-cli-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- CLI application logs -->
+        <Logger name="com.rbatllet.blockchain.cli" level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AppLogFile"/>
+        </Logger>
+        
+        <!-- Core blockchain logs (inherited from main project) -->
+        <Logger name="com.rbatllet.blockchain" level="WARN" additivity="false">
+            <AppenderRef ref="AppLogFile"/>
+        </Logger>
+
+        <!-- HIBERNATE LOGGERS (very quiet for CLI) -->
+        <Logger name="org.hibernate" level="ERROR" additivity="false">
+            <AppenderRef ref="AppLogFile"/>
+        </Logger>
+        
+        <!-- SQL statements silenced for CLI -->
+        <Logger name="org.hibernate.SQL" level="ERROR" additivity="false">
+            <AppenderRef ref="AppLogFile"/>
+        </Logger>
+        
+        <!-- HikariCP silenced -->
+        <Logger name="com.zaxxer.hikari" level="ERROR" additivity="false">
+            <AppenderRef ref="AppLogFile"/>
+        </Logger>
+        
+        <!-- Other frameworks silenced -->
+        <Logger name="org.jboss" level="ERROR" additivity="false">
+            <AppenderRef ref="AppLogFile"/>
+        </Logger>
+        
+        <Logger name="org.springframework" level="ERROR" additivity="false">
+            <AppenderRef ref="AppLogFile"/>
+        </Logger>
+
+        <!-- Root logger very quiet for CLI -->
+        <Root level="ERROR">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AppLogFile"/>
+        </Root>
+    </Loggers>
+</Configuration>

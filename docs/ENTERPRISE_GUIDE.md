@@ -17,72 +17,147 @@ Best practices and guidelines for using the Private Blockchain CLI in enterprise
 
 #### Secure Key Generation
 ```zsh
-# 1. Always save private keys securely when shown
-java -jar blockchain-cli.jar add-key "Alice" --generate --show-private > secure_keys/alice_private.txt
-chmod 600 secure_keys/alice_private.txt
+# 1. Generate keys with proper hierarchy and security levels
+# Root key (long-term, highly secure)
+java -jar blockchain-cli.jar add-key "Root-Key-2025" --generate --store-private --key-type root
 
-# 2. Use descriptive names for easy identification
-java -jar blockchain-cli.jar add-key "Alice-Manager-Q2-2025" --generate
+# Department key (intermediate, 6-12 months)
+java -jar blockchain-cli.jar add-key "Finance-Dept-Key" --generate --store-private --key-type intermediate --parent-key Root-Key-2025
 
-# 3. Regular key rotation for high-security environments
-java -jar blockchain-cli.jar add-key "Alice-New-$(date +%Y%m)" --generate
+# Service key (short-term, 30-90 days)
+java -jar blockchain-cli.jar add-key "Payment-Service-Key" --generate --store-private --key-type operational --parent-key Finance-Dept-Key --validity-days 30
 
-# 4. Document key ownership
-echo "Alice: MIIBIjAN..." > key_registry.txt
+# 2. Use descriptive names following naming convention
+# Format: {Purpose}-{Team/Dept}-{Environment}-{CreationDate}
+java -jar blockchain-cli.jar add-key "Signing-PaymentService-Prod-$(date +%Y%m%d)" --generate
+
+# 3. Document key metadata in secure registry
+echo "KeyID: 1a2b3c4d-..." > key_registry.txt
+echo "Type: Operational" >> key_registry.txt
+echo "Purpose: Payment Service Signing" >> key_registry.txt
+echo "Owner: Payment Team" >> key_registry.txt
+echo "Expiration: 2025-07-22" >> key_registry.txt
 ```
 
-#### Key Storage
+#### Key Storage and Protection
 ```zsh
-# Create secure key storage directory
-mkdir -p /secure/blockchain/keys
-chmod 700 /secure/blockchain/keys
+# 1. Create secure key storage with restricted access
+KEYSTORE_DIR="/etc/blockchain/keystore"
+mkdir -p "$KEYSTORE_DIR"
+chown -R blockchain:blockchain "$KEYSTORE_DIR"
+chmod 750 "$KEYSTORE_DIR"
 
-# Store keys with proper permissions
-echo "PRIVATE_KEY_DATA" > /secure/blockchain/keys/alice.pem
-chmod 400 /secure/blockchain/keys/alice.pem
+# 2. Store keys with proper permissions and encryption
+# Generate a secure passphrase
+PASSPHRASE=$(openssl rand -base64 32)
 
-# Key backup strategy
-tar -czf keys_backup_$(date +%Y%m%d).tar.gz /secure/blockchain/keys/
-gpg --encrypt --recipient admin@company.com keys_backup_*.tar.gz
+# Store encrypted private key
+java -jar blockchain-cli.jar manage-keys --export "Payment-Service-Key" --output "$KEYSTORE_DIR/payment_service.p12" --password "$PASSPHRASE"
+
+# 3. Secure backup strategy with encryption
+BACKUP_DIR="/backup/blockchain/keys/$(date +%Y%m%d)"
+mkdir -p "$BACKUP_DIR"
+
+# Create encrypted backup
+java -jar blockchain-cli.jar manage-keys --backup --output "$BACKUP_DIR/keystore_backup_$(date +%s).p12" --password "$PASSPHRASE"
+
+# 4. Store passphrase in enterprise secret management
+# Example using AWS Secrets Manager
+aws secretsmanager create-secret \
+    --name "blockchain/keystore/payment-service" \
+    --secret-string "$PASSPHRASE"
+
+# 5. Set up key rotation automation
+# Add to crontab for monthly rotation
+0 2 1 * * /opt/blockchain/scripts/rotate-keys.sh
 ```
 
-### Data Protection
+### Data Protection and Cryptography
 
-#### Sensitive Data Handling
+#### Secure Data Handling
 ```zsh
-# 1. Regular backups with timestamps
-java -jar blockchain-cli.jar export backups/auto_backup_$(date +%Y%m%d_%H%M%S).json
+# 1. Regular encrypted backups with integrity checks
+BACKUP_FILE="backups/blockchain_$(date +%Y%m%d_%H%M%S).enc"
+java -jar blockchain-cli.jar export - | \
+    openssl enc -aes-256-gcm -salt -out "$BACKUP_FILE" -kfile /etc/blockchain/backup.key
 
-# 2. Validate backups immediately
-java -jar blockchain-cli.jar import backups/latest.json --dry-run
+# 2. Data validation with cryptographic verification
+BACKUP_HASH=$(sha3sum -a 256 "$BACKUP_FILE" | cut -d' ' -f1)
+java -jar blockchain-cli.jar add-block "Backup created: $BACKUP_FILE | SHA3-256: $BACKUP_HASH" --signer Backup-Service
 
-# 3. Store sensitive data encrypted externally, reference in blockchain
-java -jar blockchain-cli.jar add-block "Document hash: sha256:abc123... | Location: encrypted_vault/doc_001" --signer Alice
+# 3. Secure data handling with external encryption
+# Encrypt sensitive data before adding to blockchain
+SENSITIVE_DATA="credit_card=4111111111111111"
+ENCRYPTED_DATA=$(echo "$SENSITIVE_DATA" | openssl pkeyutl -encrypt -pubin -inkey /etc/keys/encryption_key.pub -outform base64)
+REFERENCE_ID=$(uuidgen)
 
-# 4. Use checksums for data integrity
-echo "Data checksum: $(echo 'sensitive data' | sha256sum)" | java -jar blockchain-cli.jar add-block --signer Alice
+# Store encrypted data in secure storage
+echo "$ENCRYPTED_DATA" | aws s3 cp - "s3://secure-data-bucket/$REFERENCE_ID.enc" --sse aws:kms
+
+# Add reference to blockchain
+java -jar blockchain-cli.jar add-block "type=payment_reference | ref=$REFERENCE_ID | storage=s3://secure-data-bucket" --signer Payment-Processor
+
+# 4. Data integrity with cryptographic proofs
+DATA_TO_SIGN="transaction_1234"
+SIGNATURE=$(echo -n "$DATA_TO_SIGN" | openssl dgst -sha3-256 -sign /etc/keys/signing_key.pem | base64 -w 0)
+java -jar blockchain-cli.jar add-block "data=$DATA_TO_SIGN | signature=$SIGNATURE | key_id=signing_key_001" --signer Signing-Service
 ```
 
-## 🚀 Performance Best Practices
+## 🚀 Performance and Scalability
 
 ### Efficient Operations
 
-#### Batch Processing
+#### Batch and Parallel Processing
 ```zsh
-# 1. Use JSON output for automation (faster)
-STATUS=$(java -jar blockchain-cli.jar status --json)
-BLOCKS=$(echo $STATUS | jq -r '.blockCount')
+# 1. JSON output for automation with jq processing
+BLOCK_INFO=$(java -jar blockchain-cli.jar status --json)
+BLOCK_COUNT=$(jq -r '.blockCount' <<< "$BLOCK_INFO")
+LATEST_HASH=$(jq -r '.latestBlockHash' <<< "$BLOCK_INFO")
 
-# 2. Batch related operations
-java -jar blockchain-cli.jar add-block "Batch 1: Order #001" --generate-key
-java -jar blockchain-cli.jar add-block "Batch 1: Order #002" --signer CLI-Generated-*
-java -jar blockchain-cli.jar add-block "Batch 1: Order #003" --signer CLI-Generated-*
+# 2. Parallel batch processing with GNU parallel
+echo "order_{1..1000}.json" | parallel -j 8 '
+    DATA=$(cat {}); \
+    SIGNATURE=$(echo -n "$DATA" | openssl dgst -sha3-256 -sign /etc/keys/batch_signer.pem | base64); \
+    java -jar blockchain-cli.jar add-block "batch_data=$DATA" --signer Batch-Processor --signature "$SIGNATURE"
+'
 
-# 3. Use quick validation for frequent checks
-java -jar blockchain-cli.jar validate --quick
+# 3. Optimized validation strategies
+# Quick validation for CI/CD pipelines
+java -jar blockchain-cli.jar validate --quick --check-depth 100
 
-# 4. Limit search results when not needed
-java -jar blockchain-cli.jar search "recent" --limit 5
+# Full validation during off-peak hours
+0 2 * * * java -jar blockchain-cli.jar validate --full --report /var/log/blockchain/validation_$(date +\%Y\%m\%d).log
+
+# 4. Advanced search with pagination and filtering
+# Search with pagination
+SEARCH_RESULTS=$(java -jar blockchain-cli.jar search "payment" --limit 100 --offset 0 --json)
+
+# Filter results by date range
+START_DATE=$(date -d "30 days ago" +%s)
+END_DATE=$(date +%s)
+FILTERED_RESULTS=$(jq --arg start "$START_DATE" --arg end "$END_DATE" 
+    '.items[] | select(.timestamp >= ($start|tonumber) and .timestamp <= ($end|tonumber))' 
+    <<< "$SEARCH_RESULTS")
+```
+
+### Performance Monitoring
+
+#### Metrics Collection
+```zsh
+# 1. Track block addition performance
+START_TIME=$(date +%s.%N)
+java -jar blockchain-cli.jar add-block "performance_test_$(date +%s)" --signer Perf-Test
+END_TIME=$(date +%s.%N)
+ELAPSED=$(echo "$END_TIME - $START_TIME" | bc)
+echo "Block addition time: ${ELAPSED}s" | tee -a /var/log/blockchain/performance_metrics.log
+
+# 2. Monitor memory usage
+JAVA_OPTS="-Xmx2G -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+java $JAVA_OPTS -jar blockchain-cli.jar status --detailed
+
+# 3. Export metrics for monitoring systems
+METRICS=$(java -jar blockchain-cli.jar metrics --format prometheus)
+curl -X POST -H "Content-Type: text/plain" --data "$METRICS" http://prometheus:9091/metrics/job/blockchain
 ```
 
 ## 📋 Operational Best Practices

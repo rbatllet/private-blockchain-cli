@@ -48,7 +48,7 @@ show_help() {
 Key File Functionality Test Script (Zsh Optimized)
 
 USAGE:
-  ./test_key_file_functionality.sh [OPTIONS]
+  ./test-key-file-functionality.sh [OPTIONS]
 
 OPTIONS:
   --skip-keygen    Skip OpenSSL key generation and use mock keys
@@ -56,9 +56,9 @@ OPTIONS:
   --help, -h       Show this help message
 
 EXAMPLES:
-  ./test_key_file_functionality.sh              # Normal execution
-  ./test_key_file_functionality.sh --skip-keygen # Skip key generation
-  ./test_key_file_functionality.sh --debug      # Detailed output
+  ./test-key-file-functionality.sh              # Normal execution
+  ./test-key-file-functionality.sh --skip-keygen # Skip key generation
+  ./test-key-file-functionality.sh --debug      # Detailed output
 
 Optimized for zsh with modern syntax and advanced features.
 Compatible with macOS (default) and Linux zsh installations.

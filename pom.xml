@@ -21,6 +21,17 @@
         <junit-jupiter.version>5.13.1</junit-jupiter.version>
         <mockito.version>5.18.0</mockito.version>
         <private-blockchain.version>1.0.3</private-blockchain.version>
+        
+        <!-- Suppress Maven warnings -->
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+        <maven.resolver.transport>wagon</maven.resolver.transport>
+        <maven.wagon.http.retryHandler.count>3</maven.wagon.http.retryHandler.count>
+        
+        <!-- Plugin versions -->
+        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+        <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
+        <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
     </properties>
 
     <dependencies>
@@ -29,6 +40,25 @@
             <groupId>com.rbatllet</groupId>
             <artifactId>private-blockchain</artifactId>
             <version>${private-blockchain.version}</version>
+            <exclusions>
+                <!-- Exclude old SLF4J to use modern version -->
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Force modern logging dependencies -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.17</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
+            <version>2.25.0</version>
         </dependency>
 
         <!-- PicoCLI for command line interface -->
@@ -69,11 +99,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.0</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>21</source>
                     <target>21</target>
                     <release>21</release>
+                    <showWarnings>false</showWarnings>
+                    <showDeprecation>false</showDeprecation>
                 </configuration>
             </plugin>
 
@@ -81,13 +113,18 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
+                <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <argLine>
                         @{argLine}
                         --add-opens java.base/java.lang=ALL-UNNAMED
                         --add-opens java.base/java.util=ALL-UNNAMED
+                        --enable-native-access=ALL-UNNAMED
                     </argLine>
+                    <!-- Use Log4j2 test configuration -->
+                    <systemPropertyVariables>
+                        <log4j.configurationFile>log4j2-test.xml</log4j.configurationFile>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
 
@@ -95,7 +132,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>${maven-shade-plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -103,10 +140,39 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <!-- Suppress warnings about overlapping files -->
+                            <quiet>false</quiet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <!-- Security files -->
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <!-- Module info files that cause warnings -->
+                                        <exclude>module-info.class</exclude>
+                                        <exclude>META-INF/versions/*/module-info.class</exclude>
+                                        <!-- License and notice files that conflict -->
+                                        <exclude>META-INF/LICENSE</exclude>
+                                        <exclude>META-INF/LICENSE.txt</exclude>
+                                        <exclude>META-INF/LICENSE.md</exclude>
+                                        <exclude>META-INF/NOTICE</exclude>
+                                        <exclude>META-INF/NOTICE.txt</exclude>
+                                        <exclude>META-INF/NOTICE.md</exclude>
+                                        <exclude>META-INF/DEPENDENCIES</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                             <transformers>
+                                <!-- Main class transformer -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.rbatllet.blockchain.cli.BlockchainCLI</mainClass>
                                 </transformer>
+                                <!-- Services transformer for SPI -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <!-- License aggregator -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"/>
                             </transformers>
                             <finalName>blockchain-cli</finalName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
@@ -119,7 +185,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.7.1</version>
+                <version>${maven-assembly-plugin.version}</version>
                 <configuration>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>

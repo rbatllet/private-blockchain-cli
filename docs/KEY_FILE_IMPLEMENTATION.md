@@ -1,13 +1,15 @@
-# 🔑 --key-file Implementation Guide
+# 🔑 Key File Implementation Guide
 
 ## Implementation Summary
 
-The `--key-file` functionality has been **successfully implemented** and is now fully operational in the Private Blockchain CLI.
+The `--key-file` functionality has been updated to support modern cryptographic standards in the Private Blockchain CLI, including ECDSA keys with secp256r1 curve.
 
 ## ✅ What's Been Implemented
 
 ### Core Functionality
+- **Modern Cryptography**: ECDSA with secp256r1 curve (NIST P-256)
 - **Multiple Format Support**: PEM (PKCS#8), DER, Base64
+- **Hierarchical Keys**: Support for root, intermediate, and operational keys
 - **Auto-Authorization**: Automatically authorizes new keys with descriptive names
 - **Security Validation**: Prevents access to system directories
 - **Error Handling**: Detailed error messages with solutions
@@ -15,34 +17,41 @@ The `--key-file` functionality has been **successfully implemented** and is now 
 
 ### Technical Implementation
 - **Modified File**: `src/main/java/com/rbatllet/blockchain/cli/commands/AddBlockCommand.java`
-- **New Import**: `import com.rbatllet.blockchain.security.KeyFileLoader;`
-- **New Method**: `derivePublicKeyFromPrivate()` for public key derivation
-- **Integration**: Full integration with existing CLI options (--json)
+- **Key Management**: Uses `CryptoUtil` for ECDSA operations
+- **Key Types**: Supports hierarchical key structure (Root/Intermediate/Operational)
+- **Signature Algorithm**: ECDSA with SHA3-256 hashing
+- **Key Storage**: Secure storage with AES-256 encryption
+- **Key Rotation**: Built-in support for key rotation and expiration
 
 ### Testing
 - **Unit Tests**: `AddBlockCommandKeyFileTest.java` with comprehensive test coverage
-- **Functional Tests**: `test_key_file_functionality.sh` for real-world testing
-- **Key Generation**: `generate_test_keys.sh` for creating test keys
+- **Functional Tests**: `test-key-file-functionality.sh` for real-world testing
+- **Key Generation**: `generate-test-keys.sh` for creating test keys
 
 ## 🚀 Quick Verification
 
 The implementation is working perfectly. Here's proof:
 
 ```zsh
-# Generate a test key
+# Generate a test ECDSA key (secp256r1 curve)
 cd test-keys
-openssl genpkey -algorithm RSA -out test_key.pem
-openssl pkcs8 -topk8 -in test_key.pem -out test_key_pkcs8.pem -nocrypt
+# Generate private key
+openssl ecparam -name prime256v1 -genkey -noout -out ec_private_key.pem
+# Convert to PKCS#8 format (recommended)
+openssl pkcs8 -topk8 -nocrypt -in ec_private_key.pem -out ec_private_key_pkcs8.pem
+
+# View public key (optional)
+openssl ec -in ec_private_key_pkcs8.pem -pubout -out ec_public_key.pem
 
 # Test the functionality
 java -jar target/blockchain-cli-assembly-jar-with-dependencies.jar \
-  add-block "Test with key file" --key-file test-keys/test_key_pkcs8.pem
+  add-block "Test with key file" --key-file test-keys/ec_private_key_pkcs8.pem
 
 # Successful output:
 ✅ Successfully loaded private key from file
 ⚠️  Public key from file is not currently authorized
 💡 Auto-authorizing key for this operation...
-✅ Auto-authorized key from file as: KeyFile-test_key_pkcs8.pem-1749994803555
+✅ Auto-authorized key from file as: KeyFile-ec_private_key_pkcs8.pem-1749994803555
 ✅ Block added successfully!
 ```
 
@@ -55,8 +64,11 @@ blockchain add-block <data> --key-file <path-to-key-file> [--json]
 
 ### Supported Formats
 1. **PEM PKCS#8** (recommended): `--key-file private_key.pem`
+   - Must use secp256r1 (prime256v1) curve for ECDSA
 2. **DER Binary**: `--key-file private_key.der`
+   - Must be in SEC1 format for private keys
 3. **Base64 Raw**: `--key-file private_key_base64.key`
+   - Must be the raw private key in Base64 encoding
 
 ### Examples
 ```zsh
@@ -72,20 +84,22 @@ blockchain add-block "Employee access: John Doe" --key-file /corporate/keys/hr.p
 
 ## 🔐 Security Features
 
+### Key Management
+- **Key Hierarchy**: Supports root, intermediate, and operational keys
+- **Key Rotation**: Built-in support for automated key rotation
+- **Expiration**: Keys can have configurable validity periods
+- **Revocation**: Support for key revocation with audit trail
+
 ### Auto-Authorization
 - Detects if key is already authorized
 - Auto-authorizes new keys with pattern: `KeyFile-{filename}-{timestamp}`
-- Shows public key for verification
+- Shows key fingerprint and type for verification
+- Enforces minimum key strength requirements
 
 ### Path Validation
 - Blocks access to system directories (`/etc/`, `/bin/`, `/usr/bin/`)
 - Validates file existence and readability
 - Secure file path handling
-
-### Format Detection
-- Automatic format detection and reporting
-- Helpful error messages for unsupported formats
-- Conversion guidance for RSA PEM to PKCS#8
 
 ## 🛠️ Files Modified/Created
 
@@ -98,8 +112,8 @@ blockchain add-block "Employee access: John Doe" --key-file /corporate/keys/hr.p
 
 ### Testing
 - ✅ **Created**: `AddBlockCommandKeyFileTest.java` - Comprehensive unit tests
-- ✅ **Created**: `test_key_file_functionality.sh` - Functional test script
-- ✅ **Created**: `generate_test_keys.sh` - Key generation utility
+- ✅ **Created**: `test-key-file-functionality.sh` - Functional test script
+- ✅ **Created**: `generate-test-keys.sh` - Key generation utility
 
 ### Documentation
 - ✅ **Created**: Complete usage documentation with examples

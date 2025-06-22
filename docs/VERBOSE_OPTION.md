@@ -48,7 +48,7 @@ Cuando se utiliza la opción `--verbose`, se muestra información adicional como
 
 Los tests funcionales para la opción `--verbose` están integrados en los scripts de prueba existentes:
 
-- **`test_key_file_functionality.sh`**: Incluye pruebas con la opción `--verbose` habilitada
+- **`test-key-file-functionality.sh`**: Incluye pruebas con la opción `--verbose` habilitada
 
 ## Ejemplos de Uso
 

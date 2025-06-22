@@ -19,10 +19,11 @@ The Private Blockchain CLI now supports **secure private key storage** alongside
 
 | Feature | Demo Mode | Production Mode |
 |---------|-----------|-----------------|
-| **Private Key Storage** | Temporary (session only) | Encrypted file (persistent) |
-| **Password Required** | ❌ No | ✅ Yes |
-| **Security Level** | ⭐⭐ Development | ⭐⭐⭐⭐ Production |
-| **Setup Complexity** | Simple | Medium |
+| **Private Key Storage** | Temporary (session only) | AES-256 encrypted file |
+| **Key Type** | Single ECDSA key | Hierarchical keys (Root/Intermediate/Operational) |
+| **Password Required** | ❌ No | ✅ Yes (with PBKDF2 key derivation) |
+| **Security Level** | ⭐⭐ Development | ⭐⭐⭐⭐⭐ Production |
+| **Key Rotation** | Manual | Automated with configurable validity periods |
 | **Best For** | Testing, Development | Production, Enterprise |
 
 ## 🚀 Quick Start Guide
@@ -30,13 +31,33 @@ The Private Blockchain CLI now supports **secure private key storage** alongside
 ### Step 1: Create User with Secure Key Storage
 
 ```zsh
-# Create user with stored private key
-java -jar blockchain-cli.jar add-key "Alice" --generate --store-private
+# Create user with secure ECDSA key (secp256r1 curve)
+java -jar blockchain-cli.jar add-key "Alice" --generate --store-private --key-type operational
 🔐 Enter password to protect private key: [hidden]
-Confirm password: [hidden]
+🔒 Key must be at least 12 characters with uppercase, lowercase, number, and special character
 ✅ Authorized key added successfully!
-🔒 Private key stored securely for: Alice
+🔐 Private key stored using AES-256 encryption
+📝 Key ID: 1a2b3c4d-5e6f-7890-1234-56789abcdef0
 💡 You can now use --signer Alice with add-block command
+```
+
+### Key Types
+
+- **Root Key** (`--key-type root`): Long-lived master key (1+ years)
+- **Intermediate Key** (`--key-type intermediate`): Department/team key (6-12 months)
+- **Operational Key** (default): Short-lived key (30-90 days)
+
+Example of creating a hierarchical key structure:
+
+```zsh
+# Create root key (very secure, long-term storage)
+java -jar blockchain-cli.jar add-key "Root-Key-2025" --generate --store-private --key-type root
+
+# Create intermediate key for development team
+java -jar blockchain-cli.jar add-key "Dev-Team-Key" --generate --store-private --key-type intermediate --parent-key Root-Key-2025
+
+# Create operational key for CI/CD pipeline
+java -jar blockchain-cli.jar add-key "CI-Pipeline-Key" --generate --store-private --key-type operational --parent-key Dev-Team-Key --validity-days 30
 ```
 
 ### Step 2: Verify Key Storage
@@ -57,11 +78,35 @@ java -jar blockchain-cli.jar manage-keys --list
 ### Step 3: Use Secure Key for Signing
 
 ```zsh
-# Sign block with stored private key
+# Sign block with stored private key (interactive password prompt)
 java -jar blockchain-cli.jar add-block "Secure production data" --signer Alice
 🔐 Enter password for Alice: [hidden]
-✅ Using stored private key for signer: Alice
-✅ Block added successfully!
+🔒 Using ECDSA-SHA3-256 signature with secp256r1 curve
+✅ Block signed and added successfully!
+📝 Block hash: a1b2c3d4e5f6...
+🔑 Key ID used: 1a2b3c4d-5e6f-7890-1234-56789abcdef0
+
+# Non-interactive signing (for CI/CD pipelines)
+# Store password in environment variable or use a password manager
+PASSWORD="secure-password-here"
+echo "Pipeline deployment data" | java -jar blockchain-cli.jar add-block - --signer CI-Pipeline-Key --password-env PASSWORD
+```
+
+### Key Rotation Example
+
+```zsh
+# Check key expiration
+java -jar blockchain-cli.jar manage-keys --check-expiration
+
+# Rotate an expiring key
+java -jar blockchain-cli.jar manage-keys --rotate "Alice" --validity-days 90
+🔐 Enter current password for Alice: [hidden]
+🔑 Generating new ECDSA key pair...
+✅ Key rotated successfully
+📅 New expiration: 2025-09-22
+
+# Verify the rotation
+java -jar blockchain-cli.jar validate --detailed
 ```
 
 ## 🏭 Production Workflows

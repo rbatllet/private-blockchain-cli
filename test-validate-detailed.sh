@@ -15,13 +15,13 @@ TOTAL_TESTS=0
 
 # Function to find the correct JAR file
 function find_jar_file() {
-    # First try the standard name
+    # First try the standard name (now that it's fixed)
     if [[ -f "$SCRIPT_DIR/target/blockchain-cli.jar" ]]; then
         echo "$SCRIPT_DIR/target/blockchain-cli.jar"
         return 0
     fi
     
-    # Then try the assembly jar
+    # Then try the assembly jar as backup
     if [[ -f "$SCRIPT_DIR/target/blockchain-cli-assembly-jar-with-dependencies.jar" ]]; then
         echo "$SCRIPT_DIR/target/blockchain-cli-assembly-jar-with-dependencies.jar"
         return 0
