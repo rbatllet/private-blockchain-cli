@@ -243,8 +243,8 @@ public class AddBlockCommand implements Runnable {
             verboseLog("Attempting to add block with derived public key: " + 
                     CryptoUtil.publicKeyToString(publicKey));
             
-            // For testing purposes, we'll assume success
-            boolean success = true; // blockchain.addBlock(data, privateKey, publicKey);
+            // Add the block to the blockchain
+            boolean success = blockchain.addBlock(data, privateKey, publicKey);
             
             if (success) {
                 long blockCount = blockchain.getBlockCount();
@@ -255,7 +255,7 @@ public class AddBlockCommand implements Runnable {
                     // Always show success message regardless of verbose mode
                     // Use the exact message format expected by the tests
                     BlockchainCLI.success("Block added successfully!");
-                    System.out.println("📦 Block number: " + blockCount);
+                    System.out.println("📦 Block number: " + (blockCount - 1)); // Show the actual block number that was added
                     System.out.println("📝 Data: " + data);
                     System.out.println("🔗 Total blocks in chain: " + blockCount);
                 }

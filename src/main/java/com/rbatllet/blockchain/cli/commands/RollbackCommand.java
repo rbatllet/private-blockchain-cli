@@ -68,8 +68,13 @@ public class RollbackCommand implements Runnable {
                     return;
                 }
                 
+                // Check if trying to remove more blocks than exist - this should fail even in dry-run
                 if (blocksToRemove >= currentBlockCount) {
-                    BlockchainCLI.error("❌ Cannot remove " + blocksToRemove + " blocks: Only " + currentBlockCount + " blocks exist (including genesis block)");
+                    if (dryRun) {
+                        BlockchainCLI.error("❌ Cannot remove " + blocksToRemove + " blocks: Only " + currentBlockCount + " blocks exist (including genesis block)");
+                    } else {
+                        BlockchainCLI.error("❌ Cannot remove " + blocksToRemove + " blocks: Only " + currentBlockCount + " blocks exist (including genesis block)");
+                    }
                     ExitUtil.exit(1);
                     return;
                 }
@@ -84,8 +89,13 @@ public class RollbackCommand implements Runnable {
                     return;
                 }
                 
+                // Check if target block doesn't exist - this should fail even in dry-run
                 if (targetBlock >= currentBlockCount) {
-                    BlockchainCLI.error("❌ Target block " + targetBlock + " does not exist: Current max block is " + (currentBlockCount - 1));
+                    if (dryRun) {
+                        BlockchainCLI.error("❌ Target block " + targetBlock + " does not exist: Current max block is " + (currentBlockCount - 1));
+                    } else {
+                        BlockchainCLI.error("❌ Target block " + targetBlock + " does not exist: Current max block is " + (currentBlockCount - 1));
+                    }
                     ExitUtil.exit(1);
                     return;
                 }
@@ -176,8 +186,19 @@ public class RollbackCommand implements Runnable {
         System.out.println("Current blocks:     " + current);
         System.out.println("Blocks to remove:   " + toDelete);
         System.out.println("Final blocks:       " + finalCount);
-        System.out.println("Block range kept:   0 to " + (finalCount - 1));
-        System.out.println("Block range removed: " + finalCount + " to " + (current - 1));
+        
+        if (finalCount > 0) {
+            System.out.println("Block range kept:   0 to " + (finalCount - 1));
+        } else {
+            System.out.println("Block range kept:   (none - would remove all blocks)");
+        }
+        
+        if (toDelete > 0) {
+            System.out.println("Block range removed: " + finalCount + " to " + (current - 1));
+        } else {
+            System.out.println("Block range removed: (none - insufficient blocks)");
+        }
+        
         System.out.println();
         System.out.println("⚠️  WARNING: This operation is IRREVERSIBLE!");
         System.out.println("⚠️  Removed blocks cannot be recovered!");

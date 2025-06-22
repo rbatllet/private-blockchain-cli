@@ -74,7 +74,7 @@ java -jar ../target/blockchain-cli.jar status > /dev/null 2>&1
 # Add test blocks
 echo -e "${BLUE}Adding test blocks...${NC}"
 for ((i=1; i<=10; i++)); do
-    java -jar ../target/blockchain-cli.jar add-block "Test Block $i for rollback testing" --generate-key > /dev/null 2>&1
+    java -jar ../target/blockchain-cli.jar add-block "Test Block $i for rollback testing" --generate-key
 done
 
 # Verify blocks were added
@@ -118,7 +118,7 @@ run_test "Validate after rollback" "java -jar ../target/blockchain-cli.jar valid
 # Add more blocks
 echo -e "${BLUE}Adding more test blocks...${NC}"
 for ((i=1; i<=5; i++)); do
-    java -jar ../target/blockchain-cli.jar add-block "Additional Test Block $i" --generate-key > /dev/null 2>&1
+    java -jar ../target/blockchain-cli.jar add-block "Additional Test Block $i" --generate-key
 done
 
 # Rollback to specific block
