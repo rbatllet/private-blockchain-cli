@@ -58,7 +58,11 @@ public class StatusCommandTest {
         assertTrue(output.contains("Blockchain Status"));
         assertTrue(output.contains("Total blocks:"));
         assertTrue(output.contains("Authorized keys:"));
-        assertTrue(output.contains("Chain integrity:"));
+        // Updated to check for new validation format
+        assertTrue(output.contains("Chain Validation Status:"));
+        assertTrue(output.contains("Structural integrity:"));
+        assertTrue(output.contains("Authorization compliance:"));
+        assertTrue(output.contains("Overall status:"));
     }
 
     @Test
@@ -70,7 +74,10 @@ public class StatusCommandTest {
         assertTrue(output.contains("{"));
         assertTrue(output.contains("\"blockCount\":"));
         assertTrue(output.contains("\"authorizedKeys\":"));
-        assertTrue(output.contains("\"isValid\":"));
+        // Updated to check for new validation structure in JSON
+        assertTrue(output.contains("\"validation\":"));
+        assertTrue(output.contains("\"isFullyCompliant\":"));
+        assertTrue(output.contains("\"isStructurallyIntact\":"));
         assertTrue(output.contains("\"timestamp\":"));
         assertTrue(output.contains("}"));
     }
@@ -82,10 +89,14 @@ public class StatusCommandTest {
         assertEquals(0, exitCode);
         String output = outContent.toString();
         assertTrue(output.contains("Blockchain Status"));
-        assertTrue(output.contains("Configuration:"));
+        // Updated to check for new detailed output structure
+        assertTrue(output.contains("Detailed Chain Analysis:"));
+        assertTrue(output.contains("Comprehensive Validation Report:"));
+        assertTrue(output.contains("System Configuration:"));
         assertTrue(output.contains("Max block size:"));
         assertTrue(output.contains("Database:"));
         assertTrue(output.contains("Timestamp:"));
+        assertTrue(output.contains("Validation API Usage:"));
     }
 
     @Test
@@ -97,7 +108,10 @@ public class StatusCommandTest {
         String output = outContent.toString();
         // When JSON is enabled, detailed text output should not appear
         assertTrue(output.contains("\"blockCount\":"));
-        assertFalse(output.contains("Configuration:"));
+        assertTrue(output.contains("\"validation\":"));
+        // Updated: detailed text format should not appear when JSON is used
+        assertFalse(output.contains("Detailed Chain Analysis:"));
+        assertFalse(output.contains("System Configuration:"));
     }
 
     @Test
