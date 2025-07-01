@@ -114,7 +114,7 @@ public class OffChainStorageDemo {
                 if (block2.hasOffChainData()) {
                     var offChainData = block2.getOffChainData();
                     System.out.println("💾 Off-chain file size: " + formatBytes(offChainData.getFileSize()));
-                    System.out.println("🔐 Encryption: AES-128-CBC");
+                    System.out.println("🔐 Encryption: AES-256-CBC");
                     System.out.println("📁 File path: " + offChainData.getFilePath());
                     System.out.println("📄 Content type: " + offChainData.getContentType());
                 }
@@ -176,7 +176,7 @@ public class OffChainStorageDemo {
                 if (block3.hasOffChainData()) {
                     var offChainData = block3.getOffChainData();
                     System.out.println("💾 Off-chain file size: " + formatBytes(offChainData.getFileSize()));
-                    System.out.println("🔐 Encryption: AES-128-CBC");
+                    System.out.println("🔐 Encryption: AES-256-CBC");
                     System.out.println("📁 File path: " + offChainData.getFilePath());
                 }
                 
@@ -218,7 +218,7 @@ public class OffChainStorageDemo {
             System.out.println();
             System.out.println("🔍 Key Features Demonstrated:");
             System.out.println("   • Automatic storage decision based on data size");
-            System.out.println("   • AES-128-CBC encryption for off-chain data");
+            System.out.println("   • AES-256-CBC encryption for off-chain data");
             System.out.println("   • Keyword and category management");
             System.out.println("   • Blockchain integrity preservation");
             System.out.println("   • Large data handling (up to 100MB per block)");

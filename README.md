@@ -34,7 +34,7 @@ This CLI application provides a secure interface for managing a private blockcha
 ### Key Features
 
 ✅ **Complete Implementation** - All core commands fully working  
-✅ **Off-Chain Storage** - Automatic large data handling with AES-128-CBC encryption  
+✅ **Off-Chain Storage** - Automatic large data handling with AES-256-CBC encryption  
 ✅ **Hybrid Search** - Multi-level search: Fast, Balanced, and Exhaustive modes  
 ✅ **Modern Cryptography** - ECDSA with SHA3-256 and hierarchical key management  
 ✅ **Secure Architecture** - Cryptographic key management and validation  
@@ -443,7 +443,7 @@ java -jar blockchain-cli.jar manage-keys --list --json
 ```
 
 **🔐 Private Key Security Features:**
-- ✅ **AES-128 encryption** protects stored keys
+- ✅ **AES-256 encryption** protects stored keys
 - ✅ **Password validation** ensures strong passwords
 - ✅ **Secure input** hides passwords during entry
 - ✅ **Confirmation prompts** prevent accidental deletion
@@ -912,7 +912,7 @@ mvn test -Dtest=RollbackCommandTest
 The CLI automatically handles large data with seamless off-chain storage:
 
 - **Automatic Detection**: Data >512KB automatically stored off-chain
-- **AES-128-CBC Encryption**: All off-chain data is encrypted
+- **AES-256-CBC Encryption**: All off-chain data is encrypted
 - **Transparent Access**: API remains consistent regardless of storage location
 - **Integrity Validation**: Complete hash verification and signature validation
 - **Performance**: Large files don't impact blockchain performance
@@ -927,7 +927,7 @@ java -jar blockchain-cli.jar add-block "$(cat large_document.txt)" \
     --category "TECHNICAL" \
     --generate-key
 📊 Large data detected (1.2 MB). Will store off-chain.
-🔐 Encrypting data with AES-128-CBC...
+🔐 Encrypting data with AES-256-CBC...
 💾 Data stored off-chain. Block contains reference: OFF_CHAIN_REF:abc123...
 ```
 
@@ -1065,7 +1065,7 @@ java -jar blockchain-cli.jar validate
 ### New Security Architecture
 
 #### Secure Key Storage
-- **Encryption**: AES-128 with password-derived keys
+- **Encryption**: AES-256 with password-derived keys
 - **Storage Location**: `private-keys/` directory (created automatically)
 - **Password Validation**: Enforced strong password requirements
 - **Key Format**: PKCS#8 encrypted private keys

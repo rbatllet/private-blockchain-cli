@@ -48,11 +48,16 @@ function print_demo() {
     echo -e "${CYAN}${DEMO} $1${NC}"
 }
 
-# Function to pause for user interaction
+# Function to pause for user interaction (optional)
 function pause_for_user() {
-    echo ""
-    echo -e "${YELLOW}Press Enter to continue or Ctrl+C to exit...${NC}"
-    read
+    if [[ "${AUTO_RUN:-}" != "true" ]]; then
+        echo ""
+        echo -e "${YELLOW}Press Enter to continue or Ctrl+C to exit...${NC}"
+        read
+    else
+        echo ""
+        sleep 1
+    fi
 }
 
 # Function to run demo with timing
@@ -85,6 +90,28 @@ function run_demo() {
 
 # Main execution
 function main() {
+    # Check for help flag
+    if [[ "$1" = "--help" || "$1" = "-h" ]]; then
+        echo "Java Demo Classes Runner"
+        echo ""
+        echo "Usage: $0 [OPTIONS]"
+        echo ""
+        echo "Options:"
+        echo "  --auto, -a    Run automatically without pauses"
+        echo "  --help, -h    Show this help message"
+        echo ""
+        echo "Examples:"
+        echo "  $0              # Interactive mode with pauses"
+        echo "  $0 --auto       # Automatic mode without pauses"
+        exit 0
+    fi
+    
+    # Check for auto-run flag
+    if [[ "$1" = "--auto" || "$1" = "-a" ]]; then
+        export AUTO_RUN=true
+        print_info "Running in automatic mode (no pauses)"
+    fi
+    
     print_header "🚀 BLOCKCHAIN CLI - JAVA DEMOS RUNNER"
     
     # Check if we're in the right directory
@@ -98,6 +125,11 @@ function main() {
     echo "• ${SEARCH} Hybrid Search: Multi-level search capabilities with performance optimization"
     echo ""
     print_info "The demos will create test data and demonstrate real functionality."
+    
+    if [[ "${AUTO_RUN:-}" != "true" ]]; then
+        echo ""
+        echo "💡 Tip: Use --auto flag to run without pauses: ./run-java-demos.zsh --auto"
+    fi
     
     pause_for_user
     
@@ -130,7 +162,7 @@ function main() {
     echo ""
     print_info "What was demonstrated:"
     echo "• Automatic off-chain storage for large data (>512KB)"
-    echo "• AES-128-CBC encryption for off-chain files"
+    echo "• AES-256-CBC encryption for off-chain files"
     echo "• Three search levels: FAST_ONLY, INCLUDE_DATA, EXHAUSTIVE_OFFCHAIN"
     echo "• Keyword extraction and management"
     echo "• Category-based organization"

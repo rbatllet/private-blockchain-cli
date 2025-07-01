@@ -331,7 +331,7 @@ public class AddBlockCommand implements Runnable {
                     if (createdBlock.hasOffChainData()) {
                         var offChainData = createdBlock.getOffChainData();
                         System.out.println("💾 Off-chain storage: " + formatBytes(offChainData.getFileSize()));
-                        System.out.println("🔐 Encrypted: Yes (AES-128-CBC)");
+                        System.out.println("🔐 Encrypted: Yes (AES-256-CBC)");
                     }
                     
                     System.out.println("🔗 Total blocks in chain: " + blockCount);

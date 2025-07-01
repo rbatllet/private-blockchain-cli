@@ -40,12 +40,14 @@ fi
 # Function to display blockchain status with enhanced information
 function show_status() {
     echo -e "${BLUE}📊 Current blockchain status (enhanced with new validation API):${NC}"
-    java -jar target/blockchain-cli.jar status --detailed
+    java -jar target/blockchain-cli.jar status --detailed --verbose
     echo ""
     
     echo -e "${CYAN}💡 Status Command Options:${NC}"
     echo -e "  • ${GREEN}status${NC}           - Standard status with validation overview"
     echo -e "  • ${GREEN}status --detailed${NC} - Comprehensive status with system info"
+    echo -e "  • ${GREEN}status --verbose${NC}  - Standard status with detailed output"
+    echo -e "  • ${GREEN}status --detailed --verbose${NC} - Full verbose comprehensive status"
     echo -e "  • ${GREEN}status --json${NC}     - Machine-readable status output"
     echo ""
 }
@@ -117,21 +119,92 @@ function restore_backup() {
 
 # Function to add test blocks
 function add_test_blocks() {
-    read "num_blocks?How many test blocks would you like to add? "
+    echo -e "${BLUE}Test Block Options:${NC}"
+    echo -e "1) Add basic test blocks"
+    echo -e "2) Add enhanced test blocks (with categories)"
+    echo -e "3) Add mixed content test blocks"
+    echo -e "4) Add large data test block (off-chain storage)"
+    echo -e "5) Cancel"
+    echo ""
+    read "block_type?Select block type: "
     
-    if ! [[ "$num_blocks" =~ ^[0-9]+$ ]]; then
-        echo -e "${RED}❌ Error: Please enter a valid number.${NC}"
-        return 1
-    fi
+    case $block_type in
+        1|2|3)
+            read "num_blocks?How many test blocks would you like to add? "
+            
+            if ! [[ "$num_blocks" =~ ^[0-9]+$ ]]; then
+                echo -e "${RED}❌ Error: Please enter a valid number.${NC}"
+                return 1
+            fi
+            
+            echo -e "${BLUE}Adding $num_blocks test blocks...${NC}"
+            
+            for ((i=1; i<=num_blocks; i++)); do
+                echo -e "Adding block $i of $num_blocks..."
+                
+                case $block_type in
+                    1)
+                        java -jar target/blockchain-cli.jar add-block "Interactive Test Block $i - $(date)" \
+                            --keywords "INTERACTIVE,TEST,BLOCK$i" \
+                            --category "TESTING" \
+                            --generate-key --verbose
+                        ;;
+                    2)
+                        local categories=("MEDICAL" "FINANCE" "TECHNICAL" "LEGAL" "BUSINESS")
+                        local category=${categories[$((i % 5 + 1))]}
+                        java -jar target/blockchain-cli.jar add-block "Enhanced Test Block $i for $category department - $(date)" \
+                            --keywords "ENHANCED,TEST,$category,BLOCK$i" \
+                            --category "$category" \
+                            --generate-key --verbose
+                        ;;
+                    3)
+                        java -jar target/blockchain-cli.jar add-block "Mixed content block $i: Contact admin@test.com for details. Transaction TXN-2024-$i processed. Amount: $((i * 1000)) EUR on $(date +%Y-%m-%d)." \
+                            --keywords "MIXED,EMAIL,TRANSACTION,TXN-2024-$i" \
+                            --category "BUSINESS" \
+                            --generate-key --verbose
+                        ;;
+                esac
+            done
+            ;;
+        4)
+            echo -e "${BLUE}Adding large data test block (will test off-chain storage)...${NC}"
+            
+            # Create temporary file with large content
+            local temp_file=$(mktemp)
+            echo "Large data test block created on $(date)" > "$temp_file"
+            echo "This block contains substantial data to test off-chain storage functionality." >> "$temp_file"
+            
+            # Add enough content to exceed 512KB threshold
+            for j in {1..10000}; do
+                echo "Line $j: This is test data for off-chain storage validation. The blockchain will automatically detect large content and store it securely off-chain with AES-256-CBC encryption." >> "$temp_file"
+            done
+            
+            echo -e "${YELLOW}Created large test file (~600KB) for off-chain storage test${NC}"
+            java -jar target/blockchain-cli.jar add-block --file "$temp_file" \
+                --keywords "LARGE,OFFCHAIN,STORAGE,TEST" \
+                --category "TECHNICAL" \
+                --generate-key --verbose
+            
+            # Clean up
+            rm -f "$temp_file"
+            
+            # Verify off-chain storage
+            if [[ -d "off-chain-data" ]]; then
+                local offchain_count=$(find off-chain-data -name "*.dat" -type f 2>/dev/null | wc -l)
+                echo -e "${GREEN}✅ Off-chain directory contains $offchain_count encrypted files${NC}"
+            fi
+            ;;
+        5)
+            echo -e "${YELLOW}Block addition cancelled.${NC}"
+            return 0
+            ;;
+        *)
+            echo -e "${RED}❌ Invalid option.${NC}"
+            return 1
+            ;;
+    esac
     
-    echo -e "${BLUE}Adding $num_blocks test blocks...${NC}"
-    
-    for ((i=1; i<=num_blocks; i++)); do
-        echo -e "Adding block $i of $num_blocks..."
-        java -jar target/blockchain-cli.jar add-block "Interactive Test Block $i - $(date)" --generate-key
-    done
-    
-    echo -e "${GREEN}✅ Added $num_blocks test blocks.${NC}"
+    echo -e "${GREEN}✅ Test blocks added successfully.${NC}"
     return 0
 }
 
@@ -321,19 +394,112 @@ function show_validation_help() {
     echo ""
 }
 
+# Function to test search functionality
+function test_search_functionality() {
+    echo -e "${MAGENTA}🔍 SEARCH FUNCTIONALITY TESTING${NC}"
+    echo -e "${BLUE}================================${NC}"
+    echo ""
+    
+    echo -e "${CYAN}Testing different search modes...${NC}"
+    echo ""
+    
+    echo -e "${GREEN}1. Fast search (keywords only):${NC}"
+    java -jar target/blockchain-cli.jar search "TEST" --fast --verbose
+    echo ""
+    
+    echo -e "${GREEN}2. Balanced search (keywords + data):${NC}"
+    java -jar target/blockchain-cli.jar search "Interactive" --level INCLUDE_DATA --verbose
+    echo ""
+    
+    echo -e "${GREEN}3. Complete search (including off-chain):${NC}"
+    # First add a block with admin content to ensure we find something
+    echo -e "${CYAN}   Adding a test block with admin content...${NC}"
+    java -jar target/blockchain-cli.jar add-block "Contact admin@test.com for support" \
+        --keywords "ADMIN,SUPPORT,EMAIL" \
+        --category "TECHNICAL" \
+        --generate-key --verbose >/dev/null 2>&1
+    
+    # Now search for admin
+    java -jar target/blockchain-cli.jar search "admin" --complete --verbose
+    echo ""
+    
+    echo -e "${GREEN}4. Category search:${NC}"
+    # First ensure we have blocks with categories
+    echo -e "${CYAN}   Adding a test block with category if needed...${NC}"
+    java -jar target/blockchain-cli.jar add-block "Search test block with category" \
+        --keywords "SEARCH,CATEGORY,TEST" \
+        --category "TESTING" \
+        --generate-key --verbose >/dev/null 2>&1
+    
+    # Now search for the category
+    java -jar target/blockchain-cli.jar search --category TESTING --verbose
+    echo ""
+    
+    echo -e "${GREEN}5. Search with limit:${NC}"
+    java -jar target/blockchain-cli.jar search "block" --limit 3 --detailed
+    echo ""
+    
+    echo -e "${GREEN}6. Date range search (today):${NC}"
+    local today=$(date +%Y-%m-%d)
+    java -jar target/blockchain-cli.jar search --date-from "$today" --date-to "$today" --verbose
+    echo ""
+}
+
+# Function to test enhanced features after rollback
+function test_enhanced_features_post_rollback() {
+    echo -e "${MAGENTA}🚀 ENHANCED FEATURES POST-ROLLBACK TEST${NC}"
+    echo -e "${BLUE}========================================${NC}"
+    echo ""
+    
+    echo -e "${CYAN}Testing enhanced features integrity after rollback...${NC}"
+    echo ""
+    
+    # Test 1: Add a block with enhanced features
+    echo -e "${GREEN}1. Adding test block with enhanced features:${NC}"
+    java -jar target/blockchain-cli.jar add-block "Post-rollback test block with enhanced features - $(date)" \
+        --keywords "POST_ROLLBACK,ENHANCED,VERIFICATION" \
+        --category "TECHNICAL" \
+        --generate-key --verbose
+    echo ""
+    
+    # Test 2: Search for the new block
+    echo -e "${GREEN}2. Searching for the new block:${NC}"
+    java -jar target/blockchain-cli.jar search "POST_ROLLBACK" --fast --verbose
+    echo ""
+    
+    # Test 3: Validate with enhanced validation
+    echo -e "${GREEN}3. Enhanced validation:${NC}"
+    java -jar target/blockchain-cli.jar validate --detailed --verbose
+    echo ""
+    
+    # Test 4: Check off-chain functionality if directory exists
+    if [[ -d "off-chain-data" ]]; then
+        echo -e "${GREEN}4. Off-chain storage verification:${NC}"
+        local offchain_count=$(find off-chain-data -name "*.dat" -type f 2>/dev/null | wc -l)
+        echo -e "${CYAN}Off-chain files found: $offchain_count${NC}"
+        ls -la off-chain-data/ 2>/dev/null || echo "No off-chain files"
+        echo ""
+    fi
+    
+    echo -e "${GREEN}✅ Enhanced features post-rollback test completed${NC}"
+    echo ""
+}
+
 # Main menu
 while true; do
     echo -e "${CYAN}=== INTERACTIVE ROLLBACK TESTING MENU ===${NC}"
     echo -e "1) Show blockchain status"
     echo -e "2) Create blockchain backup"
     echo -e "3) Restore from backup"
-    echo -e "4) Add test blocks"
+    echo -e "4) Add test blocks (enhanced options)"
     echo -e "5) Perform rollback"
     echo -e "6) Validate blockchain"
     echo -e "7) 🔍 Detailed validation report"
     echo -e "8) 🎯 Demo validation API features"
     echo -e "9) ❓ Help: New validation API"
-    echo -e "10) Exit"
+    echo -e "10) 🔍 Test search functionality"
+    echo -e "11) 🚀 Test enhanced features post-rollback"
+    echo -e "12) Exit"
     echo ""
     read "option?Select option: "
     echo ""
@@ -367,6 +533,12 @@ while true; do
             show_validation_help
             ;;
         10)
+            test_search_functionality
+            ;;
+        11)
+            test_enhanced_features_post_rollback
+            ;;
+        12)
             echo -e "${GREEN}Exiting interactive rollback testing.${NC}"
             exit 0
             ;;

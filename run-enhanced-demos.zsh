@@ -120,7 +120,7 @@ function demo_offchain_storage() {
     
     print_separator
     print_demo "Demo 1: Small Data Block (On-Chain)"
-    run_timed_command "Adding small medical record" add-block "Patient PAT-001: Routine checkup on 2024-01-15. Vital signs normal." --keywords "PAT-001,CHECKUP,VITALS" --category "MEDICAL" --generate-key --verbose
+    run_timed_command "Adding small medical record" add-block '"Patient PAT-001: Routine checkup on 2024-01-15. Vital signs normal."' --keywords '"PAT-001,CHECKUP,VITALS"' --category '"MEDICAL"' --generate-key --verbose
     
     pause_for_user
     
@@ -132,7 +132,7 @@ function demo_offchain_storage() {
     large_data="Financial Batch Report Q1 2024. $(printf 'Transaction data entry %.0s' {1..100})"
     print_info "Generated data size: $(( ${#large_data} / 1024 )) KB"
     
-    run_timed_command "Adding large financial batch (off-chain)" add-block "$large_data" --keywords "BATCH-Q1-2024,FINANCIAL,TRANSACTIONS" --category "FINANCE" --generate-key --verbose
+    run_timed_command "Adding large financial batch (off-chain)" add-block '"'"$large_data"'"' --keywords '"BATCH-Q1-2024,FINANCIAL,TRANSACTIONS"' --category '"FINANCE"' --generate-key --verbose
     
     pause_for_user
     
@@ -156,30 +156,30 @@ function demo_hybrid_search() {
     print_separator
     print_demo "Setting up test data for search demonstrations..."
     
-    run_timed_command "Adding technical documentation block" add-block "API Documentation for REST endpoints. Includes JSON schema, SQL queries, and XML configuration." --keywords "API,DOCUMENTATION,JSON,SQL" --category "TECHNICAL" --generate-key
+    run_timed_command "Adding technical documentation block" add-block '"API Documentation for REST endpoints. Includes JSON schema, SQL queries, and XML configuration."' --keywords '"API,DOCUMENTATION,JSON,SQL"' --category '"TECHNICAL"' --generate-key
     
-    run_timed_command "Adding medical record" add-block "Patient PATIENT-001 ECG results from cardiology department on 2024-01-15. Heart rhythm normal." --keywords "PATIENT-001,ECG,CARDIOLOGY" --category "MEDICAL" --generate-key
+    run_timed_command "Adding medical record" add-block '"Patient PATIENT-001 ECG results from cardiology department on 2024-01-15. Heart rhythm normal."' --keywords '"PATIENT-001,ECG,CARDIOLOGY"' --category '"MEDICAL"' --generate-key
     
     pause_for_user
     
     print_separator
     print_demo "Demo 1: Fast Search (Keywords Only)"
     print_info "Searching for 'PATIENT' in keywords only..."
-    run_timed_command "Fast search for patient records" search "PATIENT" --fast --verbose
+    run_timed_command "Fast search for patient records" search '"PATIENT"' --fast --verbose
     
     pause_for_user
     
     print_separator
     print_demo "Demo 2: Balanced Search (Include Data)"
     print_info "Searching for 'documentation' in keywords and block content..."
-    run_timed_command "Balanced search for documentation" search "documentation" --level INCLUDE_DATA --verbose --detailed
+    run_timed_command "Balanced search for documentation" search '"documentation"' --level INCLUDE_DATA --verbose --detailed
     
     pause_for_user
     
     print_separator
     print_demo "Demo 3: Exhaustive Search (Including Off-Chain)"
     print_info "Searching for 'transaction' everywhere, including off-chain files..."
-    run_timed_command "Exhaustive search for transactions" search "transaction" --complete --verbose --detailed
+    run_timed_command "Exhaustive search for transactions" search '"transaction"' --complete --verbose --detailed
     
     pause_for_user
     
@@ -191,7 +191,7 @@ function demo_hybrid_search() {
     
     print_separator
     print_demo "Demo 5: JSON Output Example"
-    run_timed_command "Search with JSON output" search "API" --json --limit 3
+    run_timed_command "Search with JSON output" search '"API"' --json --limit 3
     
     pause_for_user
     
@@ -200,13 +200,13 @@ function demo_hybrid_search() {
     print_info "Comparing search performance across different levels..."
     
     echo "🏁 Fast search:"
-    time java -jar target/blockchain-cli.jar search "data" --fast > /dev/null 2>&1
+    time java -jar target/blockchain-cli.jar search '"data"' --fast > /dev/null 2>&1
     
     echo "⚖️ Balanced search:"
-    time java -jar target/blockchain-cli.jar search "data" --level INCLUDE_DATA > /dev/null 2>&1
+    time java -jar target/blockchain-cli.jar search '"data"' --level INCLUDE_DATA > /dev/null 2>&1
     
     echo "🔍 Exhaustive search:"
-    time java -jar target/blockchain-cli.jar search "data" --complete > /dev/null 2>&1
+    time java -jar target/blockchain-cli.jar search '"data"' --complete > /dev/null 2>&1
 }
 
 # Function to demonstrate CLI integration
@@ -223,11 +223,11 @@ function demo_cli_integration() {
     # Create a large legal contract document
     legal_data="LEGAL CONTRACT DOCUMENT - PARTNERSHIP AGREEMENT. Generated on: $(date). $(printf 'Section content: terms and conditions %.0s' {1..50})"
     
-    run_timed_command "Adding large legal contract (will go off-chain)" add-block "$legal_data" --keywords "CONTRACT,PARTNERSHIP,LEGAL,IP-RIGHTS" --category "LEGAL" --generate-key --verbose
+    run_timed_command "Adding large legal contract (will go off-chain)" add-block '"'"$legal_data"'"' --keywords '"CONTRACT,PARTNERSHIP,LEGAL,IP-RIGHTS"' --category '"LEGAL"' --generate-key --verbose
     
     pause_for_user
     
-    run_timed_command "Searching for contract in off-chain data" search "partnership" --complete --detailed --verbose
+    run_timed_command "Searching for contract in off-chain data" search '"partnership"' --complete --detailed --verbose
     
     pause_for_user
     

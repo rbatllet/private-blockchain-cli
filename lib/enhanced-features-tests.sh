@@ -200,14 +200,16 @@ function run_enhanced_integration_tests() {
     
     # Test 4: Very large data (600KB) - should go OFF-CHAIN (over 512KB threshold)
     print_test "4. Very large data (600KB) - should be off-chain"
-    local very_large_data=""
+    
+    # Create temporary file with 600KB of data
+    local temp_file=$(mktemp)
     # Create approximately 600KB of data (600 * 1024 = 614400 characters)
     for i in {1..12000}; do
-        very_large_data+="Very large test data line $i with extensive content for off-chain storage testing. This line contains substantial text to exceed the 512KB threshold. "
+        echo "Very large test data line $i with extensive content for off-chain storage testing. This line contains substantial text to exceed the 512KB threshold. " >> "$temp_file"
     done
     
     local very_large_output
-    if very_large_output=$(java -jar target/blockchain-cli.jar add-block "$very_large_data" --keywords "VERY_LARGE,TEST,600KB" --category "TECHNICAL" --generate-key --verbose 2>&1); then
+    if very_large_output=$(java -jar target/blockchain-cli.jar add-block --file "$temp_file" --keywords "VERY_LARGE,TEST,600KB" --category "TECHNICAL" --generate-key --verbose 2>&1); then
         if echo "$very_large_output" | grep -q "Storage decision: 2 (.*off-chain"; then
             print_success "Very large data (600KB) correctly stored OFF-CHAIN (decision: 2)"
             count_test_passed
@@ -225,6 +227,9 @@ function run_enhanced_integration_tests() {
         echo "   Error: $very_large_output"
         count_test_failed
     fi
+    
+    # Clean up temporary file
+    rm -f "$temp_file"
     
     # Test 5: Character limit edge case (exactly 10K characters)
     print_test "5. Character limit edge case (10K chars) - boundary test"
