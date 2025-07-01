@@ -22,10 +22,14 @@ public class StatusCommand implements Runnable {
             description = "Output in JSON format")
     boolean json = false;
     
+    @Option(names = {"-v", "--verbose"}, 
+            description = "Enable verbose output with detailed information")
+    boolean verbose = false;
+    
     @Override
     public void run() {
         try {
-            BlockchainCLI.verbose("Initializing blockchain connection...");
+            verboseLog("Initializing blockchain connection...");
             Blockchain blockchain = new Blockchain();
             
             // Gather statistics
@@ -139,6 +143,16 @@ public class StatusCommand implements Runnable {
                 System.out.println();
                 System.out.println("💡 Use 'blockchain status --detailed' for system configuration info");
             }
+        }
+    }
+    
+    /**
+     * Helper method for verbose logging
+     * Uses local --verbose flag if set, otherwise falls back to global verbose setting
+     */
+    private void verboseLog(String message) {
+        if (verbose || BlockchainCLI.verbose) {
+            System.out.println("🔍 " + message);
         }
     }
 }

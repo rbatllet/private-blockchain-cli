@@ -19,28 +19,28 @@ function run_error_handling_tests() {
     print_test "Invalid command test"
     if ! java -jar target/blockchain-cli.jar invalid-command >/dev/null 2>&1; then
         print_success "Invalid command properly rejected"
-        ((TESTS_PASSED++))
+        count_test_passed
     else
         print_error "Invalid command not properly handled"
-        ((TESTS_FAILED++))
+        count_test_failed
     fi
     
     print_test "Missing arguments test"
     if ! java -jar target/blockchain-cli.jar add-key >/dev/null 2>&1; then
         print_success "Missing arguments properly detected"
-        ((TESTS_PASSED++))
+        count_test_passed
     else
         print_error "Missing arguments not properly handled"
-        ((TESTS_FAILED++))
+        count_test_failed
     fi
     
     print_test "Invalid file import test"
     if ! java -jar target/blockchain-cli.jar import "non_existent_file.json" >/dev/null 2>&1; then
         print_success "Invalid file import properly rejected"
-        ((TESTS_PASSED++))
+        count_test_passed
     else
         print_error "Invalid file import not properly handled"
-        ((TESTS_FAILED++))
+        count_test_failed
     fi
 }
 
@@ -62,10 +62,10 @@ function run_workflow_tests() {
     
     if [[ "$WORKFLOW_SUCCESS" = true ]]; then
         print_success "Complete workflow test passed"
-        ((TESTS_PASSED++))
+        count_test_passed
     else
         print_error "Complete workflow test failed"
-        ((TESTS_FAILED++))
+        count_test_failed
     fi
 }
 
@@ -83,10 +83,10 @@ function run_performance_tests() {
     
     if [[ $duration -lt 30 ]]; then
         print_success "Performance test passed (5 status calls in ${duration}s)"
-        ((TESTS_PASSED++))
+        count_test_passed
     else
         print_warning "Performance test slow (5 status calls in ${duration}s)"
-        ((TESTS_PASSED++))
+        count_test_passed
     fi
 }
 

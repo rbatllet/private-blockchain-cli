@@ -6,7 +6,7 @@
 
     <groupId>com.rbatllet</groupId>
     <artifactId>private-blockchain-cli</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <packaging>jar</packaging>
 
     <name>Private Blockchain CLI</name>
@@ -15,13 +15,16 @@
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <picocli.version>4.7.7</picocli.version>
         <java.version>21</java.version>
         <junit-jupiter.version>5.13.1</junit-jupiter.version>
         <mockito.version>5.18.0</mockito.version>
-        <private-blockchain.version>1.0.3</private-blockchain.version>
-        
+        <private-blockchain.version>1.0.4</private-blockchain.version>
+        <slf4j.version>2.0.17</slf4j.version>
+        <log4j.version>2.25.0</log4j.version>
+
         <!-- Suppress Maven warnings -->
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <maven.resolver.transport>wagon</maven.resolver.transport>
@@ -29,9 +32,10 @@
         
         <!-- Plugin versions -->
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
-        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
         <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
         <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
+        <maven-jacoco-plugin.version>0.8.13</maven-jacoco-plugin.version>
     </properties>
 
     <dependencies>
@@ -53,12 +57,12 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.17</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j2-impl</artifactId>
-            <version>2.25.0</version>
+            <version>${log4j.version}</version>
         </dependency>
 
         <!-- PicoCLI for command line interface -->
@@ -101,9 +105,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
-                    <release>21</release>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <release>${maven.compiler.release}</release>
                     <showWarnings>false</showWarnings>
                     <showDeprecation>false</showDeprecation>
                 </configuration>
@@ -230,7 +234,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.13</version>
+                <version>${maven-jacoco-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>default-prepare-agent</id>

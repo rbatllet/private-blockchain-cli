@@ -2,7 +2,7 @@
 
 # Enhanced Blockchain CLI Build and Test Script
 # Comprehensive testing of all CLI commands and workflows
-# Version: 2.3 - Refactored for better modularity and ZSH compatibility
+# Version: 2.3.0 - Refactored for better modularity and ZSH compatibility
 #
 # Environment Variables:
 #   SKIP_UNIT_TESTS=true     - Skip Maven unit tests
@@ -28,12 +28,12 @@ function run_cli_test() {
     shift
     local cmd="java -jar target/blockchain-cli.jar $*"
     
-    print_test "$((++TOTAL_TESTS)): $test_name"
+    print_test "$test_name"
     echo "   Command: $cmd"
     
-    if output=$($cmd 2>&1); then
+    if output=$(eval "$cmd" 2>&1); then
         print_success "$test_name passed"
-        ((TESTS_PASSED++))
+        count_test_passed
         if [[ ${#output} -gt 100 ]]; then
             echo "   Output: ${output:0:100}..."
         else
@@ -42,7 +42,7 @@ function run_cli_test() {
         return 0
     else
         print_error "$test_name failed"
-        ((TESTS_FAILED++))
+        count_test_failed
         echo "   Error: $output"
         return 1
     fi
@@ -153,6 +153,7 @@ source "$SCRIPT_DIR/lib/functional-tests.sh"
 source "$SCRIPT_DIR/lib/additional-tests.sh"
 source "$SCRIPT_DIR/lib/secure-integration.sh"
 source "$SCRIPT_DIR/lib/rollback-tests.sh"
+source "$SCRIPT_DIR/lib/enhanced-features-tests.sh"
 
 # Run all test suites
 run_basic_tests
@@ -168,6 +169,14 @@ run_help_tests
 run_error_handling_tests
 run_workflow_tests
 run_performance_tests
+
+# Run enhanced features tests
+print_header "🚀 ENHANCED FEATURES TESTING"
+run_offchain_storage_tests
+run_hybrid_search_tests
+run_enhanced_integration_tests
+run_keyword_processing_tests
+run_search_performance_tests
 
 # Run secure key management tests based on environment variables
 if [[ "${SKIP_SECURE_TESTS:-}" != "true" ]]; then
@@ -210,6 +219,14 @@ if [[ $TESTS_FAILED -eq 0 ]]; then
     echo "   java -jar target/blockchain-cli.jar search \"Genesis\" --json"
     echo "   java -jar target/blockchain-cli.jar rollback --blocks 2 --dry-run"
     echo "   java -jar target/blockchain-cli.jar add-block \"Data\" --generate-key"
+    echo ""
+    echo "🚀 Enhanced Features Examples:"
+    echo "   # Off-chain storage with keywords"
+    echo "   java -jar target/blockchain-cli.jar add-block \"Large data...\" --keywords \"KEY1,KEY2\" --category MEDICAL --generate-key"
+    echo "   # Hybrid search examples"
+    echo "   java -jar target/blockchain-cli.jar search \"keyword\" --fast"
+    echo "   java -jar target/blockchain-cli.jar search \"keyword\" --complete --detailed"
+    echo "   java -jar target/blockchain-cli.jar search --category MEDICAL --limit 10"
     echo ""
     echo "🔗 For all commands: java -jar target/blockchain-cli.jar --help"
     

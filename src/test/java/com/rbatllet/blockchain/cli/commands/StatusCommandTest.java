@@ -120,4 +120,45 @@ public class StatusCommandTest {
         
         assertNotEquals(0, exitCode);
     }
+
+    @Test
+    void testStatusWithVerboseFlag() {
+        int exitCode = cli.execute("--verbose");
+        
+        assertEquals(0, exitCode);
+        String output = outContent.toString();
+        // Should contain verbose output markers
+        assertTrue(output.contains("🔍") || output.contains("verbose") || output.contains("Initializing"));
+    }
+
+    @Test
+    void testStatusWithShortVerboseFlag() {
+        int exitCode = cli.execute("-v");
+        
+        assertEquals(0, exitCode);
+        String output = outContent.toString();
+        // Should contain verbose output markers
+        assertTrue(output.contains("🔍") || output.contains("verbose") || output.contains("Initializing"));
+    }
+
+    @Test
+    void testStatusWithDetailedAndVerbose() {
+        int exitCode = cli.execute("--detailed", "--verbose");
+        
+        assertEquals(0, exitCode);
+        String output = outContent.toString();
+        // Should contain both detailed and verbose output
+        assertTrue(output.contains("System Configuration:") || output.contains("Blockchain"));
+        assertTrue(output.contains("🔍") || output.contains("verbose") || output.contains("Initializing"));
+    }
+
+    @Test
+    void testStatusWithAllFlags() {
+        int exitCode = cli.execute("-d", "-v", "-j");
+        
+        assertEquals(0, exitCode);
+        String output = outContent.toString();
+        // Should work with all flags combined (JSON format)
+        assertTrue(output.contains("{") || output.contains("\"") || output.contains("blockCount"));
+    }
 }

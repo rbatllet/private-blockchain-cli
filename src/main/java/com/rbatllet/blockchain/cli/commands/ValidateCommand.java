@@ -25,10 +25,13 @@ public class ValidateCommand implements Runnable {
     @Option(names = {"-q", "--quick"}, description = "Perform quick validation (chain integrity only)")
     private boolean quick = false;
     
+    @Option(names = {"-v", "--verbose"}, description = "Enable verbose output with detailed information")
+    private boolean verbose = false;
+    
     @Override
     public void run() {
         try {
-            BlockchainCLI.verbose("Starting blockchain validation...");
+            verboseLog("Starting blockchain validation...");
             
             Blockchain blockchain = new Blockchain();
             
@@ -37,11 +40,11 @@ public class ValidateCommand implements Runnable {
             ChainValidationResult validationResult;
             
             if (quick) {
-                BlockchainCLI.verbose("Performing quick validation...");
+                verboseLog("Performing quick validation...");
                 // Use the new official API for quick validation
                 validationResult = blockchain.validateChainDetailed();
             } else {
-                BlockchainCLI.verbose("Performing detailed validation...");
+                verboseLog("Performing detailed validation...");
                 // Use the new official API for detailed validation
                 validationResult = blockchain.validateChainDetailed();
                 
@@ -66,19 +69,19 @@ public class ValidateCommand implements Runnable {
             
         } catch (SecurityException e) {
             BlockchainCLI.error("❌ Validation failed: Security error - " + e.getMessage());
-            if (BlockchainCLI.verbose) {
+            if (verbose || BlockchainCLI.verbose) {
                 e.printStackTrace();
             }
             ExitUtil.exit(1);
         } catch (RuntimeException e) {
             BlockchainCLI.error("❌ Validation failed: Runtime error - " + e.getMessage());
-            if (BlockchainCLI.verbose) {
+            if (verbose || BlockchainCLI.verbose) {
                 e.printStackTrace();
             }
             ExitUtil.exit(1);
         } catch (Exception e) {
             BlockchainCLI.error("❌ Validation failed: Unexpected error - " + e.getMessage());
-            if (BlockchainCLI.verbose) {
+            if (verbose || BlockchainCLI.verbose) {
                 e.printStackTrace();
             }
             ExitUtil.exit(1);
@@ -203,5 +206,15 @@ public class ValidateCommand implements Runnable {
         System.out.println("  \"validationTimestamp\": \"" + java.time.Instant.now() + "\",");
         System.out.println("  \"validationType\": \"" + (quick ? "quick" : "detailed") + "\"");
         System.out.println("}");
+    }
+    
+    /**
+     * Helper method for verbose logging
+     * Uses local --verbose flag if set, otherwise falls back to global verbose setting
+     */
+    private void verboseLog(String message) {
+        if (verbose || BlockchainCLI.verbose) {
+            System.out.println("🔍 " + message);
+        }
     }
 }

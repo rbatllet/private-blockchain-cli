@@ -27,6 +27,7 @@ buildNumber.properties
 out/
 !**/src/main/**/target/
 !**/src/test/**/target/
+.claude/
 
 # IDE - Eclipse
 .apt_generated

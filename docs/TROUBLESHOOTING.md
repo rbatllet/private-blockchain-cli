@@ -23,8 +23,22 @@ java -jar blockchain-cli.jar status --json | jq
 # Detailed system information
 java -jar blockchain-cli.jar status --detailed
 
+# Detailed system information with verbose output
+java -jar blockchain-cli.jar status --detailed --verbose
+🔍 Initializing comprehensive system diagnostics...
+🔍 Analyzing blockchain configuration...
+🔍 Checking off-chain storage integrity...
+✅ System diagnostics completed
+
 # Chain integrity verification
 java -jar blockchain-cli.jar validate --detailed
+
+# Chain integrity verification with verbose output
+java -jar blockchain-cli.jar validate --detailed --verbose
+🔍 Starting comprehensive blockchain validation...
+🔍 Validating all blocks and signatures...
+🔍 Checking off-chain data integrity...
+✅ Validation completed successfully
 
 # Check authorized keys
 java -jar blockchain-cli.jar list-keys --detailed
@@ -43,6 +57,12 @@ java -jar blockchain-cli.jar search --date-from $(date -d "7 days ago" +%Y-%m-%d
 ```zsh
 # Get detailed validation report
 java -jar blockchain-cli.jar validate --detailed
+
+# Get detailed validation report with verbose output
+java -jar blockchain-cli.jar validate --detailed --verbose
+🔍 Generating comprehensive validation report...
+🔍 Analyzing blockchain structure and integrity...
+🔍 Validation report generation completed
 
 # Check recent blocks for corruption
 java -jar blockchain-cli.jar search --date-from $(date -d "1 day ago" +%Y-%m-%d)
@@ -93,6 +113,12 @@ java -jar blockchain-cli.jar add-block "Your data" --generate-key
 ```zsh
 # Check current blockchain state
 java -jar blockchain-cli.jar status --detailed
+
+# Check current blockchain state with verbose output
+java -jar blockchain-cli.jar status --detailed --verbose
+🔍 Initializing blockchain state analysis...
+🔍 Checking database integrity...
+🔍 State analysis completed
 
 # Verify file permissions
 ls -la backups/
@@ -218,6 +244,12 @@ java -jar blockchain-cli.jar add-block "Test block $(date)" --generate-key
 ```zsh
 # Full validation
 java -jar blockchain-cli.jar validate --detailed
+
+# Full validation with verbose output
+java -jar blockchain-cli.jar validate --detailed --verbose
+🔍 Starting comprehensive blockchain validation...
+🔍 Validating all blocks, signatures, and off-chain data...
+🔍 Full validation completed
 
 # Export test
 java -jar blockchain-cli.jar export test_backup_$(date +%s).json

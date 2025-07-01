@@ -48,3 +48,24 @@ function get_script_dir() {
 function command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
+
+# Standardized test counting functions
+function count_test_passed() {
+    ((TOTAL_TESTS++))
+    ((TESTS_PASSED++))
+}
+
+function count_test_failed() {
+    ((TOTAL_TESTS++))
+    ((TESTS_FAILED++))
+}
+
+# Helper function for module tests (already counting total)
+function record_test_result() {
+    local success="$1"
+    if [[ "$success" == "true" ]]; then
+        ((TESTS_PASSED++))
+    else
+        ((TESTS_FAILED++))
+    fi
+}

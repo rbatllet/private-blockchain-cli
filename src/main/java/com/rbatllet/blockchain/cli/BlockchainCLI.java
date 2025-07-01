@@ -13,7 +13,7 @@ import com.rbatllet.blockchain.util.ExitUtil;
  */
 @Command(name = "blockchain", 
          description = "Private Blockchain Command Line Interface",
-         version = "1.0.3",
+         version = "1.0.4",
          subcommands = {
              StatusCommand.class,
              ValidateCommand.class,
@@ -72,7 +72,7 @@ public class BlockchainCLI implements Runnable {
     @Override
     public void run() {
         // Default behavior when no subcommand is specified
-        System.out.println("🔗 Private Blockchain CLI v1.0.3");
+        System.out.println("🔗 Private Blockchain CLI v1.0.4");
         System.out.println();
         System.out.println("Usage: blockchain [COMMAND] [OPTIONS]");
         System.out.println();

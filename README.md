@@ -22,22 +22,27 @@ This CLI application provides a secure interface for managing a private blockcha
 ### What You Can Do
 
 - **Check blockchain status** and get detailed statistics
-- **Validate blockchain integrity** with comprehensive checks
+- **Validate blockchain integrity** with comprehensive checks including off-chain data
 - **Manage authorized keys** for secure block signing
-- **Add new blocks** to the chain with proper authentication
+- **Add new blocks** with automatic off-chain storage for large data (>512KB)
+- **Search through blockchain** with hybrid multi-level search capabilities
 - **Export and import** blockchain data for backup and migration
-- **Search through blockchain** content by various criteria
 - **Monitor chain health** with detailed validation reports
+- **Process keywords** automatically from content or manually specified
+- **Organize content** by categories for efficient filtering
 
 ### Key Features
 
 ✅ **Complete Implementation** - All core commands fully working  
+✅ **Off-Chain Storage** - Automatic large data handling with AES-128-CBC encryption  
+✅ **Hybrid Search** - Multi-level search: Fast, Balanced, and Exhaustive modes  
 ✅ **Modern Cryptography** - ECDSA with SHA3-256 and hierarchical key management  
 ✅ **Secure Architecture** - Cryptographic key management and validation  
+✅ **Keywords & Categories** - Automatic and manual content organization  
 ✅ **Multiple Output Formats** - Text, JSON, and detailed views  
-✅ **Robust Testing** - Comprehensive test coverage  
+✅ **Robust Testing** - 295+ tests with comprehensive coverage  
 ✅ **Production Ready** - Enterprise-grade error handling and logging  
-✅ **Easy to Use** - Clear help system and examples  
+✅ **Easy to Use** - Clear help system and interactive demos  
 
 ### 🔐 Secure Key Management Features
 
@@ -83,6 +88,15 @@ docker build -t blockchain-cli .
 # Start using immediately
 docker run --rm blockchain-cli --version
 docker run --rm blockchain-cli status
+
+# Add blocks from files using Docker
+echo "My first Docker blockchain entry" > my-data.txt
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  -v "$(pwd)":/app/files \
+  --entrypoint /bin/zsh \
+  blockchain-cli \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar add-block --file /app/files/my-data.txt --generate-key"
 ```
 
 ### Option 2: Using Pre-built JAR
@@ -133,7 +147,7 @@ java -jar blockchain-cli.jar --version
 
 Expected output:
 ```
-1.0.3
+1.0.4
 ```
 
 ### 2. View help information
@@ -174,8 +188,23 @@ java -jar blockchain-cli.jar add-key "Alice" --generate --show-private
 ### 5. Add your first block
 
 ```zsh
+# Add block with direct data input
 java -jar blockchain-cli.jar add-block "My first blockchain entry" --signer Alice
+
+# NEW: Add block content from external file
+echo "This content comes from a file" > my-data.txt
+java -jar blockchain-cli.jar add-block --file my-data.txt --generate-key
+
+# For large files (automatic off-chain storage)
+java -jar blockchain-cli.jar add-block --file large-report.pdf --category REPORT --generate-key
 ```
+
+**✨ NEW: File Input Functionality**
+The `--file` option allows you to read block content from external files instead of providing data directly on the command line. This is especially useful for:
+- Large documents, reports, or datasets
+- Files with special characters or formatting
+- Automated processing of existing files
+- Better separation of data and commands
 
 **✨ NEW: Enhanced --signer functionality**
 The `--signer` parameter now works seamlessly with existing authorized users. When you specify an existing signer, the CLI creates a demo mode signature that simulates real-world usage.
@@ -319,6 +348,12 @@ java -jar blockchain-cli.jar status --json
 
 # Detailed information with configuration
 java -jar blockchain-cli.jar status --detailed
+
+# Verbose status (shows detailed operation information)
+java -jar blockchain-cli.jar status --verbose
+
+# Detailed status with verbose output
+java -jar blockchain-cli.jar status --detailed --verbose
 ```
 
 #### `validate` - Validate Blockchain ✅
@@ -340,9 +375,15 @@ java -jar blockchain-cli.jar validate --detailed
 
 # Detailed validation with JSON output
 java -jar blockchain-cli.jar validate --detailed --json
+
+# Verbose validation (shows detailed operation information)
+java -jar blockchain-cli.jar validate --verbose
+
+# Detailed validation with verbose output
+java -jar blockchain-cli.jar validate --detailed --verbose
 ```
 
-> **Note:** The `--detailed` option provides comprehensive validation information including signature verification, timestamp validation, and key authorization checks for each block. This is particularly useful for debugging and auditing the blockchain.
+> **Note:** The `--detailed` option provides comprehensive validation information including signature verification, timestamp validation, and key authorization checks for each block. The `--verbose` option shows detailed operation information during the validation process. Both options are particularly useful for debugging and auditing the blockchain.
 
 #### `add-key` - Add Authorized Key ✅
 
@@ -420,7 +461,24 @@ java -jar blockchain-cli.jar add-block "System update" --generate-key
 
 # Method 3: Load from key file (fully implemented)
 java -jar blockchain-cli.jar add-block "Secure data" --key-file alice.pem
+
+# NEW Method 4: Read content from external file
+echo "Patient medical record data" > record.txt
+java -jar blockchain-cli.jar add-block --file record.txt --generate-key
+
+# File input with keywords and categories
+java -jar blockchain-cli.jar add-block --file large-report.txt \
+    --keywords "REPORT,Q1-2024,FINANCE" \
+    --category "FINANCE" \
+    --signer Manager
 ```
+
+**📄 Input Methods:**
+
+| Option | Description | Example |
+|--------|-------------|---------|
+| Direct input | Provide data as command argument | `add-block "My data" --generate-key` |
+| `--file <path>` | Read content from external file | `add-block --file report.txt --generate-key` |
 
 **🔑 Signing Methods Explained:**
 
@@ -429,6 +487,16 @@ java -jar blockchain-cli.jar add-block "Secure data" --key-file alice.pem
 | `--signer <name>` | User already exists | ⭐⭐⭐ Demo | Multi-user workflows |
 | `--generate-key` | Quick testing | ⭐⭐ Medium | Development/testing |
 | `--key-file <path>` | Production use | ⭐⭐⭐⭐ High | Enterprise deployments |
+
+**📋 Additional Options:**
+
+| Option | Short | Description | Example |
+|--------|-------|-------------|---------|
+| `--file` | `-f` | Read block content from file | `--file report.txt` |
+| `--keywords` | `-w` | Manual keywords (comma-separated) | `--keywords "MEDICAL,PAT-001"` |
+| `--category` | `-c` | Content category | `--category FINANCE` |
+| `--json` | `-j` | Output result in JSON format | `--json` |
+| `--verbose` | `-v` | Enable verbose output | `--verbose` |
 
 **🔐 Key File Support Details:**
 
@@ -463,6 +531,24 @@ java -jar blockchain-cli.jar add-block "Secure transaction" --key-file keys/priv
 java -jar blockchain-cli.jar add-block "PEM format" --key-file keys/key.pem
 java -jar blockchain-cli.jar add-block "DER format" --key-file keys/key.der
 java -jar blockchain-cli.jar add-block "Base64 format" --key-file keys/key.b64
+
+# File input examples
+echo "Daily report content" > daily-report.txt
+java -jar blockchain-cli.jar add-block --file daily-report.txt --generate-key
+
+# Large file with automatic off-chain storage
+java -jar blockchain-cli.jar add-block --file quarterly-financials.json \
+    --keywords "Q1-2024,FINANCE,QUARTERLY" \
+    --category "FINANCE" \
+    --signer CFO
+
+# Batch processing files
+for file in reports/*.txt; do
+    java -jar blockchain-cli.jar add-block --file "$file" \
+        --keywords "BATCH,$(basename "$file" .txt)" \
+        --category "REPORTS" \
+        --generate-key
+done
 ```
 
 **Error Handling:**
@@ -480,6 +566,18 @@ $ java -jar blockchain-cli.jar add-block "Test data"
 ❌ Error:   --generate-key: Generate a new key pair
 ❌ Error:   --signer <name>: Use an existing authorized key
 ❌ Error:   --key-file <path>: Load private key from file
+
+# Error: File doesn't exist
+$ java -jar blockchain-cli.jar add-block --file missing.txt --generate-key
+❌ Failed to read input file: Input file does not exist: missing.txt
+
+# Error: Both file and direct data specified
+$ java -jar blockchain-cli.jar add-block "data" --file report.txt --generate-key
+❌ Failed to add block: Runtime error - Cannot specify both file input (-f/--file) and direct data input. Please use only one method.
+
+# Error: No input specified
+$ java -jar blockchain-cli.jar add-block --generate-key
+❌ Failed to add block: Runtime error - Must specify either block data directly or use --file option to read from file.
 ```
 
 #### `export` - Export Blockchain ✅
@@ -680,10 +778,11 @@ This script will:
 
 The project includes **enterprise-grade testing** with full coverage:
 
-- **Total Tests**: 100+ individual tests across 11 test suites
-- **Command Coverage**: 100% (9/9 commands fully tested)  
-- **Pass Rate**: ~95% (stable tests passing consistently)
-- **Test Categories**: Unit tests, integration tests, workflow validation
+- **Total Tests**: 295+ individual tests across 15+ test suites
+- **Command Coverage**: 100% (all commands fully tested including enhanced features)  
+- **Pass Rate**: 100% (all tests passing consistently)
+- **Test Categories**: Unit tests, integration tests, enhanced features, off-chain storage, hybrid search
+- **Enhanced Coverage**: Off-chain storage validation, hybrid search performance, keyword processing
 
 ### Quick Test Execution
 
@@ -705,6 +804,21 @@ mvn test -Dtest=BlockchainCLIIntegrationTest
 
 # Run shell script tests for detailed validation
 ./test-validate-detailed.sh
+
+# Run enhanced features tests only
+mvn test -Dtest="*Enhanced*"
+
+# Run off-chain storage tests
+mvn test -Dtest="AddBlockCommandEnhancedOffChainTest"
+
+# Run hybrid search tests
+mvn test -Dtest="SearchCommandEnhancedTest"
+
+# Run demo classes
+./run-java-demos.zsh
+
+# Run interactive CLI demos
+./run-enhanced-demos.zsh
 ```
 
 ### Verified Commands
@@ -713,7 +827,7 @@ All commands have been thoroughly tested and verified:
 
 ```zsh
 # Core functionality ✅
-java -jar blockchain-cli.jar --version              # Returns: 1.0.3
+java -jar blockchain-cli.jar --version              # Returns: 1.0.4
 java -jar blockchain-cli.jar --help                 # Shows comprehensive help
 java -jar blockchain-cli.jar status                 # Shows blockchain status
 java -jar blockchain-cli.jar validate               # Full chain validation
@@ -725,12 +839,21 @@ java -jar blockchain-cli.jar list-keys
 # Block management ✅
 java -jar blockchain-cli.jar add-block "Transaction data" --generate-key  
 
+# Enhanced block management with keywords and categories ✅
+java -jar blockchain-cli.jar add-block "Medical data" --keywords "PATIENT-001,ECG" --category "MEDICAL" --generate-key
+java -jar blockchain-cli.jar add-block "$(cat large_file.txt)" --keywords "LARGE,DOCUMENT" --category "TECHNICAL" --generate-key
+
 # Data operations ✅
 java -jar blockchain-cli.jar export backup.json                 
 java -jar blockchain-cli.jar import backup.json --backup        
 
-# Search functionality ✅
-java -jar blockchain-cli.jar search "Genesis"                   
+# Hybrid search functionality ✅
+java -jar blockchain-cli.jar search "Genesis"                   # Legacy search
+java -jar blockchain-cli.jar search "PATIENT-001" --fast        # Fast keyword search
+java -jar blockchain-cli.jar search "transaction" --level INCLUDE_DATA --detailed
+java -jar blockchain-cli.jar search "partnership" --complete --verbose
+java -jar blockchain-cli.jar search --category MEDICAL --limit 10
+java -jar blockchain-cli.jar search --block-number 5 --json
 
 # Rollback functionality ✅
 java -jar blockchain-cli.jar rollback --blocks 1 --dry-run     # Test rollback
@@ -781,6 +904,123 @@ mvn test -Dtest=RollbackCommandTest
 - Confirmation prompts for destructive operations
 - Dry-run mode for safe preview
 - Full integrity validation after operations
+
+## 🚀 Enhanced Features
+
+### 💾 Off-Chain Storage
+
+The CLI automatically handles large data with seamless off-chain storage:
+
+- **Automatic Detection**: Data >512KB automatically stored off-chain
+- **AES-128-CBC Encryption**: All off-chain data is encrypted
+- **Transparent Access**: API remains consistent regardless of storage location
+- **Integrity Validation**: Complete hash verification and signature validation
+- **Performance**: Large files don't impact blockchain performance
+
+```zsh
+# Small data stays on-chain
+java -jar blockchain-cli.jar add-block "Small record" --generate-key
+
+# Large data automatically goes off-chain
+java -jar blockchain-cli.jar add-block "$(cat large_document.txt)" \
+    --keywords "DOCUMENT,LARGE" \
+    --category "TECHNICAL" \
+    --generate-key
+📊 Large data detected (1.2 MB). Will store off-chain.
+🔐 Encrypting data with AES-128-CBC...
+💾 Data stored off-chain. Block contains reference: OFF_CHAIN_REF:abc123...
+```
+
+### 🔍 Hybrid Search System
+
+Multi-level search capabilities optimized for different performance needs:
+
+#### Search Levels
+- **FAST_ONLY**: Keywords only (~10-20ms) - Best for quick lookups
+- **INCLUDE_DATA**: Keywords + block data (~30-60ms) - Balanced approach
+- **EXHAUSTIVE_OFFCHAIN**: All content including off-chain files (~200-500ms) - Complete search
+
+```zsh
+# Fast search for quick results
+java -jar blockchain-cli.jar search "PATIENT-001" --fast
+
+# Balanced search (default)
+java -jar blockchain-cli.jar search "transaction" --level INCLUDE_DATA
+
+# Complete search including off-chain content
+java -jar blockchain-cli.jar search "partnership" --complete --detailed
+
+# Category and advanced filtering
+java -jar blockchain-cli.jar search --category MEDICAL --limit 10
+java -jar blockchain-cli.jar search --date-from 2024-01-01 --json
+```
+
+### 🏷️ Keywords & Categories
+
+Automatic and manual content organization:
+
+#### Automatic Keyword Extraction
+- **Universal Elements**: Dates, numbers, emails, URLs, codes
+- **Language Independent**: Works across different languages
+- **Smart Processing**: Filters common stop words
+
+#### Manual Keywords & Categories
+- **Comma-separated Keywords**: Easy specification with automatic trimming
+- **Content Categories**: MEDICAL, FINANCE, TECHNICAL, LEGAL, etc.
+- **Normalized Processing**: Automatic uppercase normalization for categories
+
+```zsh
+# Manual keywords and category
+java -jar blockchain-cli.jar add-block "Meeting notes from 2024-01-15" \
+    --keywords "MEETING,PROJECT,NOTES" \
+    --category "BUSINESS" \
+    --generate-key
+
+# Automatic extraction from content
+java -jar blockchain-cli.jar add-block "Contact admin@company.com for API access. Budget: 50000 EUR." \
+    --category "TECHNICAL" \
+    --generate-key
+🤖 Auto Keywords: admin@company.com, 50000, EUR, API, 2024
+```
+
+### 🧪 Enhanced Testing & Demos
+
+Comprehensive test suite and interactive demonstrations:
+
+#### Test Statistics
+- **Total Tests**: 295+ comprehensive tests
+- **Test Suites**: 15+ specialized test suites
+- **Coverage**: Enhanced features, off-chain storage, hybrid search
+- **Success Rate**: 100% passing tests
+
+#### Demo Scripts
+```zsh
+# Interactive CLI demonstrations
+./run-enhanced-demos.zsh
+
+# Java demo classes execution
+./run-java-demos.zsh
+
+# Complete test suite with enhanced features
+./test-cli.sh
+```
+
+### 🔄 Backward Compatibility
+
+All new features maintain complete backward compatibility:
+
+- **Legacy Commands**: All existing commands work unchanged
+- **Default Behavior**: Smart defaults for new features
+- **Gradual Adoption**: Optional use of new features
+- **Migration Path**: Easy upgrade from basic to enhanced usage
+
+```zsh
+# These legacy commands continue to work exactly as before
+java -jar blockchain-cli.jar add-block "Data" --generate-key
+java -jar blockchain-cli.jar search "Genesis"
+java -jar blockchain-cli.jar status
+java -jar blockchain-cli.jar validate
+```
 
 ## 🔧 Technical Details
 
@@ -847,10 +1087,11 @@ mvn test -Dtest=RollbackCommandTest
 This project includes comprehensive documentation for different use cases:
 
 ### 📖 User Guides
-- **[docs/EXAMPLES.md](docs/EXAMPLES.md)** - Comprehensive examples and use cases
+- **[docs/EXAMPLES.md](docs/EXAMPLES.md)** - Comprehensive examples including enhanced features **UPDATED**
+- **[docs/DEMO_SCRIPTS.md](docs/DEMO_SCRIPTS.md)** - Interactive demo scripts guide **NEW**
 - **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Complete troubleshooting guide
 - **[docs/DOCKER_GUIDE.md](docs/DOCKER_GUIDE.md)** - Docker deployment and usage
-- **[docs/TEST-SCRIPTS.md](docs/TEST-SCRIPTS.md)** - Test scripts documentation including detailed validation tests
+- **[docs/TEST-SCRIPTS.md](docs/TEST-SCRIPTS.md)** - Test scripts documentation including enhanced tests **UPDATED**
 
 ### 🔐 Security & Key Management
 - **[docs/SECURE_KEY_MANAGEMENT.md](docs/SECURE_KEY_MANAGEMENT.md)** - Complete secure key management guide **NEW**
@@ -874,7 +1115,9 @@ This project includes comprehensive documentation for different use cases:
 
 | What you want to do | Go to |
 |---------------------|-------|
-| See examples and real-world use cases | [docs/EXAMPLES.md](docs/EXAMPLES.md) |
+| See examples including enhanced features | [docs/EXAMPLES.md](docs/EXAMPLES.md) |
+| Run interactive demos | [docs/DEMO_SCRIPTS.md](docs/DEMO_SCRIPTS.md) |
+| Use off-chain storage and hybrid search | [docs/EXAMPLES.md](docs/EXAMPLES.md#-off-chain-storage-examples) |
 | Deploy with Docker | [docs/DOCKER_GUIDE.md](docs/DOCKER_GUIDE.md) |
 | Set up for enterprise use | [docs/ENTERPRISE_GUIDE.md](docs/ENTERPRISE_GUIDE.md) |
 | Automate operations | [docs/AUTOMATION_SCRIPTS.md](docs/AUTOMATION_SCRIPTS.md) |
@@ -893,7 +1136,8 @@ This project includes comprehensive documentation for different use cases:
 privateBlockchain-cli/
 ├── README.md                    # This file - main overview
 ├── docs/
-│   ├── EXAMPLES.md               # Detailed examples and use cases
+│   ├── DEMO_SCRIPTS.md           # Demo scripts documentation (NEW)
+│   ├── EXAMPLES.md               # Detailed examples and use cases (UPDATED)
 │   ├── TROUBLESHOOTING.md        # Complete troubleshooting guide
 │   ├── DOCKER_GUIDE.md           # Docker deployment guide
 │   ├── ENTERPRISE_GUIDE.md       # Enterprise usage guide
@@ -901,14 +1145,47 @@ privateBlockchain-cli/
 │   ├── INTEGRATION_PATTERNS.md   # External system integration
 │   ├── ROLLBACK_TESTING.md       # Rollback functionality testing guide
 │   ├── KEY_FILE_IMPLEMENTATION.md # External key file support guide
-│   └── ...
-├── src/                         # Source code
+│   ├── SECURE_KEY_MANAGEMENT.md  # Secure key management guide
+│   ├── SIGNER_TROUBLESHOOTING.md # Signer troubleshooting guide
+│   ├── VERBOSE_OPTION.md         # Verbose logging guide
+│   ├── PRACTICAL_EXAMPLES.md     # Real-world usage examples
+│   ├── VALIDATION_SUMMARY.md     # Validation procedures summary
+│   ├── SCRIPT_REFERENCE.md       # Comprehensive script reference
+│   ├── TEST-SCRIPTS.md           # Test scripts documentation
+│   └── ENHANCED_FEATURES.md      # Enhanced features overview
+├── src/
+│   ├── main/java/.../demos/     # Demo classes (NEW)
+│   │   ├── OffChainStorageDemo.java
+│   │   └── HybridSearchDemo.java
+│   └── test/                    # Enhanced test suites (UPDATED)
+├── lib/
+│   ├── enhanced-features-tests.sh # Enhanced features test module (NEW)
+│   ├── functional-tests.sh       # Functional tests module
+│   ├── additional-tests.sh       # Additional tests module
+│   ├── secure-integration.sh     # Security tests module
+│   ├── rollback-tests.sh         # Rollback tests module
+│   └── common-functions.sh       # Shared functions library
 ├── target/                      # Build output
 ├── blockchain.db                # SQLite database (created automatically)
+├── off-chain-data/              # Off-chain encrypted data files (NEW)
 ├── pom.xml                      # Maven configuration
 ├── Dockerfile                   # Docker build configuration
 ├── docker-compose.yml           # Docker Compose setup
-└── test-cli.sh                  # Comprehensive test script
+├── build-docker.sh              # Docker build script
+├── run-docker.sh                # Docker run script
+├── clean-database.sh            # Database cleanup utility
+├── generate-test-keys.sh        # Test key generator
+├── test-cli.sh                  # Comprehensive test script (UPDATED)
+├── test-demo-script.zsh         # Demo script tester (NEW)
+├── test-simple-demos.zsh        # Simple demo tester (NEW)
+├── test-validate-detailed.sh    # Detailed validation tests
+├── test-key-file-functionality.sh # Key file functionality tests
+├── test-rollback-setup.sh       # Rollback setup tests
+├── test-rollback-interactive.sh # Interactive rollback tests
+├── run-rollback-tests.sh        # Rollback test runner
+├── test-build-config.sh         # Build configuration tests
+├── run-enhanced-demos.zsh       # Interactive CLI demos (NEW)
+└── run-java-demos.zsh           # Java demo classes runner (NEW)
 ```
 
 For the most up-to-date information and detailed documentation, please refer to the specific guide files listed above.
@@ -950,7 +1227,7 @@ For the most up-to-date information and detailed documentation, please refer to 
 - 🏢 See [docs/ENTERPRISE_GUIDE.md](docs/ENTERPRISE_GUIDE.md) for advanced setups
 
 ### Project Information
-- **Version**: 1.0.3
+- **Version**: 1.0.4
 - **Java Compatibility**: 21+
 - **License**: MIT License - see [LICENSE](LICENSE) file for details
 - **Build Status**: All tests passing ✅

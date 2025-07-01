@@ -9,7 +9,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Default version if not specified
-DEFAULT_VERSION="1.0.3"
+DEFAULT_VERSION="1.0.4"
 VERSION=${1:-$DEFAULT_VERSION}
 
 # Ensure VERSION is not empty
@@ -147,4 +147,4 @@ rm -f "private-blockchain-$VERSION.jar" Dockerfile.tmp Dockerfile.template
 echo -e "${GREEN}Done!${NC}"
 
 echo -e "${YELLOW}Note: You can specify a different version when running this script:${NC}"
-echo -e "${BLUE}./build-docker.sh 1.0.3${NC}"
+echo -e "${BLUE}./build-docker.sh 1.0.4${NC}"

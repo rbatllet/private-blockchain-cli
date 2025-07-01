@@ -73,7 +73,7 @@ If you're new to Docker, here are some essential commands to help you manage the
 ./build-docker.sh --force
 
 # Build with a specific version tag
-./build-docker.sh 1.0.3
+./build-docker.sh 1.0.4
 ```
 
 ### Managing Containers
@@ -154,11 +154,11 @@ cp -r blockchain-data/ blockchain-data-backup-$(date +%Y%m%d)
 The project includes a build script that automatically handles the core project dependency and builds the Docker image:
 
 ```zsh
-# Build with default version (1.0.3)
+# Build with default version (1.0.4)
 ./build-docker.sh
 
 # Build with specific version
-./build-docker.sh 1.0.3
+./build-docker.sh 1.0.4
 ```
 
 The script will:
@@ -176,8 +176,8 @@ mvn clean install -DskipTests
 
 # Then copy the JAR and build the Docker image
 cd ../privateBlockchain-cli
-cp ~/.m2/repository/com/rbatllet/private-blockchain/1.0.3/private-blockchain-1.0.3.jar .
-docker build -t private-blockchain-cli:1.0.3 .
+cp ~/.m2/repository/com/rbatllet/private-blockchain/1.0.4/private-blockchain-1.0.4.jar .
+docker build -t private-blockchain-cli:1.0.4 .
 ```
 
 #### Option 3: No-cache Build (for updates)
@@ -228,13 +228,340 @@ You can specify which version of the image to use:
 
 ```zsh
 # Using a specific version
-docker run --rm private-blockchain-cli:1.0.3 --version
+docker run --rm private-blockchain-cli:1.0.4 --version
 
 # Using the latest version (recommended for most cases)
 docker run --rm private-blockchain-cli:latest --version
 
 # Using an environment variable to specify version
-VERSION=1.0.3 docker run --rm private-blockchain-cli:$VERSION --version
+VERSION=1.0.4 docker run --rm private-blockchain-cli:$VERSION --version
+```
+
+## 🚀 Enhanced Features with Docker
+
+### File Input Functionality with Docker
+
+The `--file` parameter allows you to read block content from external files when using Docker containers. Here are comprehensive examples:
+
+#### Basic File Input Examples
+```zsh
+# Create a sample file with content
+echo "This is block content read from an external file for blockchain storage." > sample-data.txt
+
+# Add block content from file using Docker
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  -v "$(pwd)":/app/files \
+  --entrypoint /bin/zsh \
+  private-blockchain-cli:latest \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar add-block --file /app/files/sample-data.txt --generate-key --verbose"
+
+# Medical record from file
+echo "Patient ID: PAT-2024-001
+Date: $(date)
+Examination: Routine checkup
+Results: Normal vital signs
+Doctor: Dr. Sarah Johnson
+Notes: Patient shows excellent health indicators." > medical-record.txt
+
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  -v "$(pwd)":/app/files \
+  --entrypoint /bin/zsh \
+  private-blockchain-cli:latest \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar add-block --file /app/files/medical-record.txt --keywords 'PAT-2024-001,MEDICAL,CHECKUP' --category 'MEDICAL' --generate-key"
+```
+
+#### Financial Documents with Docker
+```zsh
+# Create a financial transaction file
+cat > financial-transaction.txt << EOF
+WIRE TRANSFER CONFIRMATION
+=========================
+Transaction ID: TXN-2024-12345
+Date: $(date)
+Amount: €25,000.00
+From: COMPANY-ACCOUNT-001
+To: SUPPLIER-ACCOUNT-789
+Purpose: Equipment purchase Q4 2024
+Authorization: Finance Manager
+Status: COMPLETED
+EOF
+
+# Add financial transaction from file
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  -v "$(pwd)":/app/files \
+  --entrypoint /bin/zsh \
+  private-blockchain-cli:latest \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar add-block --file /app/files/financial-transaction.txt --keywords 'TXN-2024-12345,WIRE-TRANSFER,FINANCE' --category 'FINANCE' --generate-key --verbose"
+```
+
+#### Legal Document Processing
+```zsh
+# Create a contract file
+cat > partnership-contract.txt << EOF
+PARTNERSHIP AGREEMENT
+====================
+Contract ID: LEGAL-2024-PA-001
+Parties: TechCorp Ltd. & Innovation Partners Inc.
+Date: $(date)
+Duration: 36 months
+Revenue sharing: 70/30 split
+IP rights: Shared ownership
+Termination clause: 90 days notice
+Governing law: Commercial Law Framework
+Signatures: [Digital signatures to be attached]
+EOF
+
+# Add contract to blockchain using Docker
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  -v "$(pwd)":/app/files \
+  --entrypoint /bin/zsh \
+  private-blockchain-cli:latest \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar add-block --file /app/files/partnership-contract.txt --keywords 'LEGAL-2024-PA-001,CONTRACT,PARTNERSHIP' --category 'LEGAL' --generate-key"
+```
+
+#### Technical Documentation
+```zsh
+# Create API documentation file
+cat > api-docs.md << EOF
+# API Documentation v2.1
+## Authentication Endpoints
+- POST /auth/login - User authentication
+- POST /auth/refresh - Token refresh
+- DELETE /auth/logout - User logout
+
+## Data Endpoints  
+- GET /api/data - Retrieve data
+- POST /api/data - Create new data
+- PUT /api/data/{id} - Update existing data
+- DELETE /api/data/{id} - Delete data
+
+## Rate Limits
+- 1000 requests per hour per API key
+- 10,000 requests per day per organization
+
+Last updated: $(date)
+EOF
+
+# Add technical documentation
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  -v "$(pwd)":/app/files \
+  --entrypoint /bin/zsh \
+  private-blockchain-cli:latest \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar add-block --file /app/files/api-docs.md --keywords 'API,DOCUMENTATION,TECHNICAL,V2.1' --category 'TECHNICAL' --generate-key"
+```
+
+#### Large File with Automatic Off-Chain Storage
+```zsh
+# Create a large financial report (will trigger off-chain storage)
+cat > quarterly-report-q1-2024.txt << EOF
+COMPREHENSIVE FINANCIAL REPORT Q1 2024
+=====================================
+Executive Summary: Revenue increased by 15% compared to Q1 2023...
+EOF
+
+# Add thousands of transaction lines to make it large
+for i in {1..10000}; do
+    echo "Transaction $i: Amount \$$(( RANDOM % 50000 + 1000 )), Account ACC-$(printf '%08d' $RANDOM), Date: 2024-$(( RANDOM % 3 + 1 ))-$(( RANDOM % 28 + 1 )), Status: COMPLETED" >> quarterly-report-q1-2024.txt
+done
+
+# Add large file (will automatically use off-chain storage)
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  -v "$(pwd)/off-chain-data":/app/off-chain-data \
+  -v "$(pwd)":/app/files \
+  --entrypoint /bin/zsh \
+  private-blockchain-cli:latest \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar add-block --file /app/files/quarterly-report-q1-2024.txt --keywords 'Q1-2024,FINANCIAL,QUARTERLY-REPORT' --category 'FINANCE' --generate-key --verbose"
+```
+
+#### Batch Processing Multiple Files
+```zsh
+# Create multiple report files
+mkdir -p reports
+echo "Daily report for $(date +%Y-%m-%d): Operations normal, no incidents." > reports/daily-$(date +%Y%m%d).txt
+echo "Weekly summary: All systems operational, performance metrics within targets." > reports/weekly-summary.txt
+echo "Security audit: No vulnerabilities detected, all systems secure." > reports/security-audit.txt
+
+# Process all files in a loop using Docker
+for file in reports/*.txt; do
+    echo "Processing $file with Docker..."
+    docker run --rm \
+      -v "$(pwd)/blockchain-data":/app/data \
+      -v "$(pwd)":/app/files \
+      --entrypoint /bin/zsh \
+      private-blockchain-cli:latest \
+      -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar add-block --file /app/files/$file --keywords 'REPORT,$(basename "$file" .txt)' --category 'OPERATIONS' --generate-key"
+done
+```
+
+#### Using Different Signing Methods with Files
+```zsh
+# Create an important document
+echo "CRITICAL SYSTEM UPDATE: Security patch applied successfully on $(date)" > critical-update.txt
+
+# Option 1: Using generate-key (for testing)
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  -v "$(pwd)":/app/files \
+  --entrypoint /bin/zsh \
+  private-blockchain-cli:latest \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar add-block --file /app/files/critical-update.txt --generate-key"
+
+# Option 2: Using existing signer (demo mode)
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  -v "$(pwd)":/app/files \
+  --entrypoint /bin/zsh \
+  private-blockchain-cli:latest \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar add-block --file /app/files/critical-update.txt --signer SystemAdmin"
+
+# Option 3: Using key file (production mode)
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  -v "$(pwd)":/app/files \
+  -v "$(pwd)/keys":/app/keys \
+  --entrypoint /bin/zsh \
+  private-blockchain-cli:latest \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar add-block --file /app/files/critical-update.txt --key-file /app/keys/admin.pem"
+```
+
+#### JSON Output with File Input
+```zsh
+# Create structured data file
+echo '{"patient_id": "PAT-001", "status": "discharged", "date": "'$(date)'"}' > patient-discharge.json
+
+# Add with JSON output for automation
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  -v "$(pwd)":/app/files \
+  --entrypoint /bin/zsh \
+  private-blockchain-cli:latest \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar add-block --file /app/files/patient-discharge.json --keywords 'PAT-001,DISCHARGE' --category 'MEDICAL' --generate-key --json"
+```
+
+#### Error Handling Examples
+```zsh
+# File doesn't exist - shows proper error
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  -v "$(pwd)":/app/files \
+  --entrypoint /bin/zsh \
+  private-blockchain-cli:latest \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar add-block --file /app/files/non-existent.txt --generate-key"
+# Expected output: ❌ Failed to read input file: Input file does not exist: /app/files/non-existent.txt
+
+# Cannot specify both file and direct data
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  -v "$(pwd)":/app/files \
+  --entrypoint /bin/zsh \
+  private-blockchain-cli:latest \
+  -c "cd /app && ln -sf /app/data/blockchain.db blockchain.db && java -jar /app/blockchain-cli.jar add-block 'direct data' --file /app/files/sample-data.txt --generate-key"
+# Expected output: ❌ Failed to add block: Runtime error - Cannot specify both file input (-f/--file) and direct data input.
+```
+
+#### Clean Up Example Files
+```zsh
+# Clean up created files
+rm -f sample-data.txt medical-record.txt financial-transaction.txt partnership-contract.txt api-docs.md quarterly-report-q1-2024.txt critical-update.txt patient-discharge.json
+rm -rf reports
+```
+
+### Off-Chain Storage Demo with Docker
+```zsh
+# Test off-chain storage functionality in Docker
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  -v "$(pwd)/off-chain-data":/app/off-chain-data \
+  private-blockchain-cli:latest \
+  add-block "Large financial transaction log with extensive details for Q1 2024 processing batch containing over 1000 transactions with complete audit trail and compliance reporting data that will automatically trigger off-chain storage due to size." \
+  --keywords "FINANCE,Q1-2024,BATCH,AUDIT" \
+  --category "FINANCE" \
+  --generate-key \
+  --verbose
+
+# Verify off-chain data was created
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  -v "$(pwd)/off-chain-data":/app/off-chain-data \
+  private-blockchain-cli:latest \
+  validate --detailed --verbose
+```
+
+### Hybrid Search Demo with Docker
+```zsh
+# Add test data for search demonstrations
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  private-blockchain-cli:latest \
+  add-block "Medical patient record for PATIENT-001" \
+  --keywords "PATIENT-001,MEDICAL,ECG" \
+  --category "MEDICAL" \
+  --generate-key
+
+# Fast search (keywords only)
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  private-blockchain-cli:latest \
+  search "PATIENT" --fast --verbose
+
+# Balanced search (keywords + content)
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  private-blockchain-cli:latest \
+  search "patient" --level INCLUDE_DATA --verbose
+
+# Exhaustive search (all content including off-chain)
+docker run --rm \
+  -v "$(pwd)/blockchain-data":/app/data \
+  -v "$(pwd)/off-chain-data":/app/off-chain-data \
+  private-blockchain-cli:latest \
+  search "financial" --complete --verbose
+```
+
+### Multi-Container Demo Workflow
+```zsh
+# Create a complete demo workflow using multiple containers
+#!/usr/bin/env zsh
+
+# Step 1: Initialize blockchain
+docker run --rm \
+  -v "$(pwd)/demo-data":/app/data \
+  private-blockchain-cli:latest status
+
+# Step 2: Add medical records
+docker run --rm \
+  -v "$(pwd)/demo-data":/app/data \
+  private-blockchain-cli:latest \
+  add-block "Patient checkup record" \
+  --keywords "MEDICAL,CHECKUP" --category "MEDICAL" --generate-key
+
+# Step 3: Add financial data
+docker run --rm \
+  -v "$(pwd)/demo-data":/app/data \
+  -v "$(pwd)/demo-off-chain":/app/off-chain-data \
+  private-blockchain-cli:latest \
+  add-block "Quarterly financial report with extensive transaction logs and compliance data" \
+  --keywords "FINANCE,Q1" --category "FINANCE" --generate-key
+
+# Step 4: Search across categories
+docker run --rm \
+  -v "$(pwd)/demo-data":/app/data \
+  -v "$(pwd)/demo-off-chain":/app/off-chain-data \
+  private-blockchain-cli:latest \
+  search --category "MEDICAL" --detailed
+
+# Step 5: Validate complete system
+docker run --rm \
+  -v "$(pwd)/demo-data":/app/data \
+  -v "$(pwd)/demo-off-chain":/app/off-chain-data \
+  private-blockchain-cli:latest \
+  validate --detailed
 ```
 
 ## 🎼 Docker Compose
@@ -266,10 +593,10 @@ The docker-compose.yml file uses environment variables to avoid hardcoded versio
 docker-compose up
 
 # Run with specific version
-VERSION=1.0.3 docker-compose up
+VERSION=1.0.4 docker-compose up
 
 # Run with specific version and profile
-VERSION=1.0.3 docker-compose --profile validate up
+VERSION=1.0.4 docker-compose --profile validate up
 ```
 
 ### Available Profiles

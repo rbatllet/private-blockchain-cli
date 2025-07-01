@@ -137,4 +137,45 @@ public class ValidateCommandTest {
             assertNotNull(e.getMessage());
         }
     }
+
+    @Test
+    void testValidateWithVerboseFlag() {
+        int exitCode = cli.execute("--verbose");
+        
+        assertEquals(0, exitCode);
+        String output = outContent.toString();
+        // Should contain verbose output markers
+        assertTrue(output.contains("🔍") || output.contains("verbose") || output.contains("Starting"));
+    }
+
+    @Test
+    void testValidateWithShortVerboseFlag() {
+        int exitCode = cli.execute("-v");
+        
+        assertEquals(0, exitCode);
+        String output = outContent.toString();
+        // Should contain verbose output markers
+        assertTrue(output.contains("🔍") || output.contains("verbose") || output.contains("Starting"));
+    }
+
+    @Test
+    void testValidateWithDetailedAndVerbose() {
+        int exitCode = cli.execute("--detailed", "--verbose");
+        
+        assertEquals(0, exitCode);
+        String output = outContent.toString();
+        // Should contain both detailed and verbose output
+        assertTrue(output.contains("validation") || output.contains("block"));
+        assertTrue(output.contains("🔍") || output.contains("verbose") || output.contains("Starting"));
+    }
+
+    @Test
+    void testValidateWithAllFlags() {
+        int exitCode = cli.execute("-d", "-v", "-j");
+        
+        assertEquals(0, exitCode);
+        String output = outContent.toString();
+        // Should work with all flags combined
+        assertTrue(output.contains("{") || output.contains("\"") || output.contains("validation"));
+    }
 }

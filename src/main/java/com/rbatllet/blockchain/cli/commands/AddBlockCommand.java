@@ -4,6 +4,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Option;
 import com.rbatllet.blockchain.core.Blockchain;
+import com.rbatllet.blockchain.entity.Block;
 import com.rbatllet.blockchain.cli.BlockchainCLI;
 import com.rbatllet.blockchain.security.SecureKeyStorage;
 import com.rbatllet.blockchain.security.PasswordUtil;
@@ -16,6 +17,10 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.time.LocalDateTime;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.IOException;
 
 /**
  * Command to add a new block to the blockchain
@@ -24,9 +29,13 @@ import java.time.LocalDateTime;
          description = "Add a new block to the blockchain")
 public class AddBlockCommand implements Runnable {
     
-    @Parameters(index = "0", 
+    @Parameters(index = "0", arity = "0..1",
                 description = "Data content for the new block")
     String data;
+    
+    @Option(names = {"-f", "--file"}, 
+            description = "Read block content from file instead of command line parameter")
+    String inputFile;
     
     @Option(names = {"-s", "--signer"}, 
             description = "Name of the key signer (must be authorized). If no private key is stored for this signer,\n" +
@@ -50,23 +59,48 @@ public class AddBlockCommand implements Runnable {
             description = "Enable verbose output with detailed information")
     boolean verbose = false;
     
+    @Option(names = {"-w", "--keywords"}, 
+            description = "Manual keywords for search indexing (comma-separated)")
+    String keywords;
+    
+    @Option(names = {"-c", "--category"}, 
+            description = "Content category (e.g., MEDICAL, FINANCE, TECHNICAL, LEGAL)")
+    String category;
+    
     @Override
     public void run() {
         try {
             verboseLog("Adding new block to blockchain...");
             
+            // Get block content either from command line or file
+            String blockContent = getBlockContent();
+            
             // Validate data length
-            if (data == null || data.trim().isEmpty()) {
+            if (blockContent == null || blockContent.trim().isEmpty()) {
                 BlockchainCLI.error("❌ Block data cannot be empty");
                 ExitUtil.exit(1);
             }
             
             Blockchain blockchain = new Blockchain();
             
-            // Check data length limits (we'll use simple length check)
-            if (data.length() > blockchain.getMaxBlockDataLength()) {
-                BlockchainCLI.error("❌ Block data exceeds maximum length limit");
+            // Check data validation and storage decision
+            verboseLog("Data size: " + blockContent.length() + " bytes");
+            int storageDecision = blockchain.validateAndDetermineStorage(blockContent);
+            if (storageDecision == 0) {
+                verboseLog("Storage decision returned: 0 (invalid)");
+                BlockchainCLI.error("❌ Block data validation failed. Data size: " + blockContent.length() + " bytes");
+                BlockchainCLI.error("❌ Note: Data may exceed the current blockchain size limit (~32KB)");
+                BlockchainCLI.info("📝 Tip: Try reducing data size or check if off-chain storage is properly configured");
+                verboseLog("Storage decision: 0 indicates core blockchain validation failure");
                 ExitUtil.exit(1);
+            }
+            verboseLog("Storage decision: " + storageDecision + " (1=on-chain, 2=off-chain)");
+            
+            // Inform user about storage decision
+            if (storageDecision == 2) {
+                verboseLog("Large data detected - will be stored off-chain with encryption");
+            } else {
+                verboseLog("Data will be stored on-chain");
             }
             
             // Handle key generation or loading
@@ -243,31 +277,80 @@ public class AddBlockCommand implements Runnable {
             verboseLog("Attempting to add block with derived public key: " + 
                     CryptoUtil.publicKeyToString(publicKey));
             
-            // Add the block to the blockchain
-            boolean success = blockchain.addBlock(data, privateKey, publicKey);
+            // Parse keywords if provided
+            String[] keywordArray = null;
+            if (keywords != null && !keywords.trim().isEmpty()) {
+                keywordArray = keywords.split(",");
+                // Trim whitespace from each keyword
+                for (int i = 0; i < keywordArray.length; i++) {
+                    keywordArray[i] = keywordArray[i].trim();
+                }
+                verboseLog("Using manual keywords: " + String.join(", ", keywordArray));
+            }
             
-            if (success) {
+            // Use category or default
+            String blockCategory = (category != null && !category.trim().isEmpty()) ? category.trim().toUpperCase() : null;
+            if (blockCategory != null) {
+                verboseLog("Using content category: " + blockCategory);
+            }
+            
+            // Add the block to the blockchain with enhanced functionality
+            Block createdBlock;
+            if (keywordArray != null || blockCategory != null) {
+                createdBlock = blockchain.addBlockWithKeywords(blockContent, keywordArray, blockCategory, privateKey, publicKey);
+            } else {
+                // Use legacy method for backward compatibility
+                boolean success = blockchain.addBlock(blockContent, privateKey, publicKey);
+                createdBlock = success ? blockchain.getLastBlock() : null;
+            }
+            
+            if (createdBlock != null) {
                 long blockCount = blockchain.getBlockCount();
                 
                 if (json) {
-                    outputJson(true, blockCount, data);
+                    outputJsonEnhanced(true, createdBlock, blockContent);
                 } else {
                     // Always show success message regardless of verbose mode
                     // Use the exact message format expected by the tests
                     BlockchainCLI.success("Block added successfully!");
-                    System.out.println("📦 Block number: " + (blockCount - 1)); // Show the actual block number that was added
-                    System.out.println("📝 Data: " + data);
+                    System.out.println("📦 Block number: " + createdBlock.getBlockNumber());
+                    System.out.println("📝 Data: " + (createdBlock.getData().startsWith("OFF_CHAIN_REF:") ? "[Stored off-chain]" : blockContent));
+                    
+                    // Show search metadata if available
+                    if (createdBlock.getManualKeywords() != null && !createdBlock.getManualKeywords().trim().isEmpty()) {
+                        System.out.println("🏷️  Manual Keywords: " + createdBlock.getManualKeywords());
+                    }
+                    if (createdBlock.getAutoKeywords() != null && !createdBlock.getAutoKeywords().trim().isEmpty()) {
+                        System.out.println("🤖 Auto Keywords: " + createdBlock.getAutoKeywords());
+                    }
+                    if (createdBlock.getContentCategory() != null) {
+                        System.out.println("📂 Category: " + createdBlock.getContentCategory());
+                    }
+                    
+                    // Show off-chain information if applicable
+                    if (createdBlock.hasOffChainData()) {
+                        var offChainData = createdBlock.getOffChainData();
+                        System.out.println("💾 Off-chain storage: " + formatBytes(offChainData.getFileSize()));
+                        System.out.println("🔐 Encrypted: Yes (AES-128-CBC)");
+                    }
+                    
                     System.out.println("🔗 Total blocks in chain: " + blockCount);
                 }
             } else {
                 if (json) {
-                    outputJson(false, blockchain.getBlockCount(), data);
+                    outputJson(false, blockchain.getBlockCount(), blockContent);
                 } else {
                     BlockchainCLI.error("❌ Failed to add block to blockchain");
                 }
                 ExitUtil.exit(1);
             }
             
+        } catch (IOException e) {
+            BlockchainCLI.error("❌ Failed to read input file: " + e.getMessage());
+            if (verbose || BlockchainCLI.verbose) {
+                e.printStackTrace();
+            }
+            ExitUtil.exit(1);
         } catch (SecurityException e) {
             BlockchainCLI.error("❌ Failed to add block: Security error - " + e.getMessage());
             if (verbose || BlockchainCLI.verbose) {
@@ -289,6 +372,44 @@ public class AddBlockCommand implements Runnable {
         }
     }
     
+    /**
+     * Get block content either from command line parameter or file
+     */
+    private String getBlockContent() throws IOException {
+        // Validate that only one input method is specified
+        if (inputFile != null && data != null) {
+            throw new IllegalArgumentException("Cannot specify both file input (-f/--file) and direct data input. Please use only one method.");
+        }
+        
+        if (inputFile == null && data == null) {
+            throw new IllegalArgumentException("Must specify either block data directly or use --file option to read from file.");
+        }
+        
+        // Read from file if specified
+        if (inputFile != null) {
+            verboseLog("Reading block content from file: " + inputFile);
+            
+            Path filePath = Paths.get(inputFile);
+            if (!Files.exists(filePath)) {
+                throw new IOException("Input file does not exist: " + inputFile);
+            }
+            
+            if (!Files.isReadable(filePath)) {
+                throw new IOException("Input file is not readable: " + inputFile);
+            }
+            
+            // Read file content
+            byte[] fileBytes = Files.readAllBytes(filePath);
+            String content = new String(fileBytes, "UTF-8");
+            
+            verboseLog("Successfully read " + fileBytes.length + " bytes from file");
+            return content;
+        }
+        
+        // Use command line data
+        return data;
+    }
+    
     private void outputJson(boolean success, long totalBlocks, String data) {
         System.out.println("{");
         System.out.println("  \"success\": " + success + ",");
@@ -296,6 +417,41 @@ public class AddBlockCommand implements Runnable {
         System.out.println("  \"data\": \"" + data.replace("\"", "\\\"") + "\",");
         System.out.println("  \"timestamp\": \"" + java.time.Instant.now() + "\"");
         System.out.println("}");
+    }
+    
+    private void outputJsonEnhanced(boolean success, Block block, String originalData) {
+        System.out.println("{");
+        System.out.println("  \"success\": " + success + ",");
+        System.out.println("  \"blockNumber\": " + block.getBlockNumber() + ",");
+        System.out.println("  \"hash\": \"" + block.getHash() + "\",");
+        System.out.println("  \"data\": \"" + (block.getData().startsWith("OFF_CHAIN_REF:") ? "[Stored off-chain]" : originalData.replace("\"", "\\\"")) + "\",");
+        
+        if (block.getManualKeywords() != null) {
+            System.out.println("  \"manualKeywords\": \"" + block.getManualKeywords().replace("\"", "\\\"") + "\",");
+        }
+        if (block.getAutoKeywords() != null) {
+            System.out.println("  \"autoKeywords\": \"" + block.getAutoKeywords().replace("\"", "\\\"") + "\",");
+        }
+        if (block.getContentCategory() != null) {
+            System.out.println("  \"category\": \"" + block.getContentCategory() + "\",");
+        }
+        
+        System.out.println("  \"offChainStorage\": " + block.hasOffChainData() + ",");
+        if (block.hasOffChainData()) {
+            var offChainData = block.getOffChainData();
+            System.out.println("  \"offChainSize\": " + offChainData.getFileSize() + ",");
+            System.out.println("  \"encrypted\": true,");
+        }
+        
+        System.out.println("  \"timestamp\": \"" + java.time.Instant.now() + "\"");
+        System.out.println("}");
+    }
+    
+    private String formatBytes(long bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
+        if (bytes < 1024 * 1024 * 1024) return String.format("%.1f MB", bytes / (1024.0 * 1024.0));
+        return String.format("%.1f GB", bytes / (1024.0 * 1024.0 * 1024.0));
     }
     
     /**

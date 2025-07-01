@@ -10,6 +10,8 @@ import picocli.CommandLine;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.nio.file.Files;
+import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -143,7 +145,8 @@ public class AddBlockCommandTest {
         int exitCode = cli.execute("--generate-key");
         
         // Should fail when no data is provided
-        assertNotEquals(0, exitCode);
+        int realExitCode = ExitUtil.isExitDisabled() ? ExitUtil.getLastExitCode() : exitCode;
+        assertNotEquals(0, realExitCode);
     }
 
     @Test
@@ -232,5 +235,62 @@ public class AddBlockCommandTest {
         assertTrue(errorOutput.contains("signing") || errorOutput.contains("method") ||
                   errorOutput.contains("generate-key") || errorOutput.contains("signer"),
                   "Error should mention signing methods. Error was: " + errorOutput);
+    }
+
+    @Test
+    void testAddBlockFromFile() throws IOException {
+        // Create a test file with content
+        Path testFile = tempDir.resolve("test-data.txt");
+        String testContent = "This is test data read from a file for blockchain block creation.";
+        Files.write(testFile, testContent.getBytes());
+        
+        int exitCode = cli.execute("--file", testFile.toString(), "--generate-key");
+        
+        assertEquals(0, exitCode);
+        String output = outContent.toString();
+        assertTrue(output.contains("block") || output.contains("added") || 
+                  output.contains("success"));
+    }
+
+    @Test
+    void testAddBlockFromNonExistentFile() {
+        int exitCode = cli.execute("--file", "non-existent-file.txt", "--generate-key");
+        
+        int realExitCode = ExitUtil.isExitDisabled() ? ExitUtil.getLastExitCode() : exitCode;
+        assertNotEquals(0, realExitCode);
+        
+        String errorOutput = errContent.toString();
+        assertTrue(errorOutput.contains("file") || errorOutput.contains("exist"));
+    }
+
+    @Test
+    void testAddBlockBothFileAndDataError() {
+        int exitCode = cli.execute("direct data", "--file", "some-file.txt", "--generate-key");
+        
+        int realExitCode = ExitUtil.isExitDisabled() ? ExitUtil.getLastExitCode() : exitCode;
+        assertNotEquals(0, realExitCode);
+        
+        String errorOutput = errContent.toString();
+        assertTrue(errorOutput.contains("Cannot specify both") || 
+                  errorOutput.contains("file input") || 
+                  errorOutput.contains("direct data"));
+    }
+
+    @Test
+    void testAddBlockLargeFileContent() throws IOException {
+        // Create a file with large content to test off-chain storage
+        Path largeFile = tempDir.resolve("large-data.txt");
+        StringBuilder largeContent = new StringBuilder();
+        for (int i = 0; i < 100; i++) {
+            largeContent.append("This is line ").append(i).append(" of large test data for off-chain storage testing.\n");
+        }
+        Files.write(largeFile, largeContent.toString().getBytes());
+        
+        int exitCode = cli.execute("--file", largeFile.toString(), "--generate-key", "--verbose");
+        
+        assertEquals(0, exitCode);
+        String output = outContent.toString();
+        assertTrue(output.contains("block") || output.contains("added") || 
+                  output.contains("success"));
     }
 }

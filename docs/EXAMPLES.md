@@ -5,12 +5,16 @@ Comprehensive examples and use cases for the Private Blockchain CLI, featuring t
 ## 📋 Table of Contents
 
 - [Quick Start Examples](#-quick-start-examples)
+- [Off-Chain Storage Examples](#-off-chain-storage-examples)
+- [Hybrid Search Examples](#-hybrid-search-examples)
+- [Enhanced CLI Features](#-enhanced-cli-features)
 - [Secure Key Management Examples](#-secure-key-management-examples)
 - [Advanced Signer Workflows](#-advanced-signer-workflows)
 - [Real-World Use Cases](#-real-world-use-cases)
 - [Advanced Scenarios](#-advanced-scenarios)
 - [Docker Examples](#-docker-examples)
 - [Automation Scripts](#-automation-scripts)
+- [Demo Scripts](#-demo-scripts)
 
 ## 🚀 Quick Start Examples
 
@@ -18,7 +22,7 @@ Comprehensive examples and use cases for the Private Blockchain CLI, featuring t
 ```zsh
 # Step 1: Check if CLI is working
 java -jar blockchain-cli.jar --version
-# Expected: 1.0.3
+# Expected: 1.0.4
 
 # Step 2: Initialize and check blockchain
 java -jar blockchain-cli.jar status
@@ -67,6 +71,345 @@ java -jar blockchain-cli.jar add-block "Detailed logging" --key-file /path/to/ke
 
 # Step 6: Verify everything worked
 java -jar blockchain-cli.jar validate --detailed
+
+# With verbose output for detailed validation information
+java -jar blockchain-cli.jar validate --detailed --verbose
+🔍 Starting comprehensive blockchain validation...
+🔍 Validating block #1: Genesis block
+🔍 Validating block #2: Production data
+🔍 Validation completed successfully
+
+# Check system status with verbose output
+java -jar blockchain-cli.jar status --detailed --verbose
+🔍 Initializing blockchain status check...
+🔍 Loading blockchain database...
+🔍 Analyzing chain integrity...
+✅ Status check completed
+```
+
+## 📄 File Input Examples
+
+The CLI supports reading block content from external files using the `--file` option, providing better flexibility and automation capabilities.
+
+### Example 1: Basic File Input
+```zsh
+# Create a text file with content
+echo "Patient medical record for John Doe - Regular checkup completed successfully." > patient-record.txt
+
+# Add block content from file
+java -jar blockchain-cli.jar add-block --file patient-record.txt --generate-key --verbose
+🔍 Reading block content from file: patient-record.txt
+🔍 Successfully read 78 bytes from file
+✅ Block added successfully!
+
+# With keywords and category
+java -jar blockchain-cli.jar add-block --file patient-record.txt \
+    --keywords "PATIENT,CHECKUP,MEDICAL" \
+    --category "MEDICAL" \
+    --generate-key
+```
+
+### Example 2: Large File Processing
+```zsh
+# Create a large financial report
+cat > quarterly-report-q1.txt << EOF
+FINANCIAL QUARTERLY REPORT Q1 2024
+==================================
+$(for i in {1..5000}; do
+    echo "Transaction $i: Amount \$$(( RANDOM % 10000 + 100 )), Account ACC-$(( RANDOM % 100000 + 10000 )), Date: 2024-01-$(( RANDOM % 28 + 1 ))"
+done)
+EOF
+
+# Add large file (will automatically use off-chain storage)
+java -jar blockchain-cli.jar add-block --file quarterly-report-q1.txt \
+    --keywords "Q1-2024,FINANCIAL,QUARTERLY-REPORT" \
+    --category "FINANCE" \
+    --generate-key \
+    --verbose
+📝 Data size: 245.3 KB
+💾 Large data detected - will be stored off-chain with encryption
+✅ Block added successfully!
+```
+
+### Example 3: Different File Types
+```zsh
+# Technical documentation
+java -jar blockchain-cli.jar add-block --file api-documentation.md \
+    --keywords "API,DOCS,TECHNICAL" \
+    --category "TECHNICAL" \
+    --generate-key
+
+# Legal contracts (text converted from PDF)
+java -jar blockchain-cli.jar add-block --file contract-partnership-2024.txt \
+    --keywords "CONTRACT,PARTNERSHIP,LEGAL" \
+    --category "LEGAL" \
+    --signer Legal-Counsel
+
+# Medical records in structured format
+java -jar blockchain-cli.jar add-block --file patient-mri-results.json \
+    --keywords "MRI,PATIENT-007,RADIOLOGY" \
+    --category "MEDICAL" \
+    --generate-key
+```
+
+### Example 4: Error Handling
+```zsh
+# File doesn't exist
+java -jar blockchain-cli.jar add-block --file non-existent.txt --generate-key
+❌ Failed to read input file: Input file does not exist: non-existent.txt
+
+# Cannot specify both file and direct data
+java -jar blockchain-cli.jar add-block "direct data" --file some-file.txt --generate-key
+❌ Failed to add block: Runtime error - Cannot specify both file input (-f/--file) and direct data input. Please use only one method.
+
+# Missing input entirely
+java -jar blockchain-cli.jar add-block --generate-key
+❌ Failed to add block: Runtime error - Must specify either block data directly or use --file option to read from file.
+```
+
+### Example 5: Automation with File Input
+```zsh
+# Process multiple files in a loop
+for file in reports/*.txt; do
+    echo "Processing $file..."
+    java -jar blockchain-cli.jar add-block --file "$file" \
+        --keywords "BATCH-PROCESS,$(basename "$file" .txt)" \
+        --category "REPORTS" \
+        --generate-key
+done
+
+# Use file input in automated scripts
+#!/bin/bash
+DATA_FILE="/tmp/daily-report-$(date +%Y%m%d).txt"
+generate_daily_report > "$DATA_FILE"
+java -jar blockchain-cli.jar add-block --file "$DATA_FILE" \
+    --keywords "DAILY-REPORT,$(date +%Y-%m-%d)" \
+    --category "OPERATIONS" \
+    --signer Operations-Bot
+```
+
+## 💾 Off-Chain Storage Examples
+
+The CLI now automatically handles large data with off-chain storage and AES encryption.
+
+### Example 1: Automatic Off-Chain Storage
+```zsh
+# Small data stays on-chain
+java -jar blockchain-cli.jar add-block "Small patient record for PAT-001 with normal vital signs." \
+    --keywords "PAT-001,MEDICAL,VITALS" \
+    --category "MEDICAL" \
+    --generate-key \
+    --verbose
+
+# Large data automatically goes off-chain (>512KB)
+java -jar blockchain-cli.jar add-block "$(cat large_medical_report.txt)" \
+    --keywords "PATIENT-001,MRI,COMPREHENSIVE" \
+    --category "MEDICAL" \
+    --generate-key \
+    --verbose
+📊 Large data detected (1.2 MB). Will store off-chain.
+🔐 Encrypting data with AES-256-CBC...
+💾 Data stored off-chain. Block contains reference: OFF_CHAIN_REF:abc123...
+```
+
+### Example 2: Large Financial Batch Processing
+```zsh
+# Create large financial dataset
+cat > financial_batch_q1.txt << EOF
+Financial Batch Processing Report Q1 2024
+==========================================
+$(for i in {1..10000}; do
+    echo "TXN-$(printf '%06d' $i): Amount \$$(( RANDOM % 10000 + 100 )).$(( RANDOM % 100 )), Account ACC-$(( RANDOM % 1000000 + 100000 )), Status: SUCCESS"
+done)
+EOF
+
+# Add with automatic off-chain storage
+java -jar blockchain-cli.jar add-block "$(cat financial_batch_q1.txt)" \
+    --keywords "BATCH-Q1-2024,FINANCIAL,TRANSACTIONS" \
+    --category "FINANCE" \
+    --generate-key \
+    --verbose
+```
+
+### Example 3: Legal Document Storage
+```zsh
+# Large contract document
+java -jar blockchain-cli.jar add-block "$(cat contract_2024_partnership.pdf.txt)" \
+    --keywords "CONTRACT,PARTNERSHIP,LEGAL,IP-RIGHTS" \
+    --category "LEGAL" \
+    --signer Legal-Counsel \
+    --verbose
+```
+
+### Example 4: Off-Chain Data Validation
+```zsh
+# Validate blockchain including off-chain data integrity
+java -jar blockchain-cli.jar validate --detailed --verbose
+🔍 Starting comprehensive validation with off-chain data...
+🔍 Validating block #15: Large medical report
+✅ Block #15 validation passed
+📁 Off-chain file: offchain_1234567890_5678.dat
+📦 Size: 1.2 MB, 🔐 Encrypted: Yes, ✅ Integrity: Verified
+🔍 Off-chain data validation completed
+
+# Quick validation without verbose output
+java -jar blockchain-cli.jar validate --detailed
+
+# Basic validation with verbose logging
+java -jar blockchain-cli.jar validate --verbose
+🔍 Starting basic blockchain validation...
+🔍 Chain integrity check completed
+```
+
+## 🔍 Hybrid Search Examples
+
+The CLI provides multi-level search capabilities for different performance needs.
+
+### Example 1: Fast Search (Keywords Only)
+```zsh
+# Fastest search - only searches in manual and auto keywords
+java -jar blockchain-cli.jar search "PATIENT-001" --fast --verbose
+⚡ FAST_ONLY search completed in 15ms
+📦 Found 3 blocks: #1, #5, #12
+
+# Search by transaction ID
+java -jar blockchain-cli.jar search "TXN-2024-001" --fast
+```
+
+### Example 2: Balanced Search (Include Data)
+```zsh
+# Default search level - searches keywords + block data
+java -jar blockchain-cli.jar search "cardiology" --level INCLUDE_DATA --verbose
+⚖️ INCLUDE_DATA search completed in 45ms
+📦 Found 4 blocks with cardiology information
+
+# Search with detailed output
+java -jar blockchain-cli.jar search "financial" --level INCLUDE_DATA --detailed
+```
+
+### Example 3: Exhaustive Search (Including Off-Chain)
+```zsh
+# Most comprehensive - searches everything including off-chain files
+java -jar blockchain-cli.jar search "partnership" --complete --verbose --detailed
+🔍 EXHAUSTIVE_OFFCHAIN search completed in 340ms
+  - Fast results: 1 block
+  - Off-chain matches: 2 blocks
+📦 Found 3 blocks total including off-chain content
+```
+
+### Example 4: Category-Based Search
+```zsh
+# Search by content category
+java -jar blockchain-cli.jar search --category MEDICAL --limit 10 --detailed
+📂 Found 8 blocks in category: MEDICAL
+
+java -jar blockchain-cli.jar search --category FINANCE --json
+```
+
+### Example 5: Advanced Search Options
+```zsh
+# Date range search
+java -jar blockchain-cli.jar search --date-from 2024-01-01 --date-to 2024-12-31 --verbose
+
+# Block number search
+java -jar blockchain-cli.jar search --block-number 5 --detailed
+
+# Search with JSON output
+java -jar blockchain-cli.jar search "API" --json --limit 5
+
+# Search with performance reporting
+java -jar blockchain-cli.jar search "data" --verbose
+🔍 Search performance: 23ms (INCLUDE_DATA level)
+```
+
+### Example 6: Search Performance Comparison
+```zsh
+# Compare performance across search levels
+echo "Testing search performance for 'transaction'..."
+
+time java -jar blockchain-cli.jar search "transaction" --fast
+# Fast: ~10-20ms
+
+time java -jar blockchain-cli.jar search "transaction" --level INCLUDE_DATA  
+# Balanced: ~30-60ms
+
+time java -jar blockchain-cli.jar search "transaction" --complete
+# Exhaustive: ~200-500ms (depending on off-chain data size)
+```
+
+## 🚀 Enhanced CLI Features
+
+New features that extend the CLI's capabilities while maintaining backward compatibility.
+
+### Example 1: Keywords and Categories
+```zsh
+# Manual keywords with category
+java -jar blockchain-cli.jar add-block "Project meeting on 2024-01-15 with stakeholders." \
+    --keywords "MEETING,PROJECT,STAKEHOLDERS" \
+    --category "BUSINESS" \
+    --generate-key
+
+# Automatic keyword extraction (universal elements)
+java -jar blockchain-cli.jar add-block "Contact admin@company.com for API access. Budget: 50000 EUR. Document ref: DOC-2024-001." \
+    --category "TECHNICAL" \
+    --generate-key \
+    --verbose
+🤖 Auto Keywords: admin@company.com, 50000, EUR, DOC-2024-001, 2024, API
+```
+
+### Example 2: Keyword Processing
+```zsh
+# Keywords with spaces (automatically trimmed)
+java -jar blockchain-cli.jar add-block "Test data for keyword processing" \
+    --keywords " KEYWORD1 , KEYWORD2, KEYWORD3 " \
+    --generate-key \
+    --verbose
+🔍 Using manual keywords: KEYWORD1, KEYWORD2, KEYWORD3
+🏷️ Manual Keywords: keyword1 keyword2 keyword3
+```
+
+### Example 3: Enhanced JSON Output
+```zsh
+# JSON output includes new fields
+java -jar blockchain-cli.jar add-block "Enhanced JSON test data" \
+    --keywords "JSON,TEST,ENHANCED" \
+    --category "TECHNICAL" \
+    --generate-key \
+    --json
+{
+  "success": true,
+  "blockNumber": 42,
+  "manualKeywords": ["json", "test", "enhanced"],
+  "autoKeywords": ["enhanced", "json", "test", "data"],
+  "category": "TECHNICAL",
+  "offChainStorage": false,
+  "dataSize": 25
+}
+```
+
+### Example 4: Backward Compatibility
+```zsh
+# Legacy commands work unchanged
+java -jar blockchain-cli.jar add-block "Legacy data without keywords" --generate-key
+java -jar blockchain-cli.jar search "Genesis"
+java -jar blockchain-cli.jar status
+java -jar blockchain-cli.jar validate
+```
+
+### Example 5: Enhanced Verbose Output
+```zsh
+java -jar blockchain-cli.jar add-block "Verbose example with all features" \
+    --keywords "VERBOSE,EXAMPLE,FEATURES" \
+    --category "TEST" \
+    --generate-key \
+    --verbose
+🔍 Adding new block to blockchain...
+🔍 Data will be stored on-chain
+🔍 Generating new key pair...
+🔍 Using manual keywords: VERBOSE, EXAMPLE, FEATURES
+🔍 Using content category: TEST
+🔍 Attempting to add block with derived public key...
+✅ Block added successfully!
 ```
 
 ## 🔐 Secure Key Management Examples
@@ -145,6 +488,14 @@ java -jar blockchain-cli.jar add-block "Post-deletion operation" --signer TempUs
 ```zsh
 # Morning: Check blockchain health
 java -jar blockchain-cli.jar status --detailed
+
+# Morning: Check blockchain health with verbose output
+java -jar blockchain-cli.jar status --detailed --verbose
+🔍 Initializing comprehensive status check...
+🔍 Loading blockchain database...
+🔍 Analyzing system configuration...
+🔍 Checking off-chain storage integrity...
+✅ Comprehensive status check completed
 
 # Team lead adds daily standup notes
 java -jar blockchain-cli.jar add-block "Daily Standup 2025-06-12: Team velocity on track, 3 stories completed" --signer TeamLead
@@ -657,6 +1008,85 @@ fi
 ```
 
 For more automation scripts, see [AUTOMATION_SCRIPTS.md](AUTOMATION_SCRIPTS.md).
+
+## 🎬 Demo Scripts
+
+The CLI includes several demo scripts to showcase the enhanced functionality.
+
+### Quick Demo Script
+```zsh
+# Run simple enhanced CLI demos (recommended for quick testing)
+./test-simple-demos.zsh
+
+# Features demonstrated:
+# - Basic blockchain operations
+# - Enhanced search functionality
+# - Keywords and categories
+# - Simple off-chain data handling
+```
+
+### Interactive CLI Demos
+```zsh
+# Run comprehensive interactive demonstrations (full feature showcase)
+./run-enhanced-demos.zsh
+
+# Features demonstrated:
+# - Off-chain storage with encryption
+# - Hybrid search with performance comparison
+# - CLI integration examples
+# - Real-time keyword processing
+# - Large data handling
+```
+
+### Java Demo Classes
+```zsh
+# Run the official Java demo classes
+./run-java-demos.zsh
+
+# Executes:
+# - OffChainStorageDemo: Complete off-chain storage demonstration
+# - HybridSearchDemo: Comprehensive search functionality showcase
+```
+
+### Enhanced Test Suite
+```zsh
+# Run complete test suite including new features
+./test-cli.sh
+
+# Skip unit tests for faster integration testing
+SKIP_UNIT_TESTS=true ./test-cli.sh
+
+# Run with enhanced security tests
+FULL_SECURE_TESTS=true ./test-cli.sh
+```
+
+### Demo Script Features
+- 🎨 **Colorful Output**: Visual feedback with emojis and colors
+- ⏸️ **Interactive Pauses**: Follow along at your own pace
+- ⏱️ **Performance Timing**: See real execution times
+- 📊 **Comprehensive Coverage**: All features demonstrated
+- 🔄 **Automated Setup**: No manual configuration required
+
+### Demo Data Examples
+The demos create realistic test data:
+
+```zsh
+# Medical records with off-chain storage
+"Comprehensive medical report for PATIENT-001: ECG analysis shows normal sinus rhythm..."
+
+# Financial batch processing
+"Financial Batch Processing Report Q1 2024: 5000 transactions totaling $12.5M..."
+
+# Legal contracts with keyword extraction
+"Partnership Agreement between Company A and Company B regarding IP rights..."
+```
+
+### Script Documentation
+See [DEMO_SCRIPTS.md](../DEMO_SCRIPTS.md) for detailed information about:
+- Script descriptions and usage
+- When to use each script
+- Configuration options
+- Troubleshooting guides
 
 ## 🔗 Related Documents
 

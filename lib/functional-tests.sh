@@ -59,10 +59,10 @@ function run_key_management_tests() {
     KEY_OUTPUT=$(java -jar target/blockchain-cli.jar add-key "$KEY_OWNER_TEST" --generate 2>/dev/null | grep "Owner:" | cut -d: -f2 | xargs)
     if [[ "$KEY_OUTPUT" = "$KEY_OWNER_TEST" ]]; then
         print_success "Key owner name stored correctly (bug fix verified)"
-        ((TESTS_PASSED++))
+        count_test_passed
     else
         print_error "Key owner name bug not fixed (got: '$KEY_OUTPUT', expected: '$KEY_OWNER_TEST')"
-        ((TESTS_FAILED++))
+        count_test_failed
     fi
     
     print_test "Key-owner separation verification"
@@ -71,10 +71,10 @@ function run_key_management_tests() {
     JSON_PUBLIC_KEY=$(echo "$JSON_OUTPUT" | grep '"publicKey"' | cut -d'"' -f4)
     if [[ -n "$JSON_OWNER" && -n "$JSON_PUBLIC_KEY" && "$JSON_OWNER" != "$JSON_PUBLIC_KEY" ]]; then
         print_success "Public key and owner name properly separated"
-        ((TESTS_PASSED++))
+        count_test_passed
     else
         print_error "Public key and owner name not properly separated"
-        ((TESTS_FAILED++))
+        count_test_failed
     fi
     
     print_test "Multiple user key management"
@@ -88,10 +88,10 @@ function run_key_management_tests() {
     done
     if [[ "$MULTI_USER_SUCCESS" = true ]]; then
         print_success "Multiple users with correct owner names"
-        ((TESTS_PASSED++))
+        count_test_passed
     else
         print_error "Multiple user key management failed"
-        ((TESTS_FAILED++))
+        count_test_failed
     fi
 }
 
@@ -115,27 +115,27 @@ function run_signer_bug_fix_tests() {
     print_test "Creating test user for --signer tests"
     if java -jar target/blockchain-cli.jar add-key "$SIGNER_TEST_USER" --generate >/dev/null 2>&1; then
         print_success "Test user '$SIGNER_TEST_USER' created successfully"
-        ((TESTS_PASSED++))
+        count_test_passed
         
         # Test 1: Verify --signer parameter is recognized (not "unknown option")
         print_test "--signer parameter recognition"
-        SIGNER_OUTPUT=$(java -jar target/blockchain-cli.jar add-block "Test with existing signer" --signer "$SIGNER_TEST_USER" 2>&1)
+        SIGNER_OUTPUT=$(java -jar target/blockchain-cli.jar add-block '"Test with existing signer"' --signer "$SIGNER_TEST_USER" 2>&1)
         if echo "$SIGNER_OUTPUT" | grep -qi "unknown option"; then
             print_error "--signer parameter not recognized (bug not fixed)"
-            ((TESTS_FAILED++))
+            count_test_failed
         else
             print_success "--signer parameter is recognized (bug fix verified)"
-            ((TESTS_PASSED++))
+            count_test_passed
         fi
         
         # Test 2: Verify --signer with existing user works (creates demo key)
         print_test "--signer with existing user functionality"
         if java -jar target/blockchain-cli.jar add-block "Block with existing signer" --signer "$SIGNER_TEST_USER" >/dev/null 2>&1; then
             print_success "--signer with existing user works (creates demo key)"
-            ((TESTS_PASSED++))
+            count_test_passed
         else
             print_error "--signer with existing user failed"
-            ((TESTS_FAILED++))
+            count_test_failed
         fi
         
         # Test 3: Verify --signer shows demo mode message
@@ -143,14 +143,14 @@ function run_signer_bug_fix_tests() {
         DEMO_OUTPUT=$(java -jar target/blockchain-cli.jar add-block "Demo mode test" --signer "$SIGNER_TEST_USER" 2>&1)
         if echo "$DEMO_OUTPUT" | grep -qi "demo"; then
             print_success "--signer shows demo mode message correctly"
-            ((TESTS_PASSED++))
+            count_test_passed
         else
             print_error "--signer demo mode message not found"
-            ((TESTS_FAILED++))
+            count_test_failed
         fi
     else
         print_error "Failed to create test user for --signer tests"
-        ((TESTS_FAILED++))
+        count_test_failed
     fi
     
     # Test 4: Verify --signer with non-existent user fails gracefully
@@ -158,10 +158,10 @@ function run_signer_bug_fix_tests() {
     NON_EXISTENT_OUTPUT=$(java -jar target/blockchain-cli.jar add-block "Test with fake signer" --signer "NonExistentUser123" 2>&1)
     if echo "$NON_EXISTENT_OUTPUT" | grep -qi "not found"; then
         print_success "--signer with non-existent user fails gracefully"
-        ((TESTS_PASSED++))
+        count_test_passed
     else
         print_error "--signer with non-existent user should show 'not found' error"
-        ((TESTS_FAILED++))
+        count_test_failed
     fi
     
     # Test 5: Verify proper error when no signing method specified
@@ -169,10 +169,10 @@ function run_signer_bug_fix_tests() {
     NO_METHOD_OUTPUT=$(java -jar target/blockchain-cli.jar add-block "Test no method" 2>&1)
     if echo "$NO_METHOD_OUTPUT" | grep -qi "signing method"; then
         print_success "Proper error shown when no signing method specified"
-        ((TESTS_PASSED++))
+        count_test_passed
     else
         print_error "Should show 'signing method' error when no method specified"
-        ((TESTS_FAILED++))
+        count_test_failed
     fi
     
     print_info "✅ --signer bug fix verification completed"
