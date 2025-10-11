@@ -483,7 +483,7 @@ done
 
 ## 🔗 Related Documents
 
-- [Main README](README.md) - Getting started
+- [Main README](../README.md) - Getting started
 - [Examples](EXAMPLES.md) - Practical use cases
 - [Docker Guide](DOCKER_GUIDE.md) - Container deployment
 - [Troubleshooting](TROUBLESHOOTING.md) - Problem resolution

@@ -60,148 +60,135 @@ public class AddKeyCommandTest {
         // Use ExitUtil.getLastExitCode() when exit is disabled
         int realExitCode = ExitUtil.isExitDisabled() ? ExitUtil.getLastExitCode() : exitCode;
         assertEquals(0, realExitCode, "Should succeed when generating key for valid user");
-        
+
         String output = outContent.toString();
-        assertTrue(output.contains("key") || output.contains("success") || 
-                  output.contains("added") || output.contains("TestUser") || 
-                  output.contains("generated"),
-                  "Output should contain relevant keywords. Output: " + output);
+        // Shows: "✅ Authorized key added successfully!"
+        assertTrue(output.contains("Authorized key added successfully"),
+                  "Should show success message: " + output);
     }
 
     @Test
     void testAddKeyWithGenerateAndStorePrivate() {
         // Save original System.in
         InputStream originalIn = System.in;
-        
+
         try {
             // Create a stream with the password input (password + confirmation)
             String simulatedInput = "testPassword123\ntestPassword123\n";
             ByteArrayInputStream testIn = new ByteArrayInputStream(simulatedInput.getBytes());
             System.setIn(testIn);
-            
+
             // Execute command with store-private flag
             int exitCode = cli.execute("SecureTestUser", "--generate", "--store-private");
-            
+
             // Check exit code
             int realExitCode = ExitUtil.isExitDisabled() ? ExitUtil.getLastExitCode() : exitCode;
             assertEquals(0, realExitCode, "Should succeed when generating key with store-private option");
-            
-            // Verify output contains expected messages
+
+            // Verify output shows success
             String output = outContent.toString();
-            assertTrue(output.contains("stored") || output.contains("secure") || 
-                      output.contains("private") || output.contains("SecureTestUser"),
-                      "Output should indicate private key was stored. Output: " + output);
-            
+            assertTrue(output.contains("Authorized key added successfully"),
+                      "Should show success message: " + output);
+
         } finally {
             // Restore original System.in
             System.setIn(originalIn);
         }
     }
 
-    @Test 
+    @Test
     void testAddKeyMissingName() {
         int exitCode = cli.execute("--generate");
-        
+
         String output = outContent.toString();
         String errorOutput = errContent.toString();
         int realExitCode = ExitUtil.isExitDisabled() ? ExitUtil.getLastExitCode() : exitCode;
-        
-        // Based on AddKeyCommand logic, it should fail when ownerName is null
-        // But PicoCLI might show help message instead of executing the command
-        if (realExitCode == 0) {
-            // If it succeeded, PicoCLI likely showed help instead of executing
-            String combinedOutput = output + errorOutput;
-            assertTrue(combinedOutput.contains("help") || combinedOutput.contains("Usage") || 
-                      combinedOutput.contains("missing") || combinedOutput.contains("required") ||
-                      combinedOutput.contains("description") || combinedOutput.contains("add-key"),
-                      "If successful, should show help or missing parameter message. Combined output: " + combinedOutput);
-        } else {
-            // If it failed as expected, verify it's the right kind of failure
-            assertEquals(1, realExitCode, "Should fail with exit code 1 when no name is provided");
-            assertTrue(errorOutput.contains("empty") || errorOutput.contains("required") || 
-                      errorOutput.contains("missing") || errorOutput.contains("name"),
-                      "Error should mention missing name. Error: " + errorOutput);
-        }
+
+        // PicoCLI shows missing parameter error with exit code 0
+        assertEquals(0, realExitCode, "PicoCLI returns 0 for parameter errors");
+        String combinedOutput = output + errorOutput;
+        assertTrue(combinedOutput.contains("Missing required parameter"),
+                  "Should show missing parameter error: " + combinedOutput);
     }
 
     @Test
     void testAddKeyWithGenerateAndShowPrivate() {
         int exitCode = cli.execute("TestUser", "--generate", "--show-private");
-        
+
         int realExitCode = ExitUtil.isExitDisabled() ? ExitUtil.getLastExitCode() : exitCode;
         assertEquals(0, realExitCode, "Should succeed when generating and showing private key");
-        
+
         String output = outContent.toString();
-        assertTrue(output.contains("key") || output.contains("private") || 
-                  output.contains("generated") || output.contains("TestUser"),
-                  "Output should contain key-related keywords. Output: " + output);
+        // Shows success and private key
+        assertTrue(output.contains("Authorized key added successfully"),
+                  "Should show success message: " + output);
     }
 
     @Test
     void testAddKeyWithPublicKey() {
         String samplePublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA";
         int exitCode = cli.execute("TestUser", "--public-key", samplePublicKey);
-        
+
         // May fail due to invalid key format, but should not crash
         int realExitCode = ExitUtil.isExitDisabled() ? ExitUtil.getLastExitCode() : exitCode;
-        assertTrue(realExitCode == 0 || realExitCode == 1, 
-                  "Should handle command gracefully (success or controlled failure)");
-        
-        // Should have SOME output (either in out or err)
+        assertEquals(1, realExitCode,
+                  "Should fail with invalid public key format, but was: " + realExitCode);
+
+        // Shows error about invalid key
         String combinedOutput = outContent.toString() + errContent.toString();
-        assertFalse(combinedOutput.trim().isEmpty(), 
-                   "Should have some output. Combined output: " + combinedOutput);
+        assertTrue(combinedOutput.contains("Failed to add authorized key"),
+                  "Should show error: " + combinedOutput);
     }
 
     @Test
     void testAddKeyHelp() {
         int exitCode = cli.execute("--help");
-        
-        assertTrue(exitCode >= 0 && exitCode <= 2, "Help should use standard exit codes");
+
+        assertEquals(2, exitCode, "Help returns usage information with exit code 2");
         String output = outContent.toString();
         String errorOutput = errContent.toString();
-        
-        // Should have SOME output (help text goes to either out or err)
-        assertFalse(output.isEmpty() && errorOutput.isEmpty(),
-                  "Expected help output but got: out='" + output + "', err='" + errorOutput + "'");
+
+        // Help shows usage information
+        String combinedOutput = output + errorOutput;
+        assertTrue(combinedOutput.contains("Usage:"),
+                  "Should show usage: " + combinedOutput);
     }
 
     @Test
     void testAddKeyWithJsonOutput() {
         int exitCode = cli.execute("TestUser", "--generate", "--json");
-        
+
         int realExitCode = ExitUtil.isExitDisabled() ? ExitUtil.getLastExitCode() : exitCode;
         assertEquals(0, realExitCode, "Should succeed with JSON output");
-        
+
         String output = outContent.toString();
-        assertTrue(output.contains("{") || output.contains("\"") || 
-                  output.contains("success") || output.contains("TestUser"),
-                  "JSON output should contain JSON formatting. Output: " + output);
+        assertTrue(output.contains("{"),
+                  "JSON output should contain JSON structure. Output: " + output);
     }
 
     @Test
     void testAddKeyInvalidOptions() {
         // Test with both generate and public key (should be mutually exclusive or handled gracefully)
         int exitCode = cli.execute("TestUser", "--generate", "--public-key", "somekey");
-        
+
         // Should handle invalid combination gracefully
         int realExitCode = ExitUtil.isExitDisabled() ? ExitUtil.getLastExitCode() : exitCode;
         // Either should succeed (if handled gracefully) or fail with error
-        assertTrue(realExitCode == 0 || realExitCode == 1, 
-                  "Should handle option combination gracefully");
+        assertEquals(0, realExitCode,
+                  "Options are handled gracefully (not mutually exclusive), but was: " + realExitCode);
     }
 
     @Test
     void testAddKeyStorePrivateWithPublicKey() {
         int exitCode = cli.execute("TestUser", "--public-key", "somekey", "--store-private");
-        
+
         // Should fail because you can't store private key when providing public key
         int realExitCode = ExitUtil.isExitDisabled() ? ExitUtil.getLastExitCode() : exitCode;
         assertEquals(1, realExitCode, "Should fail when trying to store private key with provided public key");
-        
+
         String errorOutput = errContent.toString();
-        assertTrue(errorOutput.contains("Cannot store private key") || 
-                  errorOutput.contains("private") || errorOutput.contains("public"),
-                  "Error should mention the conflict. Error: " + errorOutput);
+        // Shows error about invalid combination
+        assertTrue(errorOutput.contains("Cannot store private key when using provided public key"),
+                  "Should show error: " + errorOutput);
     }
 }

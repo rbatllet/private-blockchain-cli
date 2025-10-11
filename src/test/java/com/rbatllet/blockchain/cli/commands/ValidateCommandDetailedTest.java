@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -97,14 +98,18 @@ public class ValidateCommandDetailedTest {
      */
     @Test
     void testValidateChainDetailedMethod() throws Exception {
-        // Get the blocks from the blockchain
-        List<Block> blocks = blockchain.getAllBlocks();
+        // Get the blocks from the blockchain using memory-safe batch processing
+        List<Block> blocks = new ArrayList<>();
+        blockchain.processChainInBatches(batch -> {
+            blocks.addAll(batch);
+        }, 100);
+
         assertTrue(blocks.size() >= 1, "Should have at least genesis block"); // Updated to be more flexible
-        
+
         if (blocks.size() >= 2) {
             Block genesisBlock = blocks.get(0);
             Block testBlock = blocks.get(1);
-            
+
             // Verify that blocks are correctly configured
             assertEquals(0, genesisBlock.getBlockNumber(), "Genesis block should have block number 0");
             assertEquals(1, testBlock.getBlockNumber(), "Test block should have block number 1");
@@ -125,9 +130,10 @@ public class ValidateCommandDetailedTest {
         assertEquals(0, result.getRevokedBlocks(), "Should have no revoked blocks");
         assertEquals(0, result.getInvalidBlocks(), "Should have no invalid blocks");
         
-        // Verify summary is not empty
+        // Verify summary is not empty and contains meaningful content
         assertNotNull(result.getSummary(), "Summary should not be null");
-        assertFalse(result.getSummary().trim().isEmpty(), "Summary should not be empty");
+        assertTrue(result.getSummary().contains("Chain is fully valid"),
+                "Summary should contain validation info: " + result.getSummary());
     }
     
     /**
@@ -142,10 +148,11 @@ public class ValidateCommandDetailedTest {
         
         // Now create corruption by deleting an authorized key (this should create revoked blocks)
         List<com.rbatllet.blockchain.entity.AuthorizedKey> authorizedKeys = blockchain.getAuthorizedKeys();
-        assertFalse(authorizedKeys.isEmpty(), "Should have authorized keys");
-        
+        assertTrue(authorizedKeys.size() > 0, "Should have at least one authorized key");
+
         String firstKeyString = authorizedKeys.get(0).getPublicKey();
-        blockchain.dangerouslyDeleteAuthorizedKey(firstKeyString, true, "Test corruption");
+        // Updated signature: requires adminSignature and adminPublicKey
+        blockchain.dangerouslyDeleteAuthorizedKey(firstKeyString, true, "Test corruption", "test-signature", "test-admin-key");
         
         // Test validation of the corrupted chain
         ChainValidationResult corruptedResult = blockchain.validateChainDetailed();
@@ -177,14 +184,16 @@ public class ValidateCommandDetailedTest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        
+
         // Check for detailed validation output using new API
-        assertTrue(output.contains("Blockchain Validation Results") || 
-                  output.contains("Chain Status"), "Should contain validation results header");
-        assertTrue(output.contains("FULLY VALID") || 
-                  output.contains("VALID"), "Should show valid status");
-        assertTrue(output.contains("Total Blocks"), "Should show total blocks count");
-        assertTrue(output.contains("Authorized Keys"), "Should show authorized keys count");
+        assertTrue(output.contains("Blockchain Validation Results"),
+                  "Should contain validation results header: " + output);
+        assertTrue(output.contains("FULLY VALID"),
+                  "Should show fully valid status: " + output);
+        assertTrue(output.contains("Total Blocks"),
+                  "Should show total blocks count: " + output);
+        assertTrue(output.contains("Authorized Keys"),
+                  "Should show authorized keys count: " + output);
     }
     
     /**
@@ -197,16 +206,22 @@ public class ValidateCommandDetailedTest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        
+
         // Check for JSON structure with new validation fields
-        assertTrue(output.contains("{"), "Should contain JSON opening brace");
-        assertTrue(output.contains("}"), "Should contain JSON closing brace");
-        assertTrue(output.contains("\"validation\""), "Should contain validation object");
-        assertTrue(output.contains("\"isFullyCompliant\""), "Should contain isFullyCompliant field");
-        assertTrue(output.contains("\"isStructurallyIntact\""), "Should contain isStructurallyIntact field");
-        assertTrue(output.contains("\"revokedBlocks\""), "Should contain revokedBlocks field");
-        assertTrue(output.contains("\"invalidBlocks\""), "Should contain invalidBlocks field");
-        assertTrue(output.contains("\"summary\""), "Should contain summary field");
+        assertTrue(output.contains("{") && output.contains("}"),
+                  "Should contain JSON braces: " + output);
+        assertTrue(output.contains("\"validation\""),
+                  "Should contain validation object: " + output);
+        assertTrue(output.contains("\"isFullyCompliant\""),
+                  "Should contain isFullyCompliant field: " + output);
+        assertTrue(output.contains("\"isStructurallyIntact\""),
+                  "Should contain isStructurallyIntact field: " + output);
+        assertTrue(output.contains("\"revokedBlocks\""),
+                  "Should contain revokedBlocks field: " + output);
+        assertTrue(output.contains("\"invalidBlocks\""),
+                  "Should contain invalidBlocks field: " + output);
+        assertTrue(output.contains("\"summary\""),
+                  "Should contain summary field: " + output);
     }
     
     /**
@@ -219,11 +234,11 @@ public class ValidateCommandDetailedTest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        
+
         // Should show validation results
-        assertTrue(output.contains("Blockchain Validation Results") || 
-                  output.contains("Chain Status"), "Should contain validation results");
-        assertTrue(output.contains("FULLY VALID") || 
-                  output.contains("VALID"), "Should show valid status");
+        assertTrue(output.contains("Blockchain Validation Results"),
+                  "Should contain validation results header: " + output);
+        assertTrue(output.contains("FULLY VALID"),
+                  "Should show fully valid status: " + output);
     }
 }

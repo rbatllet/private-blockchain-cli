@@ -6,7 +6,7 @@
 
     <groupId>com.rbatllet</groupId>
     <artifactId>private-blockchain-cli</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <packaging>jar</packaging>
 
     <name>Private Blockchain CLI</name>
@@ -17,13 +17,14 @@
         <maven.compiler.target>21</maven.compiler.target>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <private-blockchain.version>1.0.5</private-blockchain.version>
         <picocli.version>4.7.7</picocli.version>
         <java.version>21</java.version>
-        <junit-jupiter.version>5.13.1</junit-jupiter.version>
-        <mockito.version>5.18.0</mockito.version>
-        <private-blockchain.version>1.0.4</private-blockchain.version>
+        <junit-jupiter.version>5.14.0</junit-jupiter.version>
+        <junit-platform.version>1.14.0</junit-platform.version>
+        <mockito.version>5.20.0</mockito.version>
         <slf4j.version>2.0.17</slf4j.version>
-        <log4j.version>2.25.0</log4j.version>
+        <log4j.version>2.25.2</log4j.version>
 
         <!-- Suppress Maven warnings -->
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
@@ -31,11 +32,11 @@
         <maven.wagon.http.retryHandler.count>3</maven.wagon.http.retryHandler.count>
         
         <!-- Plugin versions -->
-        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
-        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
-        <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
+        <maven-shade-plugin.version>3.6.1</maven-shade-plugin.version>
         <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
         <maven-jacoco-plugin.version>0.8.13</maven-jacoco-plugin.version>
+        <maven-exec-plugin.version>3.5.1</maven-exec-plugin.version>
     </properties>
 
     <dependencies>
@@ -79,6 +80,13 @@
             <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-console-standalone</artifactId>
+            <version>${junit-platform.version}</version>
+            <scope>test</scope>
+        </dependency>
         
         <!-- Mockito for mocking in tests -->
         <dependency>
@@ -113,23 +121,31 @@
                 </configuration>
             </plugin>
 
-            <!-- Maven Surefire Plugin for tests -->
+            <!-- Maven Exec Plugin for running tests via JUnit Platform Console Launcher -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-plugin.version}</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${maven-exec-plugin.version}</version>
                 <configuration>
-                    <argLine>
-                        @{argLine}
-                        --add-opens java.base/java.lang=ALL-UNNAMED
-                        --add-opens java.base/java.util=ALL-UNNAMED
-                        --enable-native-access=ALL-UNNAMED
-                    </argLine>
-                    <!-- Use Log4j2 test configuration -->
-                    <systemPropertyVariables>
-                        <log4j.configurationFile>log4j2-test.xml</log4j.configurationFile>
-                    </systemPropertyVariables>
+                    <!-- Default configuration for running all tests -->
+                    <executable>java</executable>
+                    <commandlineArgs>${argLine} -cp "%classpath" org.junit.platform.console.ConsoleLauncher --scan-classpath --include-classname=".*Test.*" --details=tree</commandlineArgs>
+                    <classpathScope>test</classpathScope>
+                    <systemProperties>
+                        <systemProperty>
+                            <key>log4j2.configurationFile</key>
+                            <value>classpath:${log4j2.configurationFile}</value>
+                        </systemProperty>
+                    </systemProperties>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>run-tests</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- Maven Shade Plugin for executable JAR -->
@@ -235,6 +251,13 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${maven-jacoco-plugin.version}</version>
+                <configuration>
+                    <!-- Configure exclusions for all executions -->
+                    <excludes>
+                        <!-- Exclude all demo classes -->
+                        <exclude>demo/**/*</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>default-prepare-agent</id>
@@ -264,6 +287,11 @@
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.55</minimum>
                                         </limit>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.70</minimum>
+                                        </limit>
                                     </limits>
                                 </rule>
                             </rules>
@@ -273,4 +301,25 @@
             </plugin>
         </plugins>
     </build>
+        <!-- Maven Profiles for different environments -->
+    <profiles>
+        <!-- Development profile - verbose logging -->
+        <profile>
+            <id>development</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <log4j2.configurationFile>log4j2.xml</log4j2.configurationFile>
+            </properties>
+        </profile>
+
+        <!-- Production profile - minimal logging -->
+        <profile>
+            <id>production</id>
+            <properties>
+                <log4j2.configurationFile>log4j2-production.xml</log4j2.configurationFile>
+            </properties>
+        </profile>
+    </profiles>
 </project>

@@ -6,7 +6,7 @@
 
 # Get the script directory and load common functions
 SCRIPT_DIR="$(dirname "${0:A}")"
-source "lib/common-functions.sh"
+source "$SCRIPT_DIR/lib/common-functions.sh"
 
 # Counters
 TESTS_PASSED=0

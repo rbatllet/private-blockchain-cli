@@ -1,8 +1,9 @@
-package com.rbatllet.blockchain.cli.demos;
+package demo;
 
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.entity.Block;
 import com.rbatllet.blockchain.search.SearchLevel;
+import com.rbatllet.blockchain.service.UserFriendlyEncryptionAPI;
 import com.rbatllet.blockchain.util.CryptoUtil;
 
 import java.security.KeyPair;
@@ -105,14 +106,15 @@ public class HybridSearchDemo {
             
             // Include data search
             startTime = System.nanoTime();
-            List<Block> dataResults = blockchain.searchBlocks(searchTerm, SearchLevel.INCLUDE_DATA);
+            UserFriendlyEncryptionAPI encryptionAPI = new UserFriendlyEncryptionAPI(blockchain);
+            List<Block> dataResults = encryptionAPI.searchEverything(searchTerm);
             endTime = System.nanoTime();
             long dataTime = (endTime - startTime) / 1_000_000;
             System.out.println("⚖️ INCLUDE_DATA: " + dataResults.size() + " results in " + dataTime + "ms");
             
-            // Exhaustive search
+            // Exhaustive search using advanced search
             startTime = System.nanoTime();
-            List<Block> exhaustiveResults = blockchain.searchBlocksComplete(searchTerm);
+            List<Block> exhaustiveResults = encryptionAPI.smartSearch(searchTerm);
             endTime = System.nanoTime();
             long exhaustiveTime = (endTime - startTime) / 1_000_000;
             System.out.println("🔍 EXHAUSTIVE_OFFCHAIN: " + exhaustiveResults.size() + " results in " + exhaustiveTime + "ms");
@@ -131,18 +133,20 @@ public class HybridSearchDemo {
             
             // Auto-keyword extraction demo
             System.out.println("🤖 Auto-Keyword Extraction:");
-            List<Block> allBlocks = blockchain.getAllBlocks();
-            for (Block block : allBlocks) {
-                if (block.getBlockNumber() > 0 && block.getAutoKeywords() != null && !block.getAutoKeywords().trim().isEmpty()) {
-                    System.out.println("   Block #" + block.getBlockNumber() + " auto keywords: " + block.getAutoKeywords());
+            // Use memory-safe batch processing instead of getAllBlocks()
+            blockchain.processChainInBatches(batch -> {
+                for (Block block : batch) {
+                    if (block.getBlockNumber() > 0 && block.getAutoKeywords() != null && !block.getAutoKeywords().trim().isEmpty()) {
+                        System.out.println("   Block #" + block.getBlockNumber() + " auto keywords: " + block.getAutoKeywords());
+                    }
                 }
-            }
+            }, 100);
             
             System.out.println();
             
             // Search metadata display
             System.out.println("📋 Search Metadata:");
-            List<Block> results = blockchain.searchBlocks("PATIENT", SearchLevel.INCLUDE_DATA);
+            List<Block> results = encryptionAPI.searchEverything("PATIENT");
             for (Block block : results) {
                 System.out.println("   📦 Block #" + block.getBlockNumber() + ":");
                 System.out.println("      🏷️  Manual Keywords: " + (block.getManualKeywords() != null ? block.getManualKeywords() : "none"));
@@ -272,19 +276,22 @@ public class HybridSearchDemo {
         
         long startTime = System.nanoTime();
         
+        // Use UserFriendlyEncryptionAPI for all search operations
+        UserFriendlyEncryptionAPI encryptionAPI = new UserFriendlyEncryptionAPI(blockchain);
         List<Block> results;
+        
         switch (level) {
             case FAST_ONLY:
-                results = blockchain.searchBlocksFast(searchTerm);
+                results = encryptionAPI.findEncryptedData(searchTerm);
                 break;
             case INCLUDE_DATA:
-                results = blockchain.searchBlocks(searchTerm, level);
+                results = encryptionAPI.searchEverything(searchTerm);
                 break;
             case EXHAUSTIVE_OFFCHAIN:
-                results = blockchain.searchBlocksComplete(searchTerm);
+                results = encryptionAPI.smartSearch(searchTerm);
                 break;
             default:
-                results = blockchain.searchBlocks(searchTerm, level);
+                results = encryptionAPI.searchEverything(searchTerm);
         }
         
         long endTime = System.nanoTime();

@@ -62,11 +62,11 @@ public class RollbackCommandRunTest {
     void shouldHandleMissingRequiredParameters() {
         // No parameters set (both blocksToRemove and targetBlock are null)
         rollbackCommand.run();
-        
+
         // Verify error message and exit code
         String output = errContent.toString();
-        assertTrue(output.contains("Must specify either --blocks") || 
-                   output.contains("❌ Must specify either --blocks"));
+        assertTrue(output.contains("Must specify either --blocks"),
+                  "Should show error about missing parameters. Error: " + output);
         assertEquals(2, ExitUtil.getLastExitCode());
     }
 
@@ -78,11 +78,11 @@ public class RollbackCommandRunTest {
         rollbackCommand.targetBlock = 5L;
         
         rollbackCommand.run();
-        
+
         // Verify error message and exit code
         String output = errContent.toString();
-        assertTrue(output.contains("Cannot specify both --blocks and --to-block") || 
-                   output.contains("❌ Cannot specify both --blocks and --to-block"));
+        assertTrue(output.contains("Cannot specify both --blocks and --to-block"),
+                  "Should show error about conflicting parameters. Error: " + output);
         assertEquals(2, ExitUtil.getLastExitCode());
     }
 
@@ -92,11 +92,11 @@ public class RollbackCommandRunTest {
         rollbackCommand.blocksToRemove = -1L;
         
         rollbackCommand.run();
-        
+
         // Verify error message and exit code
         String output = errContent.toString();
-        assertTrue(output.contains("Invalid block count") || 
-                   output.contains("❌ Invalid block count"));
+        assertTrue(output.contains("Number of blocks must be positive"),
+                  "Should show error about invalid block count. Error: " + output);
         assertEquals(2, ExitUtil.getLastExitCode());
     }
 
@@ -106,11 +106,11 @@ public class RollbackCommandRunTest {
         rollbackCommand.targetBlock = -1L;
         
         rollbackCommand.run();
-        
+
         // Verify error message and exit code
         String output = errContent.toString();
-        assertTrue(output.contains("Invalid target block") || 
-                   output.contains("❌ Invalid target block"));
+        assertTrue(output.contains("Target block number cannot be negative"),
+                  "Should show error about invalid target block. Error: " + output);
         assertEquals(2, ExitUtil.getLastExitCode());
     }
 
@@ -142,10 +142,10 @@ public class RollbackCommandRunTest {
         String output = outContent.toString();
         String errorOutput = errContent.toString();
         String allOutput = output + errorOutput;
-        
-        // Should have some output about the dry run
-        assertTrue(allOutput.contains("dryRun") || allOutput.contains("DRY RUN") || allOutput.contains("dry run"),
-                "Should contain dry run information. Output: " + allOutput);
+
+        // Should have JSON with dryRun: true
+        assertTrue(allOutput.contains("dryRun"),
+                "Should contain dryRun in JSON output. Output: " + allOutput);
     }
 
     @Test
@@ -175,10 +175,10 @@ public class RollbackCommandRunTest {
         String output = outContent.toString();
         String errorOutput = errContent.toString();
         String allOutput = output + errorOutput;
-        
-        // Should have some output about the dry run
-        assertTrue(allOutput.contains("DRY RUN") || allOutput.contains("dry run") || allOutput.contains("PREVIEW"),
-                "Should contain dry run information. Output: " + allOutput);
+
+        // Should have dry run mode message
+        assertTrue(allOutput.contains("DRY RUN MODE"),
+                "Should contain DRY RUN MODE message. Output: " + allOutput);
     }
 
     @Test
@@ -211,30 +211,29 @@ public class RollbackCommandRunTest {
         String output = outContent.toString();
         String errorOutput = errContent.toString();
         String allOutput = output + errorOutput;
-        
-        // Should have some output about cancellation or preview
-        assertTrue(allOutput.contains("cancelled") || allOutput.contains("PREVIEW") || allOutput.contains("WARNING"),
-                "Should contain cancellation or preview information. Output: " + allOutput);
+
+        // Should have cancellation message (user typed "no")
+        assertTrue(allOutput.contains("Operation cancelled"),
+                "Should contain operation cancelled message. Output: " + allOutput);
     }
 
     @Test
     @DisplayName("Should handle runtime exception with JSON output")
     void shouldHandleRuntimeExceptionWithJsonOutput() {
-        // We need to simulate a runtime exception during rollback
-        // Instead of using a large value, let's use a negative value that will trigger validation error
-        rollbackCommand.blocksToRemove = -5L; // Invalid value that will cause error
-        rollbackCommand.skipConfirmation = true; // Skip confirmation to reach the execution part
+        // Use negative value to trigger validation error (exitCode=2, not 1)
+        rollbackCommand.blocksToRemove = -5L; // Invalid value that will cause validation error
+        rollbackCommand.skipConfirmation = true;
         rollbackCommand.json = true;
-        
+
         rollbackCommand.run();
-        
-        // Verify exit code was set
+
+        // Verify exit code was set to 2 (parameter validation error)
         int exitCode = ExitUtil.getLastExitCode();
-        assertTrue(exitCode > 0, "Should exit with error code");
-        
-        // Check if any output was produced
+        assertEquals(2, exitCode, "Should fail with parameter validation error code, but was: " + exitCode);
+
+        // Verify error output shows validation error message
         String output = outContent.toString() + errContent.toString();
-        // Just verify we got some output, we don't need to be too specific about the format
-        assertTrue(output.length() > 0, "Should produce some output");
+        assertTrue(output.contains("Number of blocks must be positive"),
+                "Should show validation error message: " + output);
     }
 }

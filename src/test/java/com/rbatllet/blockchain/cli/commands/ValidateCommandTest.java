@@ -38,6 +38,13 @@ public class ValidateCommandTest {
         
         cli = new CommandLine(new ValidateCommand());
     }
+    
+    /**
+     * Get the real exit code considering ExitUtil state
+     */
+    private int getRealExitCode(int cliExitCode) {
+        return ExitUtil.isExitDisabled() ? ExitUtil.getLastExitCode() : cliExitCode;
+    }
 
     @AfterEach
     void tearDown() {
@@ -51,74 +58,90 @@ public class ValidateCommandTest {
     @Test
     void testBasicValidate() {
         int exitCode = cli.execute();
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("Chain validation") || output.contains("validation"));
+        assertTrue(output.contains("validation"),
+                  "Should contain validation output: " + output);
     }
 
     @Test
     void testValidateWithDetailedFlag() {
         int exitCode = cli.execute("--detailed");
-        
-        assertEquals(0, exitCode);
+        int realExitCode = getRealExitCode(exitCode);
+
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("validation") || output.contains("block"));
+        assertTrue(output.contains("Validation Report"),
+                  "Should show validation report: " + output);
     }
 
     @Test
     void testValidateWithShortDetailedFlag() {
         int exitCode = cli.execute("-d");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("validation") || output.contains("block"));
+        assertTrue(output.contains("Validation Report"),
+                  "Should produce validation output: " + output);
     }
 
     @Test
     void testValidateWithJsonFlag() {
         int exitCode = cli.execute("--json");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
         // Should contain JSON-like output
-        assertTrue(output.contains("{") || output.contains("\""));
+        assertTrue(output.contains("{"),
+                  "Should contain JSON output: " + output);
     }
 
     @Test
     void testValidateWithShortJsonFlag() {
         int exitCode = cli.execute("-j");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("{") || output.contains("\""));
+        assertTrue(output.contains("{"),
+                  "Should contain JSON output: " + output);
     }
 
     @Test
     void testValidateWithQuickFlag() {
         int exitCode = cli.execute("--quick");
-        
-        assertEquals(0, exitCode);
+        int realExitCode = getRealExitCode(exitCode);
+
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("validation") || output.contains("quick"));
+        assertTrue(output.contains("Blockchain Validation Results"),
+                  "Should produce quick validation output: " + output);
     }
 
     @Test
     void testValidateWithShortQuickFlag() {
         int exitCode = cli.execute("-q");
-        
-        assertEquals(0, exitCode);
+        int realExitCode = getRealExitCode(exitCode);
+
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("validation") || output.contains("quick"));
+        assertTrue(output.contains("Blockchain Validation Results"),
+                  "Should produce quick validation output: " + output);
     }
 
     @Test
     void testValidateWithCombinedFlags() {
         int exitCode = cli.execute("--detailed", "--json");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
-        assertFalse(output.isEmpty());
+        assertTrue(output.contains("{"),
+                  "Should contain JSON output: " + output);
     }
 
     @Test
@@ -126,12 +149,14 @@ public class ValidateCommandTest {
         // Just verify that help doesn't crash
         try {
             int exitCode = cli.execute("--help");
-            // Any reasonable exit code is acceptable for help
-            assertTrue(exitCode >= 0 && exitCode <= 3);
+            int realExitCode = getRealExitCode(exitCode);
+            // Help should succeed
+            assertEquals(0, realExitCode, "Help returns usage information with exit code 0");
             
             // Verify some output was produced
             String output = outContent.toString() + errContent.toString();
-            assertFalse(output.trim().isEmpty());
+            assertTrue(output.contains("Usage: validate"),
+                      "Should show usage text: " + output);
         } catch (Exception e) {
             // Help commands can behave differently, so just ensure no crash
             assertNotNull(e.getMessage());
@@ -141,41 +166,50 @@ public class ValidateCommandTest {
     @Test
     void testValidateWithVerboseFlag() {
         int exitCode = cli.execute("--verbose");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
-        // Should contain verbose output markers
-        assertTrue(output.contains("🔍") || output.contains("verbose") || output.contains("Starting"));
+        // Should contain verbose validation output
+        assertTrue(output.contains("🔍"),
+                  "Should contain verbose markers: " + output);
     }
 
     @Test
     void testValidateWithShortVerboseFlag() {
         int exitCode = cli.execute("-v");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
-        // Should contain verbose output markers
-        assertTrue(output.contains("🔍") || output.contains("verbose") || output.contains("Starting"));
+        // Should contain verbose validation output
+        assertTrue(output.contains("🔍"),
+                  "Should contain verbose markers: " + output);
     }
 
     @Test
     void testValidateWithDetailedAndVerbose() {
         int exitCode = cli.execute("--detailed", "--verbose");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
         // Should contain both detailed and verbose output
-        assertTrue(output.contains("validation") || output.contains("block"));
-        assertTrue(output.contains("🔍") || output.contains("verbose") || output.contains("Starting"));
+        assertTrue(output.contains("Validation Report"),
+                  "Should produce detailed and verbose output: " + output);
+        assertTrue(output.contains("🔍"),
+                  "Should contain verbose markers: " + output);
     }
 
     @Test
     void testValidateWithAllFlags() {
         int exitCode = cli.execute("-d", "-v", "-j");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
-        // Should work with all flags combined
-        assertTrue(output.contains("{") || output.contains("\"") || output.contains("validation"));
+        // Should work with all flags combined (detailed + verbose + json)
+        assertTrue(output.contains("{"),
+                  "Should contain JSON output with all flags: " + output);
     }
 }

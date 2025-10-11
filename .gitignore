@@ -123,3 +123,10 @@ javadoc/
 *~
 *.orig
 *.rej
+
+# Other files
+*.json
+tools/
+off-chain-data/
+private-keys/
+test-keys/

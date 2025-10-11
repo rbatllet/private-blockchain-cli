@@ -34,7 +34,7 @@ This CLI application provides a secure interface for managing a private blockcha
 ### Key Features
 
 ✅ **Complete Implementation** - All core commands fully working  
-✅ **Off-Chain Storage** - Automatic large data handling with AES-256-CBC encryption  
+✅ **Off-Chain Storage** - Automatic large data handling with AES-256-GCM encryption  
 ✅ **Hybrid Search** - Multi-level search: Fast, Balanced, and Exhaustive modes  
 ✅ **Modern Cryptography** - ECDSA with SHA3-256 and hierarchical key management  
 ✅ **Secure Architecture** - Cryptographic key management and validation  
@@ -147,7 +147,7 @@ java -jar blockchain-cli.jar --version
 
 Expected output:
 ```
-1.0.4
+1.0.5
 ```
 
 ### 2. View help information
@@ -335,6 +335,192 @@ java -jar blockchain-cli.jar add-block "Test data" --signer TestUser1
 
 ### Available Commands
 
+#### `encrypt` - Analyze Blockchain Encryption ✅ **NEW**
+
+Analyze and display information about blockchain encryption, encrypted blocks, and encryption statistics.
+
+```zsh
+# Show encryption statistics
+java -jar blockchain-cli.jar encrypt --stats
+
+# Search and analyze encrypted blocks
+java -jar blockchain-cli.jar encrypt "search-term" --encrypted-only
+
+# Validate encrypted blocks integrity
+java -jar blockchain-cli.jar encrypt --validate
+
+# Analyze blocks for specific username
+java -jar blockchain-cli.jar encrypt --username Alice --password mypassword
+
+# JSON output for automation
+java -jar blockchain-cli.jar encrypt --stats --json
+
+# Verbose analysis with detailed information
+java -jar blockchain-cli.jar encrypt "medical" --verbose
+```
+
+**🔐 Key Features:**
+- **Encryption Statistics**: Complete analysis of encrypted vs unencrypted blocks
+- **Content Search**: Find and analyze encrypted data with decryption support
+- **Integrity Validation**: Verify encrypted block consistency and validity
+- **Category Analysis**: Breakdown by content categories
+- **JSON Output**: Machine-readable format for automation
+
+**📊 Analysis Options:**
+
+| Option | Description | Example |
+|--------|-------------|---------|
+| `--stats` | Show comprehensive encryption statistics | `--stats` |
+| `--validate` | Validate encrypted blocks integrity | `--validate` |
+| `--encrypted-only` | Show only encrypted blocks | `--encrypted-only` |
+| `--username <user>` | Analyze blocks for specific user | `--username Alice` |
+| `--password <pwd>` | Password for decrypting content | `--password secret` |
+| `--json` | JSON format output | `--json` |
+| `--verbose` | Detailed operation information | `--verbose` |
+
+#### `search-metrics` - Search Performance Metrics ✅ **NEW**
+
+Display search performance metrics, statistics, and optimization insights.
+
+```zsh
+# Show current search metrics
+java -jar blockchain-cli.jar search-metrics
+
+# Detailed metrics breakdown
+java -jar blockchain-cli.jar search-metrics --detailed
+
+# Reset all search metrics
+java -jar blockchain-cli.jar search-metrics --reset
+
+# JSON output for monitoring systems
+java -jar blockchain-cli.jar search-metrics --json
+
+# Verbose metrics with diagnostic information
+java -jar blockchain-cli.jar search-metrics --detailed --verbose
+```
+
+#### `performance` - System Performance Metrics ✅ **NEW**
+
+Display comprehensive system performance metrics including memory, search, cache, and alert statistics.
+
+```zsh
+# Show overall performance overview
+java -jar blockchain-cli.jar performance
+
+# Show specific metric categories
+java -jar blockchain-cli.jar performance --system    # System metrics (memory, threads, health)
+java -jar blockchain-cli.jar performance --search    # Search performance metrics  
+java -jar blockchain-cli.jar performance --cache     # Cache performance and efficiency
+java -jar blockchain-cli.jar performance --alerts    # Active alerts and statistics
+java -jar blockchain-cli.jar performance --memory    # Detailed memory management
+
+# Multiple categories
+java -jar blockchain-cli.jar performance --system --search --memory
+
+# Output formats
+java -jar blockchain-cli.jar performance --json      # JSON format output
+java -jar blockchain-cli.jar performance --format json
+java -jar blockchain-cli.jar performance --detailed  # Detailed breakdown
+
+# Reset metrics  
+java -jar blockchain-cli.jar performance --reset           # Reset all metrics
+java -jar blockchain-cli.jar performance --reset-search    # Reset only search metrics
+java -jar blockchain-cli.jar performance --reset-alerts    # Reset only alert statistics
+
+# Monitoring integration
+java -jar blockchain-cli.jar performance --json | jq '.performanceOverview.systemHealth'
+```
+
+#### `config` - Configuration Management ✅ **NEW**
+
+Manage CLI configuration settings, profiles, and preferences with persistent storage.
+
+```zsh
+# Show current configuration
+java -jar blockchain-cli.jar config show
+java -jar blockchain-cli.jar config show --detailed
+java -jar blockchain-cli.jar config show --json
+
+# Configuration profiles
+java -jar blockchain-cli.jar config profiles                           # Show available profiles
+java -jar blockchain-cli.jar config apply-profile --profile development  # Development settings
+java -jar blockchain-cli.jar config apply-profile --profile production   # Production settings  
+java -jar blockchain-cli.jar config apply-profile --profile performance  # Performance optimized
+java -jar blockchain-cli.jar config apply-profile --profile testing      # Testing environment
+
+# Set individual configuration values
+java -jar blockchain-cli.jar config set --key search.limit --value 200
+java -jar blockchain-cli.jar config set --key verbose.mode --value true
+java -jar blockchain-cli.jar config set --key output.format --value json
+java -jar blockchain-cli.jar config set --key offchain.threshold --value 1048576  # 1MB
+
+# Custom properties
+java -jar blockchain-cli.jar config set --key custom.theme --value dark
+java -jar blockchain-cli.jar config set --key custom.user_preference --value detailed
+
+# Export and import configurations
+java -jar blockchain-cli.jar config export --file my-config.properties
+java -jar blockchain-cli.jar config import --file backup-config.properties
+
+# Reset to defaults
+java -jar blockchain-cli.jar config reset
+```
+
+**⚙️ Configuration Features:**
+- **Persistent Storage**: Configuration saved in `~/.blockchain-cli/config.properties`
+- **Multiple Profiles**: Development, production, performance, and testing presets
+- **Individual Settings**: Fine-grained control over all CLI parameters
+- **Custom Properties**: Add your own key-value pairs for extensions
+- **Export/Import**: Backup and share configurations easily
+- **Encryption Integration**: Includes encryption algorithm settings
+- **JSON Support**: Machine-readable configuration output
+
+**📋 Available Configuration Keys:**
+```zsh
+# Basic Settings
+output.format          # text, json, csv
+search.limit          # 1-10000 results
+verbose.mode          # true, false
+detailed.output       # true, false
+
+# Search Settings  
+search.type.default   # SIMPLE, SECURE, INTELLIGENT, ADVANCED
+search.level.default  # FAST_ONLY, INCLUDE_DATA, EXHAUSTIVE_OFFCHAIN
+max.results          # 1-10000 maximum results
+
+# System Settings
+offchain.threshold    # bytes for off-chain storage
+log.level            # TRACE, DEBUG, INFO, WARN, ERROR  
+command.timeout      # 10-3600 seconds
+
+# Feature Settings
+enable.metrics       # true, false
+auto.cleanup         # true, false
+require.confirmation # true, false
+enable.audit.log     # true, false
+
+# Custom Properties
+custom.<key>         # any custom value
+```
+
+**📈 Metrics Features:**
+- **Performance Tracking**: Average response times by search type
+- **Cache Statistics**: Hit rates and efficiency metrics
+- **Search Type Analysis**: Breakdown by SIMPLE, SECURE, INTELLIGENT, ADVANCED
+- **Optimization Insights**: Recommendations for better performance
+- **Reset Capability**: Clear metrics for fresh analysis
+
+**🔍 Metrics Information:**
+
+| Metric | Description |
+|--------|-------------|
+| **Total Searches** | Number of search operations performed |
+| **Average Time** | Mean response time across all searches |
+| **Cache Hit Rate** | Percentage of searches served from cache |
+| **Search Types** | Breakdown by SIMPLE/SECURE/INTELLIGENT/ADVANCED |
+| **Min/Max Times** | Fastest and slowest search operations |
+| **Result Counts** | Average number of results per search |
+
 #### `status` - Show Blockchain Status ✅
 
 Display current blockchain statistics and health information.
@@ -448,30 +634,80 @@ java -jar blockchain-cli.jar manage-keys --list --json
 - ✅ **Secure input** hides passwords during entry
 - ✅ **Confirmation prompts** prevent accidental deletion
 
-#### `add-block` - Add New Block ✅
+#### `add-block` - Add New Block ✅ **ENHANCED**
 
-Add a new block to the blockchain. Requires an authorized key for signing.
+Add a new block to the blockchain with advanced options including recipient encryption, custom metadata, and modern API integration.
 
 ```zsh
-# Method 1: Use existing authorized signer (RECOMMENDED)
-java -jar blockchain-cli.jar add-block "Transaction data" --signer Alice
+# Basic block creation
+java -jar blockchain-cli.jar add-block "Transaction data" --username Alice
 
-# Method 2: Generate new key automatically
+# 🔥 NEW: Recipient encryption (public key encryption)
+java -jar blockchain-cli.jar add-block "Confidential report" --recipient alice --detailed
+
+# 🔥 NEW: Custom metadata for enhanced tracking
+java -jar blockchain-cli.jar add-block "Project documentation" \
+  --metadata author="Bob Smith" \
+  --metadata department="R&D" \
+  --metadata version="2.1.0" \
+  --category PROJECT
+
+# 🔥 NEW: Complete example with all new features
+java -jar blockchain-cli.jar add-block "Q4 Financial Report" \
+  --recipient cfo \
+  --metadata department="Finance" \
+  --metadata quarter="Q4" \
+  --metadata confidentiality="HIGH" \
+  --category FINANCIAL \
+  --keywords "quarterly,report,finance,2024" \
+  --username analyst_bob \
+  --detailed \
+  --verbose
+
+# Encrypted block creation (password-based encryption)
+java -jar blockchain-cli.jar add-block "Confidential data" --username Alice --password mypassword
+
+# Block with off-chain control
+java -jar blockchain-cli.jar add-block "Large dataset" --off-chain --category DATA
+
+# Enhanced options with JSON output
+java -jar blockchain-cli.jar add-block "System update" --username Admin --json --detailed
+
+# Legacy methods (still fully supported)
+java -jar blockchain-cli.jar add-block "Legacy transaction" --signer Alice
 java -jar blockchain-cli.jar add-block "System update" --generate-key
-
-# Method 3: Load from key file (fully implemented)
 java -jar blockchain-cli.jar add-block "Secure data" --key-file alice.pem
 
-# NEW Method 4: Read content from external file
+# File input support
 echo "Patient medical record data" > record.txt
 java -jar blockchain-cli.jar add-block --file record.txt --generate-key
-
-# File input with keywords and categories
-java -jar blockchain-cli.jar add-block --file large-report.txt \
-    --keywords "REPORT,Q1-2024,FINANCE" \
-    --category "FINANCE" \
-    --signer Manager
 ```
+
+**🔥 New Features (v1.0.5+):**
+- **Recipient Encryption**: `--recipient <username>` for public key encryption
+- **Custom Metadata**: `--metadata key=value` for enhanced tracking (multiple allowed)
+- **Content Categorization**: `--category <category>` for organized classification
+- **Keyword Tagging**: `--keywords <keywords>` for enhanced searchability
+- **Off-chain Control**: `--off-chain` and `--off-chain-file` options
+
+**🔐 Enhanced Features:**
+- **Modern API Integration**: Uses UserFriendlyEncryptionAPI for better encryption handling
+- **Automatic Encryption**: Blocks encrypted when password or recipient is provided
+- **Username Management**: Better user identification and management
+- **Identifier Support**: Enhanced block searchability with identifiers
+- **Detailed Output**: Shows recipient info, custom metadata, and enhanced details
+- **Backward Compatibility**: All legacy options still work
+
+**📝 Enhanced Options:**
+
+| Option | Description | Example | Notes |
+|--------|-------------|---------|-------|
+| `--username <user>` | Username for block creation | `--username Alice` | Modern API method |
+| `--password <pwd>` | Password for encryption (enables encryption) | `--password secret` | Automatic encryption |
+| `--identifier <id>` | Identifier for searchability | `--identifier PATIENT-001` | Helps with searches |
+| `--json` | JSON format output | `--json` | Machine-readable |
+| `--detailed` | Show detailed block information | `--detailed` | Complete creation details |
+| `--verbose` | Verbose operation logging | `--verbose` | Detailed process info |
 
 **📄 Input Methods:**
 
@@ -604,20 +840,61 @@ java -jar blockchain-cli.jar import backup.json --backup
 java -jar blockchain-cli.jar import data.json --dry-run
 ```
 
-#### `search` - Search Blocks ✅
+#### `search` - Search Blocks ✅ **ENHANCED**
 
-Search for blocks by various criteria with powerful filtering options.
+Search for blocks with advanced search types and comprehensive filtering options using modern search APIs.
 
 ```zsh
-# Search by content (case-insensitive)
+# Simple search (fast public metadata search - default)
 java -jar blockchain-cli.jar search "transaction"
 
-# Search by date range
+# Secure search with password for encrypted content
+java -jar blockchain-cli.jar search "confidential" --type SECURE --password mypassword
+
+# Intelligent adaptive search
+java -jar blockchain-cli.jar search "medical data" --type INTELLIGENT
+
+# Advanced full-featured search
+java -jar blockchain-cli.jar search "contract" --type ADVANCED --password secret
+
+# Special searches
+java -jar blockchain-cli.jar search --hash "block-hash-here"
+java -jar blockchain-cli.jar search --block-number 42
+java -jar blockchain-cli.jar search --category MEDICAL --limit 10
+java -jar blockchain-cli.jar search --encrypted-only --username Alice
+
+# Date range search
 java -jar blockchain-cli.jar search --date-from 2025-01-01 --date-to 2025-01-31
 
-# Search with result limit and JSON output
-java -jar blockchain-cli.jar search "data" --limit 10 --json
+# JSON output for automation
+java -jar blockchain-cli.jar search "data" --limit 10 --json --verbose
 ```
+
+**🔍 Search Types:**
+
+| Type | Description | Use Case | Performance |
+|------|-------------|----------|------------|
+| `SIMPLE` | Fast public metadata search (default) | Quick lookups, identifiers | ~10-20ms |
+| `SECURE` | Encrypted content search | Confidential data search | ~30-100ms |
+| `INTELLIGENT` | Adaptive search strategy | Best automatic choice | Variable |
+| `ADVANCED` | Full-featured search with level control | Complete analysis | ~50-300ms |
+
+**🎯 Search Options:**
+
+| Option | Description | Example |
+|--------|-------------|---------|
+| `--type <TYPE>` | Search type: SIMPLE, SECURE, INTELLIGENT, ADVANCED | `--type SECURE` |
+| `--password <pwd>` | Password for encrypted content (required for SECURE) | `--password secret` |
+| `--hash <hash>` | Search by exact block hash | `--hash abc123...` |
+| `--block-number <n>` | Search by block number | `--block-number 42` |
+| `--category <cat>` | Search by content category | `--category MEDICAL` |
+| `--encrypted-only` | Show only encrypted blocks | `--encrypted-only` |
+| `--username <user>` | Filter by username | `--username Alice` |
+| `--limit <n>` | Limit number of results | `--limit 50` |
+| `--date-from/--date-to` | Date range filter (yyyy-MM-dd) | `--date-from 2025-01-01` |
+| `--json` | JSON format output | `--json` |
+| `--detailed` | Show detailed block information | `--detailed` |
+| `--verbose` | Verbose operation logging | `--verbose` |
 
 #### `rollback` - Rollback Blockchain ✅
 
@@ -827,7 +1104,7 @@ All commands have been thoroughly tested and verified:
 
 ```zsh
 # Core functionality ✅
-java -jar blockchain-cli.jar --version              # Returns: 1.0.4
+java -jar blockchain-cli.jar --version              # Returns: 1.0.5
 java -jar blockchain-cli.jar --help                 # Shows comprehensive help
 java -jar blockchain-cli.jar status                 # Shows blockchain status
 java -jar blockchain-cli.jar validate               # Full chain validation
@@ -912,7 +1189,7 @@ mvn test -Dtest=RollbackCommandTest
 The CLI automatically handles large data with seamless off-chain storage:
 
 - **Automatic Detection**: Data >512KB automatically stored off-chain
-- **AES-256-CBC Encryption**: All off-chain data is encrypted
+- **AES-256-GCM Encryption**: All off-chain data is encrypted
 - **Transparent Access**: API remains consistent regardless of storage location
 - **Integrity Validation**: Complete hash verification and signature validation
 - **Performance**: Large files don't impact blockchain performance
@@ -927,7 +1204,7 @@ java -jar blockchain-cli.jar add-block "$(cat large_document.txt)" \
     --category "TECHNICAL" \
     --generate-key
 📊 Large data detected (1.2 MB). Will store off-chain.
-🔐 Encrypting data with AES-256-CBC...
+🔐 Encrypting data with AES-256-GCM...
 💾 Data stored off-chain. Block contains reference: OFF_CHAIN_REF:abc123...
 ```
 
@@ -1227,7 +1504,7 @@ For the most up-to-date information and detailed documentation, please refer to 
 - 🏢 See [docs/ENTERPRISE_GUIDE.md](docs/ENTERPRISE_GUIDE.md) for advanced setups
 
 ### Project Information
-- **Version**: 1.0.4
+- **Version**: 1.0.5
 - **Java Compatibility**: 21+
 - **License**: MIT License - see [LICENSE](LICENSE) file for details
 - **Build Status**: All tests passing ✅

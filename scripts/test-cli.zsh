@@ -84,7 +84,7 @@ function cleanup() {
 # Main execution starts here
 print_header "🚀 Enhanced Blockchain CLI Build and Test Process"
 
-cd "$SCRIPT_DIR"
+cd "$SCRIPT_DIR/.."
 echo "📁 Working directory: $(pwd)"
 echo ""
 
@@ -163,6 +163,8 @@ run_key_management_tests
 run_block_management_tests
 run_signer_bug_fix_tests
 run_search_tests
+run_encrypt_tests
+run_search_metrics_tests
 run_export_import_tests
 run_rollback_tests
 run_help_tests
@@ -227,6 +229,13 @@ if [[ $TESTS_FAILED -eq 0 ]]; then
     echo "   java -jar target/blockchain-cli.jar search \"keyword\" --fast"
     echo "   java -jar target/blockchain-cli.jar search \"keyword\" --complete --detailed"
     echo "   java -jar target/blockchain-cli.jar search --category MEDICAL --limit 10"
+    echo "   # Encryption analysis examples"
+    echo "   java -jar target/blockchain-cli.jar encrypt --stats --json"
+    echo "   java -jar target/blockchain-cli.jar encrypt --encrypted-only --detailed"
+    echo "   java -jar target/blockchain-cli.jar encrypt \"medical\" --username Doctor"
+    echo "   # Search metrics examples"
+    echo "   java -jar target/blockchain-cli.jar search-metrics --detailed"
+    echo "   java -jar target/blockchain-cli.jar search-metrics --json"
     echo ""
     echo "🔗 For all commands: java -jar target/blockchain-cli.jar --help"
     

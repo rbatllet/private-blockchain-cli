@@ -215,7 +215,7 @@ STRESS_TESTS=true ./test-cli.sh
 
 ### 💾 Off-Chain Storage
 - **Automatic Detection**: Data > 512KB goes off-chain
-- **Encryption**: AES-256-CBC for off-chain data
+- **Encryption**: AES-256-GCM for off-chain data
 - **Integrity**: Complete validation with hash and signature
 - **Transparency**: Consistent API regardless of storage
 

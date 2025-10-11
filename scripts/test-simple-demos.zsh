@@ -3,6 +3,15 @@
 # Simple Test Demos for Enhanced CLI
 # This is a simplified version to test the CLI functionality
 
+# Get script directory and navigate to project root
+SCRIPT_DIR="${0:A:h}"
+if [[ "$(basename "$SCRIPT_DIR")" == "scripts" ]]; then
+    PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+else
+    PROJECT_ROOT="$SCRIPT_DIR"
+fi
+cd "$PROJECT_ROOT"
+
 # Colors
 GREEN='\033[0;32m'
 RED='\033[0;31m'

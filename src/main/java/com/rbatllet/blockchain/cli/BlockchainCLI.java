@@ -13,7 +13,7 @@ import com.rbatllet.blockchain.util.ExitUtil;
  */
 @Command(name = "blockchain", 
          description = "Private Blockchain Command Line Interface",
-         version = "1.0.4",
+         version = "1.0.5",
          subcommands = {
              StatusCommand.class,
              ValidateCommand.class,
@@ -24,6 +24,11 @@ import com.rbatllet.blockchain.util.ExitUtil;
              ExportCommand.class,
              ImportCommand.class,
              SearchCommand.class,
+             EncryptCommand.class,
+             SearchMetricsCommand.class,
+             PerformanceCommand.class,
+             ConfigCommand.class,
+             OffChainCommand.class,
              RollbackCommand.class,
              HelpCommand.class
          })
@@ -72,7 +77,7 @@ public class BlockchainCLI implements Runnable {
     @Override
     public void run() {
         // Default behavior when no subcommand is specified
-        System.out.println("🔗 Private Blockchain CLI v1.0.4");
+        System.out.println("🔗 Private Blockchain CLI v1.0.5");
         System.out.println();
         System.out.println("Usage: blockchain [COMMAND] [OPTIONS]");
         System.out.println();
@@ -85,6 +90,11 @@ public class BlockchainCLI implements Runnable {
         System.out.println("  export      Export blockchain to file");
         System.out.println("  import      Import blockchain from file");
         System.out.println("  search      Search blocks by content, hash, or date");
+        System.out.println("  encrypt     Analyze blockchain encryption and encrypted blocks");
+        System.out.println("  search-metrics Display search performance metrics and statistics");
+        System.out.println("  performance Display comprehensive system performance metrics");
+        System.out.println("  config      Manage CLI configuration settings and profiles");
+        System.out.println("  offchain    Manage off-chain data storage and retrieval");
         System.out.println("  rollback    Remove recent blocks (DANGEROUS)");
         System.out.println("  help        Show detailed help");
         System.out.println();

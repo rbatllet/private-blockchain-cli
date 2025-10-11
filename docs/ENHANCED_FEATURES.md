@@ -5,6 +5,8 @@ This guide provides comprehensive documentation for the enhanced features in the
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
+- [New Commands](#-new-commands)
+- [Enhanced Commands](#-enhanced-commands)
 - [Off-Chain Storage](#-off-chain-storage)
 - [Hybrid Search System](#-hybrid-search-system)
 - [Keywords & Categories](#-keywords--categories)
@@ -20,11 +22,15 @@ The enhanced features extend the CLI's capabilities while maintaining complete b
 
 ### Core Enhancements
 
-1. **💾 Off-Chain Storage**: Automatic handling of large data with encryption
-2. **🔍 Hybrid Search**: Multi-level search for optimal performance
-3. **🏷️ Keywords & Categories**: Intelligent content organization
-4. **🧪 Enhanced Testing**: Comprehensive test coverage
-5. **🎬 Interactive Demos**: Real-world demonstrations
+1. **🔐 Encryption Analysis**: New `encrypt` command for comprehensive encryption analysis
+2. **📊 Search Metrics**: New `search-metrics` command for performance monitoring
+3. **🔍 Enhanced Search**: Modern search APIs with multiple search types
+4. **📝 Enhanced Block Creation**: Improved `add-block` command with encryption support
+5. **💾 Off-Chain Storage**: Automatic handling of large data with encryption
+6. **🔍 Hybrid Search**: Multi-level search for optimal performance
+7. **🏷️ Keywords & Categories**: Intelligent content organization
+8. **🧪 Enhanced Testing**: Comprehensive test coverage
+9. **🎬 Interactive Demos**: Real-world demonstrations
 
 ### Design Principles
 
@@ -32,6 +38,298 @@ The enhanced features extend the CLI's capabilities while maintaining complete b
 - **Secure**: All data is protected with AES-256 encryption
 - **Scalable**: Performance optimized for different use cases
 - **Compatible**: All existing functionality preserved
+
+## 🔐 New Commands
+
+### `encrypt` Command
+
+The new `encrypt` command provides comprehensive encryption analysis and management capabilities.
+
+#### Key Features
+- **Encryption Statistics**: Complete analysis of encrypted vs unencrypted blocks
+- **Content Search**: Find and analyze encrypted data with decryption support
+- **Integrity Validation**: Verify encrypted block consistency and validity
+- **Category Analysis**: Breakdown by content categories
+- **JSON Output**: Machine-readable format for automation
+
+#### Usage Examples
+```bash
+# Show encryption statistics
+java -jar blockchain-cli.jar encrypt --stats
+
+# Search and analyze encrypted blocks
+java -jar blockchain-cli.jar encrypt "medical" --encrypted-only --verbose
+
+# Validate encrypted blocks integrity
+java -jar blockchain-cli.jar encrypt --validate
+
+# Decrypt and analyze with password
+java -jar blockchain-cli.jar encrypt "confidential" --username Alice --password secret
+```
+
+#### Technical Integration
+- Uses `UserFriendlyEncryptionAPI` for encryption operations
+- Integrates with off-chain storage validation
+- Provides detailed encryption analysis reports
+- Supports both text and JSON output formats
+
+### `search-metrics` Command
+
+The new `search-metrics` command provides detailed performance analysis of search operations.
+
+### `performance` Command
+
+The new `performance` command provides comprehensive system performance monitoring and analysis capabilities.
+
+#### Key Features
+- **System Performance**: Memory usage, thread management, health scores
+- **Search Performance**: Response times, cache efficiency, search type analysis
+- **Memory Management**: Detailed memory statistics and cleanup monitoring
+- **Alert Monitoring**: Active alerts, statistics by severity and type
+- **Cache Analysis**: Hit rates, efficiency metrics, optimization insights
+- **Multiple Formats**: Text, JSON, CSV output formats
+- **Reset Capabilities**: Selective or complete metrics reset
+- **Real-time Monitoring**: Current system status and trends
+
+#### Usage Examples
+```bash
+# Show overall performance overview
+java -jar blockchain-cli.jar performance
+
+# Show specific metric categories
+java -jar blockchain-cli.jar performance --system
+java -jar blockchain-cli.jar performance --search
+java -jar blockchain-cli.jar performance --memory
+java -jar blockchain-cli.jar performance --cache
+java -jar blockchain-cli.jar performance --alerts
+
+# Multiple categories
+java -jar blockchain-cli.jar performance --system --search --memory
+
+# Output formats
+java -jar blockchain-cli.jar performance --json
+java -jar blockchain-cli.jar performance --format json
+java -jar blockchain-cli.jar performance --detailed
+
+# Reset operations
+java -jar blockchain-cli.jar performance --reset
+java -jar blockchain-cli.jar performance --reset-search
+java -jar blockchain-cli.jar performance --reset-alerts
+
+# Monitoring integration
+java -jar blockchain-cli.jar performance --json | jq '.performanceOverview.systemHealth'
+```
+
+#### Performance Categories
+
+1. **System Metrics (--system)**
+   - Memory usage, free/used/max memory
+   - Thread management statistics
+   - JVM performance indicators
+   - Overall system health score
+   - Service status monitoring
+
+2. **Search Metrics (--search)**
+   - Search performance by type (SIMPLE, SECURE, INTELLIGENT, ADVANCED)
+   - Average, min, max response times
+   - Performance insights and recommendations
+   - Search type breakdown and analysis
+
+3. **Cache Metrics (--cache)**
+   - Cache hit/miss ratios
+   - Efficiency metrics by search type
+   - Cache optimization insights
+   - Performance correlation analysis
+
+4. **Alert Metrics (--alerts)**
+   - Active alerts by severity (CRITICAL, WARNING, INFO)
+   - Alert statistics and trends
+   - Performance and health alerts
+   - Alert frequency analysis
+
+5. **Memory Metrics (--memory)**
+   - Detailed memory management statistics
+   - Memory usage visualization with bars
+   - Garbage collection statistics
+   - Memory health assessment
+   - Cleanup recommendations
+
+#### Integration Features
+- Uses `PerformanceMetricsService` for comprehensive system monitoring
+- Integrates with `SearchMetrics` for search-specific analysis
+- Connects to `MemoryManagementService` for memory statistics
+- Utilizes `AlertService` for alert monitoring
+- Provides machine-readable JSON output for external tools
+- **Search Type Analysis**: Breakdown by SIMPLE, SECURE, INTELLIGENT, ADVANCED
+- **Optimization Insights**: Recommendations for better performance
+- **Reset Capability**: Clear metrics for fresh analysis
+
+#### Usage Examples
+```bash
+# Show current search metrics
+java -jar blockchain-cli.jar search-metrics
+
+# Detailed metrics breakdown
+java -jar blockchain-cli.jar search-metrics --detailed
+
+# Reset metrics for fresh analysis
+java -jar blockchain-cli.jar search-metrics --reset
+
+# JSON output for monitoring systems
+java -jar blockchain-cli.jar search-metrics --json
+```
+
+#### Performance Metrics
+- **Total Searches**: Number of search operations performed
+- **Average Time**: Mean response time across all searches
+- **Cache Hit Rate**: Percentage of searches served from cache
+- **Search Types**: Breakdown by SIMPLE/SECURE/INTELLIGENT/ADVANCED
+- **Min/Max Times**: Fastest and slowest search operations
+
+## 🔍 Enhanced Commands
+
+### Enhanced `search` Command
+
+The `search` command has been significantly enhanced with modern search APIs and multiple search types.
+
+#### New Search Types
+1. **SIMPLE**: Fast public metadata search (default) - ~10-20ms
+2. **SECURE**: Encrypted content search (requires password) - ~30-100ms
+3. **INTELLIGENT**: Adaptive search strategy - Variable performance
+4. **ADVANCED**: Full-featured search with level control - ~50-300ms
+
+#### New Options
+```bash
+# Search type selection
+--type SIMPLE|SECURE|INTELLIGENT|ADVANCED
+
+# Enhanced filtering
+--hash <block-hash>         # Search by exact hash
+--block-number <number>     # Search by block number
+--encrypted-only            # Show only encrypted blocks
+--username <user>           # Filter by username
+--password <password>       # Password for encrypted content
+
+# Output options
+--json                      # JSON format output
+--detailed                  # Show detailed information
+--verbose                   # Verbose operation logging
+```
+
+#### Integration Features
+- Uses `SearchSpecialistAPI` for modern search capabilities
+- Integrates with `UserFriendlyEncryptionAPI` for encrypted content
+- Provides performance metrics integration
+- Supports both legacy and modern search patterns
+
+### Enhanced `add-block` Command
+
+The `add-block` command has been enhanced with modern API integration and encryption support.
+
+#### New Features
+- **Modern API Integration**: Uses `UserFriendlyEncryptionAPI`
+- **Automatic Encryption**: Blocks encrypted when password provided
+- **🔥 Recipient Encryption**: Public key encryption for specific users
+- **🔥 Custom Metadata**: Key-value pairs for enhanced block tracking
+- **Content Categorization**: Organized content classification
+- **Keyword Tagging**: Enhanced searchability with manual keywords
+- **Off-chain Control**: Manual control over off-chain storage
+- **Username Management**: Better user identification
+- **Identifier Support**: Enhanced block searchability
+- **Detailed Output**: Comprehensive creation information
+
+#### New Options
+```bash
+# Modern API options
+--username <user>           # Username for block creation
+--password <password>       # Password for encryption (enables encryption)
+--identifier <identifier>   # Identifier for searchability
+
+# 🔥 NEW: Recipient encryption and custom metadata (v1.0.5+)
+-r, --recipient <username>  # Recipient username for public key encryption
+-m, --metadata <key=value>  # Custom metadata (can be used multiple times)
+-c, --category <category>   # Content category for the block
+-k, --keywords <keywords>   # Keywords for the block (comma-separated)
+
+# Off-chain storage options
+--off-chain                 # Force off-chain storage
+--off-chain-file <path>     # File path for off-chain storage
+
+# Enhanced output
+--json                      # JSON format output
+--detailed                  # Show detailed block information
+--verbose                   # Verbose operation logging
+```
+
+#### API Integration
+```java
+// Enhanced block creation with ALL new options
+UserFriendlyEncryptionAPI.BlockCreationOptions options = 
+    new UserFriendlyEncryptionAPI.BlockCreationOptions()
+        .withUsername(username)
+        .withPassword(password)
+        .withIdentifier(identifier)
+        .withRecipient(recipientUsername)        // NEW: Public key encryption
+        .withCategory(category)                  // NEW: Content categorization
+        .withKeywords(keywordArray)              // NEW: Search keywords
+        .withMetadata("author", "John Doe")      // NEW: Custom metadata
+        .withMetadata("version", "2.1.0")        // NEW: Multiple metadata entries
+        .withOffChain(offChain)                  // NEW: Off-chain control
+        .withOffChainFilePath(offChainFilePath)  // NEW: Custom off-chain path
+        .withEncryption(password != null || recipientUsername != null);
+
+Block createdBlock = encryptionAPI.createBlockWithOptions(blockContent, options);
+```
+
+#### Usage Examples
+
+**Basic recipient encryption:**
+```bash
+# Encrypt block for specific recipient
+blockchain-cli add-block "Confidential report" --recipient alice --detailed
+```
+
+**Custom metadata:**
+```bash
+# Add custom metadata to track document properties
+blockchain-cli add-block "Project documentation" \
+  --metadata author="Bob Smith" \
+  --metadata department="R&D" \
+  --metadata version="2.1.0" \
+  --metadata status="draft" \
+  --category PROJECT
+```
+
+**Complete example with all options:**
+```bash
+# Advanced block creation with all features
+blockchain-cli add-block "Quarterly financial report Q4 2024" \
+  --recipient cfo \
+  --metadata department="Finance" \
+  --metadata quarter="Q4" \
+  --metadata year="2024" \
+  --metadata confidentiality="HIGH" \
+  --category FINANCIAL \
+  --keywords "quarterly,report,finance,2024" \
+  --username analyst_bob \
+  --detailed \
+  --verbose
+```
+
+#### Output Enhancements
+
+**Text output now shows:**
+- 👤 Recipient information for encrypted blocks
+- 📊 Custom metadata display
+- 📂 Content category
+- 🏷️ Keywords and auto-keywords
+- 💾 Off-chain storage details
+
+**JSON output includes:**
+- `recipient`: Username for recipient-encrypted blocks
+- `customMetadata`: Serialized custom metadata
+- `category`: Content category
+- Enhanced metadata fields
 
 ## 💾 Off-Chain Storage
 
@@ -47,7 +345,7 @@ java -jar blockchain-cli.jar add-block "Small medical record" --generate-key
 # Large data automatically goes off-chain (> 512KB)
 java -jar blockchain-cli.jar add-block "$(cat large_report.txt)" --generate-key
 📊 Large data detected (1.2 MB). Will store off-chain.
-🔐 Encrypting data with AES-256-CBC...
+🔐 Encrypting data with AES-256-GCM...
 💾 Data stored off-chain. Block contains reference: OFF_CHAIN_REF:abc123...
 ```
 
@@ -55,14 +353,14 @@ java -jar blockchain-cli.jar add-block "$(cat large_report.txt)" --generate-key
 
 1. **Size Detection**: CLI measures data size before processing
 2. **Decision Logic**: Compares against threshold (configurable)
-3. **Encryption**: AES-256-CBC encryption with random IV
+3. **Encryption**: AES-256-GCM encryption with random IV
 4. **File Storage**: Secure storage in `off-chain-data/` directory
 5. **Reference Creation**: Blockchain stores encrypted reference hash
 6. **Integrity Verification**: Complete hash and signature validation
 
 #### Security Features
 
-- **AES-256-CBC Encryption**: Enterprise-grade encryption
+- **AES-256-GCM Encryption**: Enterprise-grade encryption
 - **Unique File Names**: Time-based unique identifiers
 - **Hash Verification**: SHA-256 integrity checking
 - **Digital Signatures**: Full cryptographic verification
@@ -431,7 +729,7 @@ export SEARCH_TIMEOUT=30000         # 30 seconds
 export MAX_SEARCH_RESULTS=1000      # Default limit
 
 # Encryption settings
-export ENCRYPTION_ALGORITHM=AES     # AES-256-CBC
+export ENCRYPTION_ALGORITHM=AES     # AES-256-GCM
 export HASH_ALGORITHM=SHA256        # SHA-256
 
 # Logging level
@@ -642,7 +940,7 @@ java -jar blockchain-cli.jar validate --verbose
 ## 📚 Related Documentation
 
 - [EXAMPLES.md](EXAMPLES.md) - Comprehensive usage examples
-- [DEMO_SCRIPTS.md](../DEMO_SCRIPTS.md) - Interactive demonstrations
+- [DEMO_SCRIPTS.md](DEMO_SCRIPTS.md) - Interactive demonstrations
 - [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - General troubleshooting
 - [ENTERPRISE_GUIDE.md](ENTERPRISE_GUIDE.md) - Production deployment
 

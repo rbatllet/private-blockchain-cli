@@ -1,6 +1,6 @@
 # Build for Private Blockchain CLI
 # Define build arguments for version
-ARG VERSION=1.0.4
+ARG VERSION=1.0.5
 
 FROM openjdk:21-jdk-slim AS builder
 # Redefine ARG in the builder stage to make it available

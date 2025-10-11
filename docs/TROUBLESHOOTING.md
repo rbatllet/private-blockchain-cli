@@ -654,11 +654,11 @@ echo "✅ Performance benchmark completed"
 
 ## 🔗 Related Documents
 
-- [Main README](README.md) - Getting started
+- [Main README](../README.md) - Getting started
 - [Examples](EXAMPLES.md) - Practical use cases  
 - [Docker Guide](DOCKER_GUIDE.md) - Docker-specific troubleshooting
 - [Enterprise Guide](ENTERPRISE_GUIDE.md) - Production troubleshooting
 
 ---
 
-**Still having issues?** Return to the [main README](README.md) or check [Examples](EXAMPLES.md) for working configurations.
+**Still having issues?** Return to the [main README](../README.md) or check [Examples](EXAMPLES.md) for working configurations.

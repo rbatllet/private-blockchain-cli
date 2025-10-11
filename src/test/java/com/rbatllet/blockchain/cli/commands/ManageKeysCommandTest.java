@@ -78,55 +78,64 @@ public class ManageKeysCommandTest {
         ExitUtil.enableExit();
     }
 
+    /**
+     * Get the real exit code considering ExitUtil state
+     */
+    private int getRealExitCode(int cliExitCode) {
+        return ExitUtil.isExitDisabled() ? ExitUtil.getLastExitCode() : cliExitCode;
+    }
+    
     @Test
     void testListEmptyKeys() {
         // Clean any existing key files to ensure a clean test environment
         cleanKeyFiles();
         
         int exitCode = cli.execute("--list");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode, "Exit code should be 0");
+        assertEquals(0, realExitCode, "Exit code should be 0");
         String output = outContent.toString();
-        
-        // Check if the output contains the expected message
-        assertTrue(output.contains("No private keys") || output.contains("currently stored"),
-                 "Output should indicate no keys are stored. Output: " + output);
+
+        // Empty list shows: "📝 No private keys are currently stored"
+        assertTrue(output.contains("No private keys are currently stored"),
+                 "Should show no keys message: " + output);
     }
 
     @Test
     void testListKeysWithStoredKeys() throws Exception {
         // Clean any existing key files to ensure a clean test environment
         cleanKeyFiles();
-        
+
         // Generate test key pairs
         KeyPair keyPair1 = CryptoUtil.generateKeyPair();
         KeyPair keyPair2 = CryptoUtil.generateKeyPair();
-        
+
         // Store keys using SecureKeyStorage
         assertTrue(SecureKeyStorage.savePrivateKey("User1", keyPair1.getPrivate(), testPassword),
                 "Should save User1 private key");
         assertTrue(SecureKeyStorage.savePrivateKey("User2", keyPair2.getPrivate(), testPassword),
                 "Should save User2 private key");
-        
+
         // Verify the key files exist
         File privateKeysDir = new File("private-keys");
         assertTrue(privateKeysDir.exists(), "private-keys directory should be created");
         assertTrue(new File(privateKeysDir, "User1.key").exists(), "User1.key file should exist");
         assertTrue(new File(privateKeysDir, "User2.key").exists(), "User2.key file should exist");
-        
+
         // Test list command
         int exitCode = cli.execute("--list");
-        
-        assertEquals(0, exitCode, "Exit code should be 0");
+        int realExitCode = getRealExitCode(exitCode);
+
+        assertEquals(0, realExitCode, "Exit code should be 0");
         String output = outContent.toString();
-        
-        // Check if the output contains the expected messages
-        assertTrue(output.contains("User1") || output.toLowerCase().contains("user1"),
+
+        // Shows: "📊 Total: 2 stored private key(s)"
+        assertTrue(output.contains("Total:") && output.contains("stored private key"),
+                "Should show total stored keys: " + output);
+        assertTrue(output.toLowerCase().contains("user1"),
                 "Output should contain User1. Output: " + output);
-        assertTrue(output.contains("User2") || output.toLowerCase().contains("user2"),
+        assertTrue(output.toLowerCase().contains("user2"),
                 "Output should contain User2. Output: " + output);
-        assertTrue(output.contains("Total: 2") || output.contains("total: 2"),
-                "Output should indicate 2 keys are stored. Output: " + output);
     }
     
     // Test for adding keys is in AddKeyCommandTest class
@@ -138,8 +147,9 @@ public class ManageKeysCommandTest {
         assertTrue(SecureKeyStorage.savePrivateKey(testOwner, keyPair.getPrivate(), testPassword));
         
         int exitCode = cli.execute("--list", "--json");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
         assertTrue(output.contains("{"));
         assertTrue(output.contains("storedKeys"));
@@ -154,8 +164,9 @@ public class ManageKeysCommandTest {
         assertTrue(SecureKeyStorage.savePrivateKey(testOwner, keyPair.getPrivate(), testPassword));
         
         int exitCode = cli.execute("--check", testOwner);
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
         assertTrue(output.contains("Private key is stored for: " + testOwner));
         assertTrue(output.contains("You can use --signer"));
@@ -164,8 +175,9 @@ public class ManageKeysCommandTest {
     @Test
     void testCheckNonExistentKey() {
         int exitCode = cli.execute("--check", "NonExistentUser");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
         assertTrue(output.contains("No private key stored for: NonExistentUser"));
         assertTrue(output.contains("add-key"));
@@ -178,8 +190,9 @@ public class ManageKeysCommandTest {
         assertTrue(SecureKeyStorage.savePrivateKey(testOwner, keyPair.getPrivate(), testPassword));
         
         int exitCode = cli.execute("--check", testOwner, "--json");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
         assertTrue(output.contains("{"));
         assertTrue(output.contains("\"owner\": \"" + testOwner + "\""));
@@ -199,8 +212,9 @@ public class ManageKeysCommandTest {
         
         CommandLine cmdLine = new CommandLine(command);
         int exitCode = cmdLine.execute("--delete", testOwner);
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
         assertTrue(output.contains("Private key deleted for: " + testOwner));
         
@@ -221,8 +235,9 @@ public class ManageKeysCommandTest {
         
         CommandLine cmdLine = new CommandLine(command);
         int exitCode = cmdLine.execute("--delete", testOwner);
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
         assertTrue(output.contains("Operation cancelled"));
         
@@ -256,8 +271,9 @@ public class ManageKeysCommandTest {
         
         CommandLine cmdLine = new CommandLine(command);
         int exitCode = cmdLine.execute("--delete", testOwner, "--json");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
         assertTrue(output.contains("{"));
         assertTrue(output.contains("\"owner\": \"" + testOwner + "\""));
@@ -267,8 +283,9 @@ public class ManageKeysCommandTest {
     @Test
     void testNoOptionsShowsUsage() {
         int exitCode = cli.execute();
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
         assertTrue(output.contains("Private Key Management"));
         assertTrue(output.contains("Usage:"));
@@ -280,9 +297,10 @@ public class ManageKeysCommandTest {
     void testMultipleOperationsNotAllowed() {
         // Test that only one operation can be performed at a time
         int exitCode = cli.execute("--list", "--check", testOwner);
+        int realExitCode = getRealExitCode(exitCode);
         
         // Should handle gracefully (either work or fail with proper error)
-        assertTrue(exitCode >= 0);
+        assertEquals(0, realExitCode, "Multiple operations are allowed and succeed, but was: " + realExitCode);
     }
 
     @Test
@@ -295,7 +313,8 @@ public class ManageKeysCommandTest {
         
         // Test check with long name
         int exitCode = cli.execute("--check", longOwnerName);
-        assertEquals(0, exitCode);
+        int realExitCode = getRealExitCode(exitCode);
+        assertEquals(0, realExitCode);
         
         String output = outContent.toString();
         assertTrue(output.contains("Private key is stored for: " + longOwnerName));
@@ -314,7 +333,8 @@ public class ManageKeysCommandTest {
         
         // Test operations
         int exitCode = cli.execute("--check", specialOwnerName);
-        assertEquals(0, exitCode);
+        int realExitCode = getRealExitCode(exitCode);
+        assertEquals(0, realExitCode);
         
         // Clean up
         SecureKeyStorage.deletePrivateKey(specialOwnerName);

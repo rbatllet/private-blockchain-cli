@@ -17,6 +17,10 @@ echo -e "${BLUE}🔄 PRIVATE BLOCKCHAIN CLI - ROLLBACK TEST SETUP${NC}"
 echo -e "${BLUE}=============================================${NC}"
 echo ""
 
+# Get script directory and navigate to project root
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR/.."
+
 # Check if we're in the correct directory
 if [[ ! -f "pom.xml" ]]; then
     echo -e "${RED}❌ Error: pom.xml not found. Please run this script from the project root directory.${NC}"

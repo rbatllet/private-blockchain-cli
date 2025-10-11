@@ -165,7 +165,7 @@ function demo_hybrid_search() {
     print_separator
     print_demo "Demo 1: Fast Search (Keywords Only)"
     print_info "Searching for 'PATIENT' in keywords only..."
-    run_timed_command "Fast search for patient records" search '"PATIENT"' --fast --verbose
+    run_timed_command "Fast search for patient records" search '"PATIENT"' --level FAST_ONLY --verbose
     
     pause_for_user
     
@@ -179,13 +179,13 @@ function demo_hybrid_search() {
     print_separator
     print_demo "Demo 3: Exhaustive Search (Including Off-Chain)"
     print_info "Searching for 'transaction' everywhere, including off-chain files..."
-    run_timed_command "Exhaustive search for transactions" search '"transaction"' --complete --verbose --detailed
+    run_timed_command "Exhaustive search for transactions" search '"transaction"' --level EXHAUSTIVE_OFFCHAIN --verbose --detailed
     
     pause_for_user
     
     print_separator
-    print_demo "Demo 4: Category Search"
-    run_timed_command "Searching medical category" search --category MEDICAL --detailed --verbose
+    print_demo "Demo 4: Medical Records Search"
+    run_timed_command "Searching medical records" search '"Patient"' --detailed --verbose
     
     pause_for_user
     
@@ -200,13 +200,13 @@ function demo_hybrid_search() {
     print_info "Comparing search performance across different levels..."
     
     echo "🏁 Fast search:"
-    time java -jar target/blockchain-cli.jar search '"data"' --fast > /dev/null 2>&1
+    time java -jar target/blockchain-cli.jar search '"data"' --level FAST_ONLY > /dev/null 2>&1
     
     echo "⚖️ Balanced search:"
     time java -jar target/blockchain-cli.jar search '"data"' --level INCLUDE_DATA > /dev/null 2>&1
     
     echo "🔍 Exhaustive search:"
-    time java -jar target/blockchain-cli.jar search '"data"' --complete > /dev/null 2>&1
+    time java -jar target/blockchain-cli.jar search '"data"' --level EXHAUSTIVE_OFFCHAIN > /dev/null 2>&1
 }
 
 # Function to demonstrate CLI integration
@@ -227,7 +227,7 @@ function demo_cli_integration() {
     
     pause_for_user
     
-    run_timed_command "Searching for contract in off-chain data" search '"partnership"' --complete --detailed --verbose
+    run_timed_command "Searching for contract in off-chain data" search '"partnership"' --level EXHAUSTIVE_OFFCHAIN --detailed --verbose
     
     pause_for_user
     
@@ -274,9 +274,30 @@ function main() {
     
     print_header "🚀 ENHANCED BLOCKCHAIN CLI DEMONSTRATIONS"
     
+    # Get script directory and navigate to project root
+    # Use ${0:A:h} for ZSH to get absolute path of script directory
+    SCRIPT_DIR="${0:A:h}"
+    
+    # Navigate to project root (parent of scripts directory if we're in scripts)
+    if [[ "$(basename "$SCRIPT_DIR")" == "scripts" ]]; then
+        PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+    else
+        PROJECT_ROOT="$SCRIPT_DIR"
+    fi
+    cd "$PROJECT_ROOT"
+    
+    # Debug information
+    print_info "Script path: $0"
+    print_info "Script directory: $SCRIPT_DIR"
+    print_info "Project root: $PROJECT_ROOT"
+    print_info "Current directory: $(pwd)"
+    print_info "Looking for pom.xml..."
+    
     # Check if we're in the right directory
     if [[ ! -f "pom.xml" ]]; then
         print_error "Please run this script from the project root directory"
+        print_error "Current directory: $(pwd)"
+        print_error "Files in current directory: $(ls -la)"
         exit 1
     fi
     

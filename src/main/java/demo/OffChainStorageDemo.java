@@ -1,8 +1,9 @@
-package com.rbatllet.blockchain.cli.demos;
+package demo;
 
 import com.rbatllet.blockchain.core.Blockchain;
 import com.rbatllet.blockchain.entity.Block;
 import com.rbatllet.blockchain.util.CryptoUtil;
+import com.rbatllet.blockchain.util.format.FormatUtil;
 import com.rbatllet.blockchain.validation.ChainValidationResult;
 
 import java.security.KeyPair;
@@ -92,7 +93,7 @@ public class OffChainStorageDemo {
             }
             
             String largeMedicalData = largeData.toString();
-            System.out.println("📝 Data size: " + formatBytes(largeMedicalData.length()));
+            System.out.println("📝 Data size: " + FormatUtil.formatBytes(largeMedicalData.length()));
             
             decision = blockchain.validateAndDetermineStorage(largeMedicalData);
             System.out.println("🔍 Storage decision: " + (decision == 1 ? "ON-CHAIN" : "OFF-CHAIN"));
@@ -113,8 +114,8 @@ public class OffChainStorageDemo {
                 
                 if (block2.hasOffChainData()) {
                     var offChainData = block2.getOffChainData();
-                    System.out.println("💾 Off-chain file size: " + formatBytes(offChainData.getFileSize()));
-                    System.out.println("🔐 Encryption: AES-256-CBC");
+                    System.out.println("💾 Off-chain file size: " + FormatUtil.formatBytes(offChainData.getFileSize()));
+                    System.out.println("🔐 Encryption: AES-256-GCM");
                     System.out.println("📁 File path: " + offChainData.getFilePath());
                     System.out.println("📄 Content type: " + offChainData.getContentType());
                 }
@@ -154,7 +155,7 @@ public class OffChainStorageDemo {
             }
             
             String financialBatchData = financialData.toString();
-            System.out.println("📝 Data size: " + formatBytes(financialBatchData.length()));
+            System.out.println("📝 Data size: " + FormatUtil.formatBytes(financialBatchData.length()));
             
             decision = blockchain.validateAndDetermineStorage(financialBatchData);
             System.out.println("🔍 Storage decision: " + (decision == 1 ? "ON-CHAIN" : "OFF-CHAIN"));
@@ -175,8 +176,8 @@ public class OffChainStorageDemo {
                 
                 if (block3.hasOffChainData()) {
                     var offChainData = block3.getOffChainData();
-                    System.out.println("💾 Off-chain file size: " + formatBytes(offChainData.getFileSize()));
-                    System.out.println("🔐 Encryption: AES-256-CBC");
+                    System.out.println("💾 Off-chain file size: " + FormatUtil.formatBytes(offChainData.getFileSize()));
+                    System.out.println("🔐 Encryption: AES-256-GCM");
                     System.out.println("📁 File path: " + offChainData.getFilePath());
                 }
                 
@@ -207,18 +208,22 @@ public class OffChainStorageDemo {
                 }
             }
             
-            // Count off-chain blocks
-            long offChainBlocks = blockchain.getAllBlocks().stream()
-                .filter(Block::hasOffChainData)
-                .count();
-            System.out.println("💾 Off-chain blocks: " + offChainBlocks + " / " + (blockchain.getBlockCount() - 1)); // Exclude genesis
+            // Count off-chain blocks using memory-safe batch processing
+            final long[] offChainBlocksCount = {0};
+            blockchain.processChainInBatches(batch -> {
+                long count = batch.stream()
+                    .filter(Block::hasOffChainData)
+                    .count();
+                offChainBlocksCount[0] += count;
+            }, 100);
+            System.out.println("💾 Off-chain blocks: " + offChainBlocksCount[0] + " / " + (blockchain.getBlockCount() - 1)); // Exclude genesis
             
             System.out.println();
             System.out.println("✅ DEMO COMPLETED SUCCESSFULLY!");
             System.out.println();
             System.out.println("🔍 Key Features Demonstrated:");
             System.out.println("   • Automatic storage decision based on data size");
-            System.out.println("   • AES-256-CBC encryption for off-chain data");
+            System.out.println("   • AES-256-GCM encryption for off-chain data");
             System.out.println("   • Keyword and category management");
             System.out.println("   • Blockchain integrity preservation");
             System.out.println("   • Large data handling (up to 100MB per block)");
@@ -237,10 +242,4 @@ public class OffChainStorageDemo {
         System.out.println(SEPARATOR);
     }
     
-    private static String formatBytes(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
-        if (bytes < 1024 * 1024 * 1024) return String.format("%.1f MB", bytes / (1024.0 * 1024.0));
-        return String.format("%.1f GB", bytes / (1024.0 * 1024.0 * 1024.0));
-    }
 }

@@ -48,8 +48,8 @@ public class ListKeysCommandTest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("key") || output.contains("Authorized") || 
-                  output.contains("No") || output.contains("0"));
+        assertTrue(output.contains("Authorized Keys"),
+                  "Should show authorized keys: " + output);
     }
 
     @Test
@@ -58,8 +58,8 @@ public class ListKeysCommandTest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("key") || output.contains("detailed") || 
-                  output.contains("Authorized") || output.contains("information"));
+        assertTrue(output.contains("Authorized Keys"),
+                  "Should show authorized keys: " + output);
     }
 
     @Test
@@ -68,7 +68,7 @@ public class ListKeysCommandTest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertFalse(output.isEmpty());
+        assertTrue(output.contains("Authorized Keys"));
     }
 
     @Test
@@ -77,8 +77,8 @@ public class ListKeysCommandTest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("{") || output.contains("[") || 
-                  output.contains("\"") || output.contains("json"));
+        assertTrue(output.contains("{"),
+                  "Output should contain JSON: " + output);
     }
 
     @Test
@@ -87,8 +87,8 @@ public class ListKeysCommandTest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("{") || output.contains("[") || 
-                  output.contains("\"") || output.contains("json"));
+        assertTrue(output.contains("{"),
+                  "Output should contain JSON: " + output);
     }
 
     @Test
@@ -97,8 +97,8 @@ public class ListKeysCommandTest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("key") || output.contains("active") || 
-                  output.contains("Authorized") || output.contains("No"));
+        assertTrue(output.contains("Authorized Keys"),
+                  "Should show authorized keys: " + output);
     }
 
     @Test
@@ -107,7 +107,7 @@ public class ListKeysCommandTest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertFalse(output.isEmpty());
+        assertTrue(output.contains("Authorized Keys"));
     }
 
     @Test
@@ -116,8 +116,8 @@ public class ListKeysCommandTest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("{") || output.contains("[") || 
-                  output.contains("\"") || output.contains("detailed"));
+        assertTrue(output.contains("{"),
+                  "Output should contain JSON: " + output);
     }
 
     @Test
@@ -127,8 +127,8 @@ public class ListKeysCommandTest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("list-keys") || output.contains("List") || 
-                  output.contains("Usage") || output.contains("help"));
+        assertTrue(output.contains("Usage:"),
+                  "Should show usage: " + output);
     }
 
     @Test
@@ -137,6 +137,6 @@ public class ListKeysCommandTest {
         
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertFalse(output.isEmpty());
+        assertTrue(output.contains("{"));
     }
 }

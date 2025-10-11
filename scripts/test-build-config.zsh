@@ -5,6 +5,15 @@
 # Version: 1.0.0
 # ZSH adaptation
 
+# Get script directory and navigate to project root
+SCRIPT_DIR="${0:A:h}"
+if [[ "$(basename "$SCRIPT_DIR")" == "scripts" ]]; then
+    PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+else
+    PROJECT_ROOT="$SCRIPT_DIR"
+fi
+cd "$PROJECT_ROOT"
+
 echo "🚀 Testing Private Blockchain CLI Build Configuration"
 echo "=================================================="
 

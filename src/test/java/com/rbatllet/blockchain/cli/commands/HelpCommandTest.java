@@ -45,24 +45,24 @@ public class HelpCommandTest {
     @Test
     void testBasicHelp() {
         int exitCode = cli.execute("help");
-        
+
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("Help") || output.contains("help") || 
-                  output.contains("Usage") || output.contains("Commands"));
+        // Help shows: "🔗 Private Blockchain CLI - Detailed Help"
+        assertTrue(output.contains("Private Blockchain CLI"),
+                  "Should show CLI title: " + output);
     }
 
     @Test
     void testHelpContent() {
         int exitCode = cli.execute("help");
-        
+
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        
-        // Should contain information about main commands
-        assertTrue(output.contains("status") || output.contains("Status"));
-        assertTrue(output.contains("validate") || output.contains("Validate"));
-        assertTrue(output.contains("blockchain") || output.contains("Blockchain"));
+
+        // Should contain main sections: DESCRIPTION, USAGE, COMMANDS
+        assertTrue(output.contains("DESCRIPTION:"),
+                  "Should contain DESCRIPTION section: " + output);
     }
 
     @Test
@@ -96,40 +96,37 @@ public class HelpCommandTest {
     void testHelpWithFlag() {
         // Test the main help flag instead of help --help
         int exitCode = cli.execute("--help");
-        
+
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("Help") || output.contains("help") || 
-                  output.contains("Usage"));
+        // --help shows usage: "Usage: blockchain"
+        assertTrue(output.contains("Usage: blockchain"),
+                  "Should show usage with --help flag: " + output);
     }
 
     @Test
     void testHelpFormat() {
         int exitCode = cli.execute("help");
-        
+
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        
-        // Help should be well-formatted and readable
-        assertFalse(output.isEmpty());
-        assertTrue(output.length() > 100, "Help should be substantial");
-        
-        // Should have some structure (headers, sections, etc.)
-        assertTrue(output.contains(":") || output.contains("-") || 
-                  output.contains("=") || output.contains("*"));
+
+        // Help should show USAGE section
+        assertTrue(output.contains("USAGE:"),
+                  "Help should contain USAGE section: " + output);
     }
 
     @Test
     void testHelpIsUserFriendly() {
         int exitCode = cli.execute("help");
-        
+
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        
-        // Should contain user-friendly elements
-        assertTrue(output.contains("blockchain") || output.contains("Blockchain"));
-        assertTrue(output.contains("command") || output.contains("Command"));
-        
+
+        // Should show COMMANDS section
+        assertTrue(output.contains("COMMANDS:"),
+                  "Should contain COMMANDS section: " + output);
+
         // Should not contain technical errors or stack traces
         assertFalse(output.contains("Exception"));
         assertFalse(output.contains("Error"));
@@ -139,7 +136,7 @@ public class HelpCommandTest {
     @Test
     void testHelpExitCode() {
         int exitCode = cli.execute("help");
-        
+
         // Help should always succeed
         assertEquals(0, exitCode);
     }
@@ -148,38 +145,37 @@ public class HelpCommandTest {
     void testHelpWithInvalidArguments() {
         // Test that help command itself works even if subcommand handling might be different
         int exitCode = cli.execute("help");
-        
+
         // Should handle the help command gracefully
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        assertFalse(output.isEmpty());
+        // Shows DESCRIPTION
+        assertTrue(output.contains("DESCRIPTION:"),
+                  "Should show DESCRIPTION: " + output);
     }
 
     @Test
     void testHelpContainsExamples() {
         int exitCode = cli.execute("help");
-        
+
         assertEquals(0, exitCode);
-        String output = outContent.toString().toLowerCase();
-        
-        // Good help should contain examples or usage patterns
-        boolean hasExamples = output.contains("example") || 
-                             output.contains("usage") || 
-                             output.contains("blockchain ") ||
-                             output.contains("java -jar");
-        
-        assertTrue(hasExamples, "Help should contain usage examples");
+        String output = outContent.toString();
+
+        // Help shows USAGE section with specific format
+        assertTrue(output.contains("USAGE:"),
+                  "Help should contain USAGE: section: " + output);
     }
 
     @Test
     void testHelpNonEmpty() {
         int exitCode = cli.execute("help");
-        
+
         assertEquals(0, exitCode);
         String output = outContent.toString();
-        
+
         assertNotNull(output);
-        assertFalse(output.trim().isEmpty());
-        assertTrue(output.length() > 50, "Help should be comprehensive");
+        // Shows "help" command in the list
+        assertTrue(output.contains("help"),
+                  "Should show help command: " + output);
     }
 }

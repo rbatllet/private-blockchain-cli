@@ -78,9 +78,9 @@ public class ImportCommandComplexCoverageTest {
         // Just check that we get some JSON output
         assertTrue(output.contains("{") && output.contains("}"), 
                 "Should output JSON format");
-        // Check for any indication of success
-        assertTrue(output.contains("success") || output.contains("import") || output.contains("file"), 
-                "Should contain some relevant JSON fields");
+        // Check for import operation indicators
+        assertTrue(output.contains("\"isDryRun\""),
+                "Should contain isDryRun in JSON: " + output);
     }
     
     @Test
@@ -96,16 +96,16 @@ public class ImportCommandComplexCoverageTest {
         
         // Run the command
         importCommand.run();
-        
-        // Since we can't easily force validation to fail without mocking,
-        // we'll just check that the command completes and produces some output
-        String output = outContent.toString() + errContent.toString();
-        assertTrue(output.length() > 0, "Should produce some output");
-        
+
+        // Verify error output shows failure
+        String allOutput = outContent.toString() + errContent.toString();
+        assertTrue(allOutput.contains("Failed to import blockchain"),
+                "Should show import failure message: " + allOutput);
+
         // Check exit code
         int exitCode = ExitUtil.getLastExitCode();
-        // The exit code might be 0 or 1 depending on whether the validation actually failed
-        assertTrue(exitCode >= 0, "Should have a valid exit code");
+        // Validation should fail with invalid structure
+        assertEquals(1, exitCode, "Should fail with error for invalid structure");
     }
     
     @Test

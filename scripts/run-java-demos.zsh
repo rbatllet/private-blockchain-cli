@@ -114,6 +114,10 @@ function main() {
     
     print_header "🚀 BLOCKCHAIN CLI - JAVA DEMOS RUNNER"
     
+    # Get script directory and navigate to project root
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+    cd "$SCRIPT_DIR/.."
+    
     # Check if we're in the right directory
     if [[ ! -f "pom.xml" ]]; then
         print_error "Please run this script from the project root directory"
@@ -147,13 +151,13 @@ function main() {
     # Run Off-Chain Storage Demo
     run_demo \
         "Off-Chain Storage Demo" \
-        "com.rbatllet.blockchain.cli.demos.OffChainStorageDemo" \
+        "demo.OffChainStorageDemo" \
         "Demonstrates automatic storage decisions, AES encryption, and large data handling"
     
     # Run Hybrid Search Demo
     run_demo \
         "Hybrid Search Demo" \
-        "com.rbatllet.blockchain.cli.demos.HybridSearchDemo" \
+        "demo.HybridSearchDemo" \
         "Demonstrates multi-level search, performance comparison, and comprehensive search features"
     
     print_header "${SUCCESS} ALL DEMOS COMPLETED"

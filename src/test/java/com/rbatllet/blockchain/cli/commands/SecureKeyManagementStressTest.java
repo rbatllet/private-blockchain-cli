@@ -86,7 +86,7 @@ public class SecureKeyManagementStressTest {
             
             CommandLine addBlockCmd = new CommandLine(new AddBlockCommand());
             int exitCode = addBlockCmd.execute("Stress test block " + i, "--signer", owner);
-            assertEquals(0, exitCode);
+            assertEquals(0, exitCode, "Block creation should succeed");
         }
         
         // Performance should be reasonable

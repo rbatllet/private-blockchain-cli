@@ -27,6 +27,10 @@ echo -e "${BLUE}🔑 Test Key Generator for Private Blockchain CLI${NC}"
 echo "================================================="
 echo -e "${BLUE}Using modern ECDSA P-256 curve + SHA3-256 cryptography${NC}"
 echo ""
+echo -e "${YELLOW}⚠️  WARNING: These keys are generated WITHOUT encryption (unprotected)${NC}"
+echo -e "${YELLOW}⚠️  For PRODUCTION use, generate keys with AES-256-GCM encryption via CLI:${NC}"
+echo -e "${YELLOW}   java -jar target/blockchain-cli.jar add-key <owner> --generate --store-private${NC}"
+echo ""
 
 # Check if openssl is available
 if ! command -v openssl &> /dev/null; then
@@ -40,12 +44,16 @@ if ! command -v openssl &> /dev/null; then
     exit 1
 fi
 
-# Create keys directory
+# Get script directory and navigate to project root
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR/.."
+
+# Create keys directory at project root
 KEYS_DIR="test-keys"
 mkdir -p "$KEYS_DIR"
 cd "$KEYS_DIR"
 
-print_info "Creating test keys in directory: $KEYS_DIR"
+print_info "Creating test keys in directory: $(pwd)/$KEYS_DIR (project root)"
 
 # 1. Generate PKCS#8 PEM private key using ECDSA P-256 (recommended format)
 print_info "Generating ECDSA P-256 PKCS#8 PEM private key..."
@@ -94,15 +102,9 @@ if [[ -f "private_key_multiline.key" && -s "private_key_multiline.key" ]]; then
     print_success "Created: private_key_multiline.key (Multi-line Base64 ECDSA)"
 fi
 
-# 6. Generate legacy RSA key (for backwards compatibility testing)
-print_info "Generating legacy RSA key for compatibility testing..."
-openssl genrsa -out private_key_rsa_legacy.pem 2048 2>/dev/null
-if [[ -f "private_key_rsa_legacy.pem" ]]; then
-    print_success "Created: private_key_rsa_legacy.pem (Legacy RSA format - may require conversion)"
-    print_warning "Note: RSA keys are deprecated. Use ECDSA P-256 for new applications."
-fi
+# RSA keys are not supported - using ECDSA P-256 exclusively for modern security
 
-# 7. Create test files for error handling
+# 6. Create test files for error handling
 print_info "Creating test files for error handling..."
 
 # Empty file
@@ -121,7 +123,7 @@ CORRUPTED_ECDSA_DATA_HERE_NOT_VALID_BASE64
 EOF
 print_success "Created: corrupted.pem (Corrupted ECDSA PEM for error testing)"
 
-# 8. Display key information
+# 7. Display key information
 echo ""
 print_info "Key Information:"
 echo "=================="
@@ -155,7 +157,7 @@ echo "============================"
 echo "• Algorithm: ECDSA (Elliptic Curve Digital Signature Algorithm)"
 echo "• Curve: P-256 (secp256r1) - NIST recommended curve"
 echo "• Hash: SHA3-256 (used for signing operations)"
-echo "• Key Size: 256-bit (equivalent to ~3072-bit RSA security)"
+echo "• Key Size: 256-bit (equivalent to ~3072-bit RSA security but much faster)"
 echo "• Standards: FIPS 186-4, RFC 6090, SEC 2"
 
 echo ""
@@ -163,25 +165,22 @@ echo "📋 Usage Examples:"
 echo "=================="
 echo ""
 echo "# Add block using ECDSA P-256 PKCS#8 PEM key (recommended):"
-echo "blockchain add-block \"Your data here\" --key-file $KEYS_DIR/private_key_pkcs8.pem"
+echo "java -jar target/blockchain-cli.jar add-block \"Your data here\" --key-file test-keys/private_key_pkcs8.pem"
 echo ""
 echo "# Add block using ECDSA DER key:"
-echo "blockchain add-block \"Your data here\" --key-file $KEYS_DIR/private_key.der"
-echo ""
+echo "java -jar target/blockchain-cli.jar add-block \"Your data here\" --key-file test-keys/private_key.der"
+echo ""  
 echo "# Add block using ECDSA Base64 key:"
-echo "blockchain add-block \"Your data here\" --key-file $KEYS_DIR/private_key_base64.key"
+echo "java -jar target/blockchain-cli.jar add-block \"Your data here\" --key-file test-keys/private_key_base64.key"
 echo ""
 echo "# Test error handling with invalid key:"
-echo "blockchain add-block \"Your data here\" --key-file $KEYS_DIR/invalid.key"
-echo ""
-echo "# Test legacy RSA compatibility:"
-echo "blockchain add-block \"Your data here\" --key-file $KEYS_DIR/private_key_rsa_legacy.pem"
+echo "java -jar target/blockchain-cli.jar add-block \"Your data here\" --key-file test-keys/invalid.key"
 
 echo ""
 print_info "Conversion Commands:"
 echo "===================="
 echo ""
-echo "# Convert legacy RSA PEM to ECDSA PKCS#8 PEM (manual key replacement needed):"
+echo "# Generate new ECDSA P-256 PKCS#8 PEM key:"
 echo "openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 | openssl pkcs8 -topk8 -nocrypt -out new_ecdsa_key.pem"
 echo ""
 echo "# Convert ECDSA PEM to DER:"
@@ -197,9 +196,18 @@ echo ""
 print_warning "Security Notes:"
 echo "==============="
 echo "• These are TEST keys only - never use in production!"
-echo "• ECDSA P-256 provides equivalent security to 3072-bit RSA with better performance"
+echo "• These keys are NOT ENCRYPTED - they are stored in plain PKCS#8 format"
+echo "• For PRODUCTION, use CLI with --store-private to encrypt keys with AES-256-GCM:"
+echo "    java -jar target/blockchain-cli.jar add-key <owner> --generate --store-private"
+echo "  This will:"
+echo "    - Generate ECDSA P-256 key pair"
+echo "    - Encrypt private key with AES-256-GCM (password-based)"
+echo "    - Store encrypted key in private-keys/ directory"
+echo "    - Add public key to blockchain's authorized keys"
+echo ""
+echo "• ECDSA P-256 provides equivalent security to 3072-bit RSA but with much better performance"
 echo "• SHA3-256 provides enhanced cryptographic security over SHA-2"
-echo "• Real private keys should be protected with strong passwords"
+echo "• Real private keys should be protected with strong passwords and AES-256-GCM encryption"
 echo "• Store production keys in secure key management systems (HSM, TPM, or secure enclaves)"
 echo "• Regularly rotate cryptographic keys in production environments"
 echo "• Consider using hierarchical key derivation for large-scale deployments"
@@ -207,7 +215,13 @@ echo "• Consider using hierarchical key derivation for large-scale deployments
 echo ""
 print_success "🎉 ECDSA P-256 test key generation completed!"
 print_info "All key formats are ready for testing --key-file functionality with modern cryptography"
+print_info "RSA keys are not supported - ECDSA P-256 only for enhanced security and performance"
+echo ""
+print_warning "REMINDER: These unencrypted keys are for TESTING ONLY!"
+print_info "Production keys should use AES-256-GCM encryption via --store-private option"
 
 cd ..
 echo ""
-echo "Test keys directory: $(pwd)/$KEYS_DIR"
+print_info "Test keys created at project root: $(pwd)/$KEYS_DIR"
+print_info "You can now run CLI commands from the project root using:"
+echo "  java -jar target/blockchain-cli.jar add-block \"data\" --key-file $KEYS_DIR/private_key_pkcs8.pem"

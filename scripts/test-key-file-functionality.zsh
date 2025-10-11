@@ -5,6 +5,15 @@
 # Version: 2.0.0 - Modern cryptography update
 # Optimized for zsh with comprehensive testing
 
+# Get script directory and navigate to project root
+SCRIPT_DIR="${0:A:h}"
+if [[ "$(basename "$SCRIPT_DIR")" == "scripts" ]]; then
+    PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+else
+    PROJECT_ROOT="$SCRIPT_DIR"
+fi
+cd "$PROJECT_ROOT"
+
 setopt ERR_EXIT PIPE_FAIL EXTENDED_GLOB
 
 # Colors
@@ -497,6 +506,15 @@ print "🔹 ECDSA P-256 (equivalent to ~3072-bit RSA security)"
 print "🔹 SHA3-256 (enhanced security over SHA-2)"
 print "🔹 FIPS 186-4, RFC 6090, SEC 2 compliance"
 print "🔹 Modern cryptographic best practices"
+
+# Add note about expected warnings
+if [[ $TESTS_WARNING -gt 0 ]]; then
+    print ""
+    print -P "${BLUE}%B💡 NOTE ABOUT WARNINGS:%b${NC}"
+    print "⚠️  Warnings are EXPECTED when using mock key data"
+    print "⚠️  These tests verify error handling with invalid keys"
+    print "⚠️  Use real keys (without --skip-keygen) for full validation"
+fi
 
 if (( TESTS_FAILED == 0 )); then
     print ""

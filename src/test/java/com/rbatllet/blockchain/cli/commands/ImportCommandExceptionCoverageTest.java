@@ -79,14 +79,12 @@ public class ImportCommandExceptionCoverageTest {
         
         // Run the command
         importCommand.run();
-        
-        // Verify some error output was produced
+
+        // Verify error output contains specific failure message
         String errorOutput = errContent.toString();
-        assertTrue(errorOutput.length() > 0, "Should produce error output");
-        
-        // Check exit code instead of specific error message
-        // as the exact message might vary
-        
+        assertTrue(errorOutput.contains("Failed to import blockchain"),
+                "Should show import failure message: " + errorOutput);
+
         // Verify exit code
         assertEquals(1, ExitUtil.getLastExitCode(), "Should exit with code 1");
     }
@@ -135,14 +133,13 @@ public class ImportCommandExceptionCoverageTest {
         
         // Run the command
         importCommand.run();
-        
+
         // Verify command completes without error in dry run mode
         String output = outContent.toString();
-        String errorOutput = errContent.toString();
-        
-        // Check that the command executed (either with output or no errors)
-        assertTrue(output.length() > 0 || errorOutput.length() == 0, 
-                "Should execute without errors in dry run mode");
+
+        // Check that the command executed with dry run output
+        assertTrue(output.contains("DRY RUN: Simulating import"),
+                "Should show dry run message: " + output);
     }
     
     @Test
@@ -161,7 +158,7 @@ public class ImportCommandExceptionCoverageTest {
         // when force is enabled, even if validation might fail
         int exitCode = ExitUtil.getLastExitCode();
         // The exit code might be 0 or 1 depending on whether the validation actually failed
-        assertTrue(exitCode >= 0, "Should have a valid exit code");
+        assertEquals(1, exitCode, "Force import fails as expected due to test conditions, but was: " + exitCode);
     }
     
     @Test
@@ -198,11 +195,12 @@ public class ImportCommandExceptionCoverageTest {
         
         // Run the command
         importCommand.run();
-        
-        // Verify some error output was produced
+
+        // Verify error output shows failure message
         String errorOutput = errContent.toString();
-        assertTrue(errorOutput.length() > 0, "Should produce error output for directory input");
-        
+        assertTrue(errorOutput.contains("Failed to import blockchain"),
+                "Should show import failure message: " + errorOutput);
+
         // Verify exit code
         assertEquals(1, ExitUtil.getLastExitCode(), "Should exit with code 1");
     }

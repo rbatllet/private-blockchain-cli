@@ -121,6 +121,7 @@ public class RollbackCommand implements Runnable {
                     // Ensure output is flushed
                     System.out.flush();
                 }
+                ExitUtil.exit(0);
                 return;
             }
             
@@ -128,6 +129,7 @@ public class RollbackCommand implements Runnable {
             if (!skipConfirmation && !confirmRollback()) {
                 System.out.println("⚠️ Operation cancelled by user");
                 System.out.flush();
+                ExitUtil.exit(0);
                 return;
             }
             
@@ -147,6 +149,7 @@ public class RollbackCommand implements Runnable {
                 } else {
                     outputSuccessText(currentBlockCount, finalBlockCount, blocksToDelete);
                 }
+                ExitUtil.exit(0);
             } else {
                 if (json) {
                     outputErrorJson("Rollback operation failed");

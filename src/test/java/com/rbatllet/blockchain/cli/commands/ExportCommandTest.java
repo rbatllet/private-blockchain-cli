@@ -70,12 +70,10 @@ public class ExportCommandTest {
         int exitCode = executeCommand(exportFile.toString());
         
         assertEquals(0, exitCode, "Basic export should succeed");
-        
+
         String output = outContent.toString();
-        assertTrue(output.contains("export") || output.contains("success") || 
-                  output.contains("block") || output.contains("key") || 
-                  output.contains("Export") || output.length() > 5,
-                  "Export output should contain relevant information. Output: " + output);
+        assertTrue(output.contains("Blockchain exported successfully"),
+                  "Should show export success: " + output);
         
         // Check if file was created
         assertTrue(Files.exists(exportFile), "Export file should be created");
@@ -93,12 +91,10 @@ public class ExportCommandTest {
         int exitCode = executeCommand(exportFile.toString(), "--overwrite");
         
         assertEquals(0, exitCode, "Export with overwrite should succeed");
-        
+
         String output = outContent.toString();
-        assertTrue(output.contains("export") || output.contains("overwrite") || 
-                  output.contains("success") || output.contains("Export") ||
-                  output.length() > 5,
-                  "Overwrite output should contain relevant information. Output: " + output);
+        assertTrue(output.contains("Blockchain exported successfully"),
+                  "Should show export success: " + output);
     }
 
     @Test
@@ -107,12 +103,11 @@ public class ExportCommandTest {
         int exitCode = executeCommand(exportFile.toString(), "--json");
         
         assertEquals(0, exitCode, "Export with JSON output should succeed");
-        
+
         String output = outContent.toString();
-        assertTrue(output.contains("{") || output.contains("\"") || 
-                  output.contains("json") || output.contains("success") ||
-                  output.length() > 3,
-                  "JSON output should contain JSON formatting. Output: " + output);
+        // JSON output shows success in JSON format
+        assertTrue(output.contains("\"success\": true"),
+                  "Should show JSON success: " + output);
         assertTrue(Files.exists(exportFile), "Export file should be created");
     }
 
@@ -129,45 +124,35 @@ public class ExportCommandTest {
     void testExportHelp() {
         int exitCode = executeCommand("--help");
         
-        assertTrue(exitCode >= 0 && exitCode <= 2, "Help should use standard exit codes");
-        
+        assertEquals(0, exitCode, "Help returns usage information with exit code 0");
+
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("Export") || output.contains("export") || 
-                  output.contains("Usage") || output.contains("help") ||
-                  output.contains("description") || output.length() > 10,
-                  "Help output should contain relevant information. Output: " + output);
+        assertTrue(output.contains("Usage:"),
+                  "Should show usage: " + output);
     }
 
     @Test
     void testExportMissingFile() {
-        int exitCode = executeCommand();
-        
-        // Should fail when no filename is provided, or show help
-        if (exitCode == 0) {
-            // If it succeeded, should show help
-            String output = outContent.toString() + errContent.toString();
-            assertTrue(output.contains("help") || output.contains("Usage") ||
-                      output.contains("export") || output.contains("description"),
-                      "Should show help when no filename provided. Output: " + output);
-        } else {
-            // If it failed as expected
-            assertNotEquals(0, exitCode, "Should fail when no filename is provided");
-        }
+        executeCommand();
+
+        // PicoCLI shows parameter error (exit code varies by version)
+        // Should show parameter error or usage information
+        String output = outContent.toString() + errContent.toString();
+        assertTrue(output.contains("Missing required parameter"),
+                  "Should show parameter error: " + output);
     }
 
     @Test
     void testExportInvalidPath() {
         int exitCode = executeCommand("/invalid/path/export.json");
-        
+
         // Should fail gracefully
         assertEquals(1, exitCode, "Should fail when export path is invalid");
-        
+
         String error = errContent.toString();
         String allOutput = outContent.toString() + error;
-        assertTrue(error.contains("Error") || error.contains("export") || 
-                  error.contains("directory") || allOutput.contains("Error") ||
-                  allOutput.contains("invalid") || allOutput.contains("path"),
-                  "Error should mention the path issue. Combined output: " + allOutput);
+        assertTrue(allOutput.contains("Failed to export blockchain"),
+                  "Should show export error: " + allOutput);
     }
 
     @Test
@@ -179,12 +164,11 @@ public class ExportCommandTest {
         int exitCode = executeCommand(exportFile.toString());
         
         // Should fail or warn about existing file, but handle gracefully
-        assertTrue(exitCode == 0 || exitCode == 1, 
-                  "Should handle existing file gracefully");
+        assertEquals(1, exitCode, "Should warn about existing file, but was: " + exitCode);
         
         String allOutput = outContent.toString() + errContent.toString();
-        assertFalse(allOutput.trim().isEmpty(), 
-                   "Should produce some output about the operation");
+        assertTrue(allOutput.contains("File already exists"),
+                  "Should show file exists error: " + allOutput);
     }
 
     @Test
@@ -202,8 +186,7 @@ public class ExportCommandTest {
         int exitCode = executeCommand(exportFile.toString(), "--compress");
         
         // Compression might not be implemented yet, so accept success or failure
-        assertTrue(exitCode == 0 || exitCode == 1, 
-                  "Compression test should handle gracefully");
+        assertEquals(0, exitCode, "Compression should succeed, but was: " + exitCode);
         
         // File should exist if command succeeded
         if (exitCode == 0) {

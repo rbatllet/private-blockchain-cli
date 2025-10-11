@@ -187,6 +187,11 @@ function run_search_tests() {
     run_cli_test "Search with limit" search "Genesis" --limit 5
     run_cli_test "Search by block number" search --block-number 0
     run_cli_test "Search non-existent term" search "NonExistentTerm12345"
+    
+    # Enhanced search tests with new functionality
+    run_cli_test "Search with fast mode" search "Genesis" --fast
+    run_cli_test "Search with complete mode" search "Genesis" --complete
+    run_cli_test "Search with detailed info" search "Genesis" --detailed
 }
 
 # Function to run export/import tests
@@ -207,4 +212,35 @@ function run_export_import_tests() {
             print_error "Export file not created"
         fi
     fi
+}
+
+# Function to run encrypt command tests
+function run_encrypt_tests() {
+    print_header "🔐 Encryption Analysis Commands"
+    
+    print_info "Testing basic encryption analysis functionality"
+    run_cli_test "Encrypt stats display" encrypt --stats
+    run_cli_test "Encrypt validation" encrypt --validate
+    run_cli_test "Encrypt analysis JSON" encrypt --stats --json
+    run_cli_test "Encrypted blocks only" encrypt --encrypted-only
+    
+    # Test with search terms (if any blocks exist)
+    print_info "Testing encryption analysis with search terms"
+    run_cli_test "Encrypt search Genesis" encrypt "Genesis"
+    run_cli_test "Encrypt search with JSON" encrypt "Genesis" --json
+    run_cli_test "Encrypt verbose mode" encrypt --stats --verbose
+}
+
+# Function to run search-metrics command tests
+function run_search_metrics_tests() {
+    print_header "📊 Search Metrics Commands"
+    
+    print_info "Testing search metrics display functionality"
+    run_cli_test "Search metrics basic" search-metrics
+    run_cli_test "Search metrics detailed" search-metrics --detailed
+    run_cli_test "Search metrics JSON" search-metrics --json
+    run_cli_test "Search metrics verbose" search-metrics --detailed --verbose
+    
+    print_info "Testing search metrics reset functionality"
+    run_cli_test "Search metrics reset" search-metrics --reset
 }

@@ -19,6 +19,10 @@ echo ""
 echo -e "Running comprehensive rollback tests..."
 echo ""
 
+# Get script directory and navigate to project root
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR/.."
+
 # Check if we're in the correct directory
 if [[ ! -f "pom.xml" ]]; then
     echo -e "${RED}❌ Error: pom.xml not found. Please run this script from the project root directory.${NC}"

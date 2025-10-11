@@ -92,10 +92,8 @@ public class ManageKeysCommandCoverageTest {
         
         // Check error output
         String errorOutput = errContent.toString();
-        assertTrue(errorOutput.contains("No private key stored") || 
-                  errorOutput.contains("Error") || 
-                  errorOutput.contains("❌"), 
-                "Should show error message for non-existent key");
+        assertTrue(errorOutput.contains("No private key stored"),
+                "Should show error for non-existent key: " + errorOutput);
     }
     
     @Test

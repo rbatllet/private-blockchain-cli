@@ -104,15 +104,16 @@ public class ImportCommandSecurityExceptionTest {
         
         // Run the command
         testCommand.run();
-        
-        // Verify error output
+
+        // Verify error output contains security error message
         String errorOutput = errContent.toString();
-        assertTrue(errorOutput.length() > 0, "Should produce error output");
-        
+        assertTrue(errorOutput.contains("Security error during backup"),
+                "Should show security error message: " + errorOutput);
+
         // Verify exit code
         assertEquals(1, ExitUtil.getLastExitCode(), "Should exit with code 1");
     }
-    
+
     @Test
     @DisplayName("Should handle SecurityException during import execution")
     void shouldHandleSecurityExceptionDuringImportExecution() throws Exception {
@@ -146,15 +147,16 @@ public class ImportCommandSecurityExceptionTest {
         
         // Run the command
         testCommand.run();
-        
-        // Verify error output
+
+        // Verify error output contains security error message
         String errorOutput = errContent.toString();
-        assertTrue(errorOutput.length() > 0, "Should produce error output");
-        
+        assertTrue(errorOutput.contains("Security error"),
+                "Should show security error message: " + errorOutput);
+
         // Verify exit code
         assertEquals(1, ExitUtil.getLastExitCode(), "Should exit with code 1");
     }
-    
+
     @Test
     @DisplayName("Should handle RuntimeException during import execution")
     void shouldHandleRuntimeExceptionDuringImportExecution() throws Exception {
@@ -188,15 +190,16 @@ public class ImportCommandSecurityExceptionTest {
         
         // Run the command
         testCommand.run();
-        
-        // Verify error output
+
+        // Verify error output contains runtime error message
         String errorOutput = errContent.toString();
-        assertTrue(errorOutput.length() > 0, "Should produce error output");
-        
+        assertTrue(errorOutput.contains("Error"),
+                "Should show error message: " + errorOutput);
+
         // Verify exit code
         assertEquals(1, ExitUtil.getLastExitCode(), "Should exit with code 1");
     }
-    
+
     @Test
     @DisplayName("Should handle Exception during validation")
     void shouldHandleExceptionDuringValidation() throws Exception {
@@ -231,15 +234,16 @@ public class ImportCommandSecurityExceptionTest {
         
         // Run the command
         testCommand.run();
-        
-        // Verify error output
+
+        // Verify error output contains validation error message
         String errorOutput = errContent.toString();
-        assertTrue(errorOutput.length() > 0, "Should produce error output");
-        
+        assertTrue(errorOutput.contains("Validation error"),
+                "Should show validation error message: " + errorOutput);
+
         // Verify exit code
         assertEquals(1, ExitUtil.getLastExitCode(), "Should exit with code 1");
     }
-    
+
     @Test
     @DisplayName("Should handle edge cases in formatFileSize")
     void shouldHandleIOExceptionDuringFormatFileSize() throws Exception {

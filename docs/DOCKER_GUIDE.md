@@ -73,7 +73,7 @@ If you're new to Docker, here are some essential commands to help you manage the
 ./build-docker.sh --force
 
 # Build with a specific version tag
-./build-docker.sh 1.0.4
+./build-docker.sh 1.0.5
 ```
 
 ### Managing Containers
@@ -154,11 +154,11 @@ cp -r blockchain-data/ blockchain-data-backup-$(date +%Y%m%d)
 The project includes a build script that automatically handles the core project dependency and builds the Docker image:
 
 ```zsh
-# Build with default version (1.0.4)
+# Build with default version (1.0.5)
 ./build-docker.sh
 
 # Build with specific version
-./build-docker.sh 1.0.4
+./build-docker.sh 1.0.5
 ```
 
 The script will:
@@ -176,8 +176,8 @@ mvn clean install -DskipTests
 
 # Then copy the JAR and build the Docker image
 cd ../privateBlockchain-cli
-cp ~/.m2/repository/com/rbatllet/private-blockchain/1.0.4/private-blockchain-1.0.4.jar .
-docker build -t private-blockchain-cli:1.0.4 .
+cp ~/.m2/repository/com/rbatllet/private-blockchain/1.0.5/private-blockchain-1.0.5.jar .
+docker build -t private-blockchain-cli:1.0.5 .
 ```
 
 #### Option 3: No-cache Build (for updates)
@@ -228,13 +228,13 @@ You can specify which version of the image to use:
 
 ```zsh
 # Using a specific version
-docker run --rm private-blockchain-cli:1.0.4 --version
+docker run --rm private-blockchain-cli:1.0.5 --version
 
 # Using the latest version (recommended for most cases)
 docker run --rm private-blockchain-cli:latest --version
 
 # Using an environment variable to specify version
-VERSION=1.0.4 docker run --rm private-blockchain-cli:$VERSION --version
+VERSION=1.0.5 docker run --rm private-blockchain-cli:$VERSION --version
 ```
 
 ## 🚀 Enhanced Features with Docker
@@ -593,10 +593,10 @@ The docker-compose.yml file uses environment variables to avoid hardcoded versio
 docker-compose up
 
 # Run with specific version
-VERSION=1.0.4 docker-compose up
+VERSION=1.0.5 docker-compose up
 
 # Run with specific version and profile
-VERSION=1.0.4 docker-compose --profile validate up
+VERSION=1.0.5 docker-compose --profile validate up
 ```
 
 ### Available Profiles
@@ -962,11 +962,11 @@ docker stats --no-stream container_name
 
 ## 🔗 Related Documents
 
-- [Main README](README.md) - Getting started
+- [Main README](../README.md) - Getting started
 - [Examples](EXAMPLES.md) - Practical use cases
 - [Troubleshooting](TROUBLESHOOTING.md) - General troubleshooting
 - [Enterprise Guide](ENTERPRISE_GUIDE.md) - Production best practices
 
 ---
 
-**Need help?** Check the main [Troubleshooting Guide](TROUBLESHOOTING.md) or return to the [README](README.md).
+**Need help?** Check the main [Troubleshooting Guide](TROUBLESHOOTING.md) or return to the [README](../README.md).

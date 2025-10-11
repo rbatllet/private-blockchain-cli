@@ -189,11 +189,11 @@ public class ImportCommandRunCoverageTest {
         
         // Run the command
         importCommand.run();
-        
-        // Check output - we can't easily force validation to fail without mocking
-        // but we can at least verify the command runs without exceptions
+
+        // Verify command produces output showing import failure
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.length() > 0, "Should produce some output");
+        assertTrue(output.contains("Failed to import blockchain"),
+                "Should show import failure message: " + output);
     }
     
     @Test
@@ -209,8 +209,8 @@ public class ImportCommandRunCoverageTest {
         
         // Verify JSON output - now using the new validation structure
         String output = outContent.toString();
-        assertTrue(output.contains("\"validation\":") || output.contains("\"validation\": null"), 
-                  "Should include validation status in JSON");
+        assertTrue(output.contains("\"validation\":"),
+                  "Should include validation status in JSON: " + output);
     }
     
     @Test
@@ -231,7 +231,7 @@ public class ImportCommandRunCoverageTest {
         int exitCode = ExitUtil.getLastExitCode();
         // We can't guarantee success without mocking the Blockchain class,
         // so we'll just check that the test runs without exceptions
-        assertTrue(exitCode == 0 || exitCode == 1, "Should exit with code 0 on success or 1 on failure");
+        assertEquals(1, exitCode, "Import fails as expected due to test conditions, but was: " + exitCode);
     }
     
     @Test
@@ -264,6 +264,6 @@ public class ImportCommandRunCoverageTest {
         // We can't easily verify backup creation without mocking,
         // but we can check that the command ran without exceptions
         int exitCode = ExitUtil.getLastExitCode();
-        assertTrue(exitCode == 0 || exitCode == 1, "Should exit with code 0 on success or 1 on failure");
+        assertEquals(1, exitCode, "Import fails as expected due to test conditions, but was: " + exitCode);
     }
 }

@@ -61,13 +61,21 @@ public class BlockchainCLITest {
         }
     }
 
+    /**
+     * Get the real exit code considering ExitUtil state
+     */
+    private int getRealExitCode(int cliExitCode) {
+        return ExitUtil.isExitDisabled() ? ExitUtil.getLastExitCode() : cliExitCode;
+    }
+    
     @Test
     void testCLIDefaultBehavior() {
         int exitCode = cli.execute();
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("Private Blockchain CLI v1.0.4"));
+        assertTrue(output.contains("Private Blockchain CLI v1.0.5"));
         assertTrue(output.contains("Available commands:"));
         assertTrue(output.contains("status"));
         assertTrue(output.contains("validate"));
@@ -77,26 +85,29 @@ public class BlockchainCLITest {
     @Test
     void testVersionFlag() {
         int exitCode = cli.execute("--version");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("1.0.4"));
+        assertTrue(output.contains("1.0.5"));
     }
 
     @Test
     void testShortVersionFlag() {
         int exitCode = cli.execute("-V");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
-        assertTrue(output.contains("1.0.4"));
+        assertTrue(output.contains("1.0.5"));
     }
 
     @Test
     void testHelpFlag() {
         int exitCode = cli.execute("--help");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
         assertTrue(output.contains("Private Blockchain Command Line Interface"));
         assertTrue(output.contains("Usage:"));
@@ -105,8 +116,9 @@ public class BlockchainCLITest {
     @Test
     void testShortHelpFlag() {
         int exitCode = cli.execute("-h");
+        int realExitCode = getRealExitCode(exitCode);
         
-        assertEquals(0, exitCode);
+        assertEquals(0, realExitCode);
         String output = outContent.toString();
         assertTrue(output.contains("Private Blockchain Command Line Interface"));
     }
@@ -164,7 +176,7 @@ public class BlockchainCLITest {
             String[] args = {"--version"};
             BlockchainCLI.main(args);
             String output = outContent.toString();
-            assertTrue(output.contains("1.0.4"), "Output should contain version number");
+            assertTrue(output.contains("1.0.5"), "Output should contain version number");
         });
     }
     
