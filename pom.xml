@@ -183,11 +183,11 @@
                                         <exclude>META-INF/MANIFEST.MF</exclude>
                                     </excludes>
                                 </filter>
-                                <!-- Exclude log4j2.xml from dependency to avoid conflicts -->
+                                <!-- Keep CORE logging for diagnostic purposes -->
+                                <!-- CLI configs take precedence due to classloader order -->
                                 <filter>
                                     <artifact>com.rbatllet:private-blockchain</artifact>
                                     <excludes>
-                                        <exclude>log4j2.xml</exclude>
                                     </excludes>
                                 </filter>
                                 <!-- Keep our own MANIFEST.MF -->
@@ -310,7 +310,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <log4j2.configurationFile>log4j2.xml</log4j2.configurationFile>
+                <log4j2.configurationFile>log4j2-cli.xml</log4j2.configurationFile>
             </properties>
         </profile>
 
@@ -318,7 +318,7 @@
         <profile>
             <id>production</id>
             <properties>
-                <log4j2.configurationFile>log4j2-production.xml</log4j2.configurationFile>
+                <log4j2.configurationFile>log4j2-cli-production.xml</log4j2.configurationFile>
             </properties>
         </profile>
     </profiles>

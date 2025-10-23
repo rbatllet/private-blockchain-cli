@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration status="ERROR">
     <Properties>
-        <!-- Pattern for CLI application -->
+        <!-- Pattern for production CLI application -->
         <Property name="PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Property>
     </Properties>
 
     <Appenders>
-        <!-- Console for development -->
-        <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="${PATTERN}"/>
-        </Console>
-        
-        <!-- CLI specific logs -->
-        <RollingFile name="CLILogFile" fileName="logs/blockchain-cli.log" 
-                     filePattern="logs/blockchain-cli-%d{yyyy-MM-dd}-%i.log.gz">
+        <!-- CLI specific logs - errors only -->
+        <RollingFile name="CLILogFile" fileName="logs/cli-application.log"
+                     filePattern="logs/cli-application-%d{yyyy-MM-dd}-%i.log.gz">
             <PatternLayout pattern="${PATTERN}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
@@ -21,10 +16,10 @@
             </Policies>
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
-        
-        <!-- CORE blockchain logs (separated) -->
-        <RollingFile name="CoreLogFile" fileName="logs/blockchain-core.log" 
-                     filePattern="logs/blockchain-core-%d{yyyy-MM-dd}-%i.log.gz">
+
+        <!-- CORE blockchain logs (separated) - errors only -->
+        <RollingFile name="CoreLogFile" fileName="logs/core-blockchain.log"
+                     filePattern="logs/core-blockchain-%d{yyyy-MM-dd}-%i.log.gz">
             <PatternLayout pattern="${PATTERN}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
@@ -32,10 +27,10 @@
             </Policies>
             <DefaultRolloverStrategy max="15"/>
         </RollingFile>
-        
+
         <!-- Structured alerts from CORE -->
-        <RollingFile name="StructuredAlertsFile" fileName="logs/structured-alerts.log" 
-                     filePattern="logs/structured-alerts-%d{yyyy-MM-dd}-%i.log.gz">
+        <RollingFile name="StructuredAlertsFile" fileName="logs/core-structured-alerts.log"
+                     filePattern="logs/core-structured-alerts-%d{yyyy-MM-dd}-%i.log.gz">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
@@ -45,8 +40,8 @@
         </RollingFile>
 
         <!-- Performance metrics from CORE -->
-        <RollingFile name="PerformanceMetricsFile" fileName="logs/performance-metrics.log" 
-                     filePattern="logs/performance-metrics-%d{yyyy-MM-dd}-%i.log.gz">
+        <RollingFile name="PerformanceMetricsFile" fileName="logs/core-performance-metrics.log"
+                     filePattern="logs/core-performance-metrics-%d{yyyy-MM-dd}-%i.log.gz">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
@@ -56,8 +51,8 @@
         </RollingFile>
 
         <!-- Security events from CORE -->
-        <RollingFile name="SecurityEventsFile" fileName="logs/security-events.log" 
-                     filePattern="logs/security-events-%d{yyyy-MM-dd}-%i.log.gz">
+        <RollingFile name="SecurityEventsFile" fileName="logs/core-security-events.log"
+                     filePattern="logs/core-security-events-%d{yyyy-MM-dd}-%i.log.gz">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
@@ -68,45 +63,43 @@
     </Appenders>
 
     <Loggers>
-        <!-- CLI application logs - specific to CLI components -->
-        <Logger name="com.rbatllet.blockchain.cli" level="INFO" additivity="false">
-            <AppenderRef ref="Console"/>
+        <!-- CLI application logs - errors only -->
+        <Logger name="com.rbatllet.blockchain.cli" level="ERROR" additivity="false">
             <AppenderRef ref="CLILogFile"/>
         </Logger>
-        
-        <!-- Core blockchain logs - preserved with detail -->
-        <Logger name="com.rbatllet.blockchain.core" level="DEBUG" additivity="false">
+
+        <!-- Core blockchain logs - errors only -->
+        <Logger name="com.rbatllet.blockchain.core" level="ERROR" additivity="false">
             <AppenderRef ref="CoreLogFile"/>
         </Logger>
-        
-        <Logger name="com.rbatllet.blockchain.service" level="INFO" additivity="false">
+
+        <Logger name="com.rbatllet.blockchain.service" level="ERROR" additivity="false">
             <AppenderRef ref="CoreLogFile"/>
         </Logger>
-        
-        <Logger name="com.rbatllet.blockchain.security" level="INFO" additivity="false">
+
+        <Logger name="com.rbatllet.blockchain.security" level="ERROR" additivity="false">
             <AppenderRef ref="CoreLogFile"/>
         </Logger>
-        
-        <Logger name="com.rbatllet.blockchain.search" level="INFO" additivity="false">
+
+        <Logger name="com.rbatllet.blockchain.search" level="ERROR" additivity="false">
             <AppenderRef ref="CoreLogFile"/>
         </Logger>
-        
-        <Logger name="com.rbatllet.blockchain.validation" level="INFO" additivity="false">
+
+        <Logger name="com.rbatllet.blockchain.validation" level="ERROR" additivity="false">
             <AppenderRef ref="CoreLogFile"/>
         </Logger>
-        
-        <Logger name="com.rbatllet.blockchain.entity" level="WARN" additivity="false">
+
+        <Logger name="com.rbatllet.blockchain.entity" level="ERROR" additivity="false">
             <AppenderRef ref="CoreLogFile"/>
         </Logger>
-        
-        <Logger name="com.rbatllet.blockchain.util" level="INFO" additivity="false">
+
+        <Logger name="com.rbatllet.blockchain.util" level="ERROR" additivity="false">
             <AppenderRef ref="CoreLogFile"/>
         </Logger>
 
         <!-- Structured alerts logger -->
         <Logger name="alerts.structured" level="INFO" additivity="false">
             <AppenderRef ref="StructuredAlertsFile"/>
-            <AppenderRef ref="Console"/>
         </Logger>
 
         <!-- Performance metrics logger -->
@@ -119,33 +112,32 @@
             <AppenderRef ref="SecurityEventsFile"/>
         </Logger>
 
-        <!-- HIBERNATE LOGGERS (more permissive to see CORE activity) -->
-        <Logger name="org.hibernate" level="WARN" additivity="false">
-            <AppenderRef ref="CoreLogFile"/>
-        </Logger>
-        
-        <!-- SQL statements visible in core log for debugging -->
-        <Logger name="org.hibernate.SQL" level="INFO" additivity="false">
-            <AppenderRef ref="CoreLogFile"/>
-        </Logger>
-        
-        <!-- HikariCP connection info -->
-        <Logger name="com.zaxxer.hikari" level="WARN" additivity="false">
-            <AppenderRef ref="CoreLogFile"/>
-        </Logger>
-        
-        <!-- Other frameworks -->
-        <Logger name="org.jboss" level="ERROR" additivity="false">
-            <AppenderRef ref="CoreLogFile"/>
-        </Logger>
-        
-        <Logger name="org.springframework" level="WARN" additivity="false">
+        <!-- HIBERNATE LOGGERS - errors only -->
+        <Logger name="org.hibernate" level="ERROR" additivity="false">
             <AppenderRef ref="CoreLogFile"/>
         </Logger>
 
-        <!-- Root logger - errors go to console for immediate visibility -->
-        <Root level="WARN">
-            <AppenderRef ref="Console"/>
+        <!-- SQL statements - errors only -->
+        <Logger name="org.hibernate.SQL" level="ERROR" additivity="false">
+            <AppenderRef ref="CoreLogFile"/>
+        </Logger>
+
+        <!-- HikariCP connection info - errors only -->
+        <Logger name="com.zaxxer.hikari" level="ERROR" additivity="false">
+            <AppenderRef ref="CoreLogFile"/>
+        </Logger>
+
+        <!-- Other frameworks - errors only -->
+        <Logger name="org.jboss" level="ERROR" additivity="false">
+            <AppenderRef ref="CoreLogFile"/>
+        </Logger>
+
+        <Logger name="org.springframework" level="ERROR" additivity="false">
+            <AppenderRef ref="CoreLogFile"/>
+        </Logger>
+
+        <!-- Root logger - errors only -->
+        <Root level="ERROR">
             <AppenderRef ref="CLILogFile"/>
         </Root>
     </Loggers>

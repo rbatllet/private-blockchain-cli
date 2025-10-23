@@ -750,7 +750,7 @@ encryption.enabled=true
 
 #### Logging Configuration
 ```xml
-<!-- log4j2.xml -->
+<!-- log4j2-cli.xml (development) or log4j2-cli-production.xml (production) -->
 <Configuration>
     <Appenders>
         <File name="FileAppender" fileName="logs/blockchain-cli.log">
