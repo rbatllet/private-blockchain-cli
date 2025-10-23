@@ -125,8 +125,8 @@ public class SearchCommandEnhancedTest {
         
         // Should show search output
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("🔍 Search Results"), 
-                  "Should show search output: " + output);
+        assertTrue(output.contains("Search Results"),
+                  "Should show search output header: " + output);
     }
 
     @Test
@@ -173,9 +173,9 @@ public class SearchCommandEnhancedTest {
                   "Command should succeed, but was: " + realExitCode);
 
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("🔍 Search Results"), 
-                  "Should show search output: " + output);
-        
+        assertTrue(output.contains("Search Results"),
+                  "Should show search output header: " + output);
+
         if (output.contains("Found") && !output.contains("0 block")) {
             assertTrue(output.contains("PATIENT-001"),
                       "Should show PATIENT-001 in search results. Output: " + output);
@@ -188,12 +188,12 @@ public class SearchCommandEnhancedTest {
     void testHybridSearchIncludeData() {
         int exitCode = searchCli.execute("transaction", "--level", "INCLUDE_DATA", "--verbose");
         int realExitCode = getRealExitCode(exitCode);
-        assertEquals(0, realExitCode, 
+        assertEquals(0, realExitCode,
                   "Command should succeed, but was: " + realExitCode);
 
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("🔍 Search Results"), 
-                  "Should show search output: " + output);
+        assertTrue(output.contains("Search Results"),
+                  "Should show search output header: " + output);
     }
 
     @Test
@@ -202,12 +202,12 @@ public class SearchCommandEnhancedTest {
     void testHybridSearchExhaustive() {
         int exitCode = searchCli.execute("JSON", "--level", "EXHAUSTIVE_OFFCHAIN", "--verbose");
         int realExitCode = getRealExitCode(exitCode);
-        assertEquals(0, realExitCode, 
+        assertEquals(0, realExitCode,
                   "Command should succeed, but was: " + realExitCode);
 
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("🔍 Search Results"), 
-                  "Should show search output: " + output);
+        assertTrue(output.contains("Search Results"),
+                  "Should show search output header: " + output);
         
         // Check for search results
         if (output.contains("Found") && !output.contains("0 block")) {
@@ -226,7 +226,7 @@ public class SearchCommandEnhancedTest {
                   "Command should succeed, but was: " + realExitCode);
 
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("🔍 Search Results"), 
+        assertTrue(output.contains("Search Results"), 
                   "Should show search output: " + output);
         
         // If results found, should mention MEDICAL
@@ -246,7 +246,7 @@ public class SearchCommandEnhancedTest {
                   "Command should succeed, but was: " + realExitCode);
 
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("🔍 Search Results"), 
+        assertTrue(output.contains("Search Results"), 
                   "Should show search output: " + output);
         
         // If block found, should show Block #1
@@ -275,7 +275,7 @@ public class SearchCommandEnhancedTest {
         } else {
             // Might be regular output if JSON formatting failed
             String outputForCheck = outContent.toString() + errContent.toString();
-            assertTrue(outputForCheck.contains("🔍 Search Results"),
+            assertTrue(outputForCheck.contains("Search Results"),
                       "Should show search output even if not JSON: " + outputForCheck);
         }
     }
@@ -312,7 +312,7 @@ public class SearchCommandEnhancedTest {
                   "Command should succeed, but was: " + realExitCode);
 
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("🔍 Search Results"),
+        assertTrue(output.contains("Search Results"),
                   "Should show search output: " + output);
 
         // Limit is working correctly if command succeeded and showed results
@@ -370,7 +370,7 @@ public class SearchCommandEnhancedTest {
 
         // Should show search output of some kind
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("🔍 Search Results"), 
+        assertTrue(output.contains("Search Results"), 
                   "Should show search output or suggestions: " + output);
     }
 
@@ -385,7 +385,7 @@ public class SearchCommandEnhancedTest {
                   "Command should succeed, but was: " + realExitCode);
 
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("🔍 Search Results"), 
+        assertTrue(output.contains("Search Results"), 
                   "Should show search output: " + output);
     }
 
@@ -406,7 +406,7 @@ public class SearchCommandEnhancedTest {
 
         // Should handle the combination of options gracefully
         // With --json flag, output is pure JSON (contains searchType, resultCount)
-        // Without --json, output contains "🔍 Search Results" or "No blocks found"
+        // Without --json, output contains "Search Results" or "No blocks found"
         assertTrue(allOutput.contains("searchType"),
                   "Should handle multiple options correctly: " + allOutput);
     }
@@ -423,7 +423,7 @@ public class SearchCommandEnhancedTest {
         String output = outContent.toString();
 
         // Verify verbose messages are present
-        assertTrue(output.contains("🔍 Starting search with modern APIs"),
+        assertTrue(output.contains("Starting search with modern APIs"),
                   "Should show verbose initialization. Output: " + output);
 
         assertTrue(output.contains("found") && output.contains("results"),

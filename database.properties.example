@@ -1,0 +1,256 @@
+# =========================================================================
+# Private Blockchain CLI - Database Configuration Template
+# =========================================================================
+#
+# This is a TEMPLATE file. Copy it to one of these locations:
+#   - ~/.blockchain-cli/database.properties (recommended)
+#   - ./database.properties (project directory)
+#
+# File permissions will be automatically set to 600 (rw-------)
+#
+# =========================================================================
+# ⚠️  SECURITY WARNING ⚠️
+# =========================================================================
+#
+# DO NOT store passwords in this file for production environments!
+#
+# For production, use environment variables instead:
+#   export DB_PASSWORD="your-secure-password"
+#   export DB_USER="your-username"
+#   export DB_HOST="your-database-host"
+#
+# Environment variables take precedence over this file.
+#
+# Learn more: https://12factor.net/config
+#
+# =========================================================================
+
+# -------------------------------------------------------------------------
+# Database Type
+# -------------------------------------------------------------------------
+# Supported values: h2, sqlite, postgresql, mysql
+# Default: h2
+#
+# h2         - In-memory database (testing only, data lost on restart)
+# sqlite     - File-based database (default for production, single-user)
+# postgresql - Enterprise database (recommended for production, multi-user)
+# mysql      - Alternative enterprise database (community supported)
+#
+db.type=sqlite
+
+# -------------------------------------------------------------------------
+# Database Connection Details
+# -------------------------------------------------------------------------
+# These settings are used for postgresql and mysql databases.
+# For sqlite and h2, only db.name is used (as filename or database name).
+
+# Database host (default: localhost)
+# ⚠️  For production, use DB_HOST environment variable
+#db.host=localhost
+
+# Database port (defaults: postgresql=5432, mysql=3306)
+#db.port=5432
+
+# Database name (default: blockchain)
+db.name=blockchain
+
+# Database username
+# ⚠️  For production, use DB_USER environment variable
+#db.user=blockchain_user
+
+# Database password
+# ⚠️  SECURITY: DO NOT STORE PASSWORDS HERE FOR PRODUCTION!
+# ⚠️  Use DB_PASSWORD environment variable instead:
+#     export DB_PASSWORD="your-secure-password"
+#
+# Only use this for local development:
+#db.password=
+
+# -------------------------------------------------------------------------
+# Connection URL (Advanced)
+# -------------------------------------------------------------------------
+# Override auto-generated connection URL
+# If specified, this takes precedence over individual connection settings
+#
+#db.url=jdbc:postgresql://localhost:5432/blockchain
+
+# -------------------------------------------------------------------------
+# Hibernate Settings (Advanced)
+# -------------------------------------------------------------------------
+# Schema update strategy (default: update)
+# - none       - No schema management
+# - validate   - Validate schema only
+# - update     - Update schema automatically (recommended)
+# - create     - Create schema (drops existing data!)
+# - create-drop - Create and drop on shutdown (testing only!)
+#
+#hibernate.hbm2ddl.auto=update
+
+# Show SQL statements in logs (default: false)
+# Set to true for debugging
+#hibernate.show_sql=false
+
+# Format SQL statements (default: false)
+#hibernate.format_sql=false
+
+# Enable SQL statistics (default: false)
+#hibernate.generate_statistics=false
+
+# -------------------------------------------------------------------------
+# Connection Pool Settings (Advanced)
+# -------------------------------------------------------------------------
+# Minimum number of connections (default: 5)
+#hibernate.c3p0.min_size=5
+
+# Maximum number of connections (default: 20)
+#hibernate.c3p0.max_size=20
+
+# Connection timeout in seconds (default: 300)
+#hibernate.c3p0.timeout=300
+
+# Maximum statements to cache (default: 50)
+#hibernate.c3p0.max_statements=50
+
+# Idle test period in seconds (default: 3000)
+#hibernate.c3p0.idle_test_period=3000
+
+# =========================================================================
+# Example Configurations
+# =========================================================================
+
+# -----------------------------
+# Example 1: Local Development (SQLite - DEFAULT)
+# -----------------------------
+# Simplest setup - no server required
+# Data stored in: ./blockchain.db
+#
+# db.type=sqlite
+# db.name=blockchain
+#
+# Start CLI:
+#   java -jar target/blockchain-cli.jar status
+
+# -----------------------------
+# Example 2: Local Development (H2 - TESTING ONLY)
+# -----------------------------
+# Fast in-memory database for testing
+# ⚠️  WARNING: All data lost when application stops!
+#
+# db.type=h2
+# db.name=blockchain_test
+#
+# Start CLI:
+#   java -jar target/blockchain-cli.jar status
+
+# -----------------------------
+# Example 3: Production (PostgreSQL with Environment Variables)
+# -----------------------------
+# RECOMMENDED for production deployments
+#
+# In this file:
+#   db.type=postgresql
+#   db.host=localhost
+#   db.port=5432
+#   db.name=blockchain
+#   db.user=blockchain_user
+#   # NO PASSWORD HERE!
+#
+# In your environment:
+#   export DB_PASSWORD="your-secure-password"
+#
+# Start CLI:
+#   java -jar target/blockchain-cli.jar status
+
+# -----------------------------
+# Example 4: Production (MySQL with Environment Variables)
+# -----------------------------
+# Alternative production setup
+#
+# In this file:
+#   db.type=mysql
+#   db.host=localhost
+#   db.port=3306
+#   db.name=blockchain
+#   db.user=blockchain_user
+#   # NO PASSWORD HERE!
+#
+# In your environment:
+#   export DB_PASSWORD="your-secure-password"
+#
+# Start CLI:
+#   java -jar target/blockchain-cli.jar status
+
+# -----------------------------
+# Example 5: Docker/Kubernetes (Environment Variables Only)
+# -----------------------------
+# Best practice for containerized deployments
+# Leave this file with defaults or don't use it at all!
+#
+# Set ALL configuration via environment variables:
+#   export DB_TYPE=postgresql
+#   export DB_HOST=postgres-service
+#   export DB_PORT=5432
+#   export DB_NAME=blockchain
+#   export DB_USER=blockchain_user
+#   export DB_PASSWORD=secure-password-from-secrets
+#
+# Start container:
+#   docker run -e DB_TYPE=postgresql -e DB_PASSWORD=... blockchain-cli status
+
+# =========================================================================
+# Configuration Priority Order
+# =========================================================================
+#
+# The CLI uses the following priority order (highest to lowest):
+#
+# 1. CLI Arguments (--db-type, --db-host, --db-password, etc.)
+#    Highest priority - overrides everything
+#    ⚠️  WARNING: Passwords visible in process list (ps aux)
+#
+# 2. Environment Variables (DB_TYPE, DB_HOST, DB_PASSWORD, etc.)
+#    RECOMMENDED for production
+#    ✅ Secure, not stored in files
+#    ✅ Standard for containers (Docker/K8s)
+#
+# 3. Configuration File (~/.blockchain-cli/database.properties)
+#    This file
+#    ⚠️  Passwords stored in plain text (use for local dev only)
+#
+# 4. Defaults (h2 in-memory database)
+#    Lowest priority - used if nothing else is specified
+#
+# =========================================================================
+# Testing Your Configuration
+# =========================================================================
+#
+# After configuring, test your setup:
+#
+# 1. Show current configuration:
+#    java -jar target/blockchain-cli.jar database show
+#
+# 2. Test database connection:
+#    java -jar target/blockchain-cli.jar database test
+#
+# 3. Show current schema version:
+#    java -jar target/blockchain-cli.jar migrate current-version
+#
+# 4. Check blockchain status:
+#    java -jar target/blockchain-cli.jar status
+#
+# =========================================================================
+# Troubleshooting
+# =========================================================================
+#
+# See docs/DATABASE_CONFIGURATION.md for:
+#   - Complete configuration guide
+#   - Security best practices
+#   - PostgreSQL/MySQL setup instructions
+#   - Docker deployment examples
+#   - Common issues and solutions
+#
+# See docs/DATABASE_MIGRATIONS.md for:
+#   - Database migration management
+#   - Schema versioning
+#   - Migration best practices
+#
+# =========================================================================

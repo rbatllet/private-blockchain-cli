@@ -73,6 +73,97 @@ You should see something like:
 java version "21.0.1" or higher
 ```
 
+## 📊 Database Configuration
+
+The CLI supports multiple database backends with flexible configuration options. By default, it uses **H2** (embedded database) for quick start, but you can configure PostgreSQL, MySQL, or SQLite for production use.
+
+### Supported Databases
+
+| Database | Status | Use Case | Setup Required |
+|----------|--------|----------|----------------|
+| **H2** | Default | Development, Testing | None (zero configuration) |
+| **PostgreSQL** | Recommended | Production, Enterprise | Server installation |
+| **MySQL** | Supported | Production, Web apps | Server installation |
+| **SQLite** | Supported | Embedded, Single-user | None |
+
+### Quick Database Setup
+
+#### Using H2 (Default - No Setup Required)
+
+```zsh
+# Just run the CLI - H2 is automatically configured
+java -jar blockchain-cli.jar status
+```
+
+#### Using PostgreSQL
+
+```zsh
+# 1. Run the setup script (creates database and user)
+./scripts/setup-postgresql.zsh
+
+# 2. Configure via environment variables
+export DB_TYPE=postgresql
+export DB_HOST=localhost
+export DB_PORT=5432
+export DB_NAME=blockchain
+export DB_USER=blockchain_user
+export DB_PASSWORD=blockchain_pass
+
+# 3. Run the CLI
+java -jar blockchain-cli.jar status
+```
+
+#### Using MySQL
+
+```zsh
+# 1. Run the setup script (creates database and user)
+./scripts/setup-mysql.zsh
+
+# 2. Configure via environment variables
+export DB_TYPE=mysql
+export DB_HOST=localhost
+export DB_PORT=3306
+export DB_NAME=blockchain
+export DB_USER=blockchain_user
+export DB_PASSWORD=blockchain_pass
+
+# 3. Run the CLI
+java -jar blockchain-cli.jar status
+```
+
+#### Using SQLite
+
+```zsh
+# SQLite requires no server setup
+export DB_TYPE=sqlite
+java -jar blockchain-cli.jar status
+```
+
+### Database Commands
+
+The CLI includes a `database` command for managing and testing database configuration:
+
+```zsh
+# Show current database configuration
+java -jar blockchain-cli.jar database show
+
+# Test database connection
+java -jar blockchain-cli.jar database test
+
+# JSON output for automation
+java -jar blockchain-cli.jar database show --json
+java -jar blockchain-cli.jar database test --json
+```
+
+For complete database configuration documentation, including:
+- Configuration file setup (`~/.blockchain-cli/database.properties`)
+- Connection pooling settings
+- SSL/TLS configuration
+- Security best practices
+- Troubleshooting guide
+
+See **[docs/DATABASE_CONFIGURATION.md](docs/DATABASE_CONFIGURATION.md)**
+
 ## 💻 Installation
 
 ### Option 1: Docker (Recommended - No Java Required) 🐳
@@ -520,6 +611,83 @@ custom.<key>         # any custom value
 | **Search Types** | Breakdown by SIMPLE/SECURE/INTELLIGENT/ADVANCED |
 | **Min/Max Times** | Fastest and slowest search operations |
 | **Result Counts** | Average number of results per search |
+
+#### `database` - Database Configuration Management ✅ **NEW**
+
+Manage and test database configuration with support for H2, PostgreSQL, MySQL, and SQLite.
+
+```zsh
+# Show current database configuration
+java -jar blockchain-cli.jar database show
+
+# Show configuration in JSON format
+java -jar blockchain-cli.jar database show --json
+
+# Test database connection and verify all components
+java -jar blockchain-cli.jar database test
+
+# Test with JSON output
+java -jar blockchain-cli.jar database test --json
+```
+
+**📊 Database Features:**
+- **Multi-Database Support**: H2 (default), PostgreSQL, MySQL, SQLite
+- **Configuration Display**: View current database type, JDBC URL, connection pool settings
+- **Connection Testing**: Verify JDBC, query execution, and JPA/Hibernate initialization
+- **JSON Output**: Machine-readable format for automation and monitoring
+- **Flexible Configuration**: CLI arguments, environment variables, or configuration file
+
+**🔧 Database Options:**
+
+| Subcommand | Description | Options |
+|------------|-------------|---------|
+| `show` | Display current configuration | `--json` for JSON output |
+| `test` | Test database connection | `--json` for JSON output |
+| `export` | Export configuration to file | `--file`, `--format`, `--no-mask` |
+
+**Export Configuration** (NEW in 1.0.5+):
+
+Export your database configuration to a file for backup, sharing, or CI/CD integration:
+
+```zsh
+# Export to properties format (auto-detected from extension)
+java -jar blockchain-cli.jar database export --file database.properties
+
+# Export to JSON format
+java -jar blockchain-cli.jar database export --file db-config.json
+
+# Export to environment variables format
+java -jar blockchain-cli.jar database export --file database.env
+
+# Explicit format specification
+java -jar blockchain-cli.jar database export --file config.txt --format JSON
+
+# Export without masking sensitive data (use with caution)
+java -jar blockchain-cli.jar database export --file database.properties --no-mask
+```
+
+**Export Formats:**
+
+| Format | Extension | Use Case | Example |
+|--------|-----------|----------|---------|
+| **PROPERTIES** | `.properties` | Configuration files | `database.properties` |
+| **JSON** | `.json` | CI/CD pipelines | `db-config.json` |
+| **ENV** | `.env` | Docker/shell scripts | `database.env` |
+
+**Export Features:**
+- ✅ **Format Auto-detection**: Automatically determines format from file extension
+- ✅ **Sensitive Data Masking**: Passwords masked by default for security
+- ✅ **Explicit Format Control**: Override auto-detection with `--format` flag
+- ✅ **Multiple Export Destinations**: Properties, JSON, and ENV formats supported
+- ✅ **Overwrite Protection**: Creates new file or overwrites existing
+
+**Configuration Priority** (highest to lowest):
+1. CLI arguments (`--db-type`, `--db-host`, etc.)
+2. Environment variables (`DB_TYPE`, `DB_HOST`, etc.)
+3. Configuration file (`~/.blockchain-cli/database.properties`)
+4. Default values (H2 embedded database)
+
+For complete database configuration, including setup scripts, connection pooling, SSL configuration, export format examples, and troubleshooting, see **[docs/DATABASE_CONFIGURATION.md](docs/DATABASE_CONFIGURATION.md)**.
 
 #### `status` - Show Blockchain Status ✅
 
@@ -1366,6 +1534,8 @@ This project includes comprehensive documentation for different use cases:
 ### 📖 User Guides
 - **[docs/EXAMPLES.md](docs/EXAMPLES.md)** - Comprehensive examples including enhanced features **UPDATED**
 - **[docs/DEMO_SCRIPTS.md](docs/DEMO_SCRIPTS.md)** - Interactive demo scripts guide **NEW**
+- **[docs/DATABASE_CONFIGURATION.md](docs/DATABASE_CONFIGURATION.md)** - Complete database configuration guide (H2, PostgreSQL, MySQL, SQLite) **UPDATED**
+- **[docs/DATABASE_MIGRATIONS.md](docs/DATABASE_MIGRATIONS.md)** - Database schema migration management guide **UPDATED** - Now uses file-based SQL migrations (v1.0.5+)
 - **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Complete troubleshooting guide
 - **[docs/DOCKER_GUIDE.md](docs/DOCKER_GUIDE.md)** - Docker deployment and usage
 - **[docs/TEST-SCRIPTS.md](docs/TEST-SCRIPTS.md)** - Test scripts documentation including enhanced tests **UPDATED**
@@ -1394,6 +1564,8 @@ This project includes comprehensive documentation for different use cases:
 |---------------------|-------|
 | See examples including enhanced features | [docs/EXAMPLES.md](docs/EXAMPLES.md) |
 | Run interactive demos | [docs/DEMO_SCRIPTS.md](docs/DEMO_SCRIPTS.md) |
+| Configure database (PostgreSQL, MySQL, etc.) | [docs/DATABASE_CONFIGURATION.md](docs/DATABASE_CONFIGURATION.md) |
+| Manage database schema migrations | [docs/DATABASE_MIGRATIONS.md](docs/DATABASE_MIGRATIONS.md) |
 | Use off-chain storage and hybrid search | [docs/EXAMPLES.md](docs/EXAMPLES.md#-off-chain-storage-examples) |
 | Deploy with Docker | [docs/DOCKER_GUIDE.md](docs/DOCKER_GUIDE.md) |
 | Set up for enterprise use | [docs/ENTERPRISE_GUIDE.md](docs/ENTERPRISE_GUIDE.md) |

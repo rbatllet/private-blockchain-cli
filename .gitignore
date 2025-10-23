@@ -86,6 +86,16 @@ application.properties.local
 config/local/
 secrets/
 
+# Database configuration (may contain sensitive credentials)
+# See database.properties.example for template
+database.properties
+.blockchain-cli/
+~/.blockchain-cli/database.properties
+
+# Test database files
+*-test-results.log
+postgresql-*.log
+
 # Test reports
 test-results/
 coverage/

@@ -490,10 +490,10 @@ public class BlockchainCLIIntegrationTest {
         ).thenReturn(true);
         org.mockito.Mockito.when(
             validationResult.getRevokedBlocks()
-        ).thenReturn(0);
+        ).thenReturn(0L);
         org.mockito.Mockito.when(
             validationResult.getInvalidBlocks()
-        ).thenReturn(0);
+        ).thenReturn(0L);
         org.mockito.Mockito.when(validationResult.getSummary()).thenReturn(
             "Chain is fully valid"
         );

@@ -156,8 +156,8 @@ public class ImportCommandCoverageTest {
                 org.mockito.Mockito.mock(com.rbatllet.blockchain.validation.ChainValidationResult.class);
             org.mockito.Mockito.when(validationResult.isFullyCompliant()).thenReturn(true);
             org.mockito.Mockito.when(validationResult.isStructurallyIntact()).thenReturn(true);
-            org.mockito.Mockito.when(validationResult.getRevokedBlocks()).thenReturn(0);
-            org.mockito.Mockito.when(validationResult.getInvalidBlocks()).thenReturn(0);
+            org.mockito.Mockito.when(validationResult.getRevokedBlocks()).thenReturn(0L);
+            org.mockito.Mockito.when(validationResult.getInvalidBlocks()).thenReturn(0L);
             org.mockito.Mockito.when(validationResult.getSummary()).thenReturn("Chain is fully valid");
             
             java.lang.reflect.Method jsonMethod = ImportCommand.class.getDeclaredMethod(

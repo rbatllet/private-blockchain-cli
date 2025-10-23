@@ -70,8 +70,8 @@ public class ImportCommandMethodsTest {
         ChainValidationResult validationResult = mock(ChainValidationResult.class);
         when(validationResult.isFullyCompliant()).thenReturn(true);
         when(validationResult.isStructurallyIntact()).thenReturn(true);
-        when(validationResult.getRevokedBlocks()).thenReturn(0);
-        when(validationResult.getInvalidBlocks()).thenReturn(0);
+        when(validationResult.getRevokedBlocks()).thenReturn(0L);
+        when(validationResult.getInvalidBlocks()).thenReturn(0L);
         when(validationResult.getSummary()).thenReturn("Chain is fully valid");
         
         // Get the private method using reflection with new signature
@@ -173,8 +173,8 @@ public class ImportCommandMethodsTest {
         ChainValidationResult validationResult = mock(ChainValidationResult.class);
         when(validationResult.isFullyCompliant()).thenReturn(false);
         when(validationResult.isStructurallyIntact()).thenReturn(true);
-        when(validationResult.getRevokedBlocks()).thenReturn(2);
-        when(validationResult.getInvalidBlocks()).thenReturn(0);
+        when(validationResult.getRevokedBlocks()).thenReturn(2L);
+        when(validationResult.getInvalidBlocks()).thenReturn(0L);
         when(validationResult.getSummary()).thenReturn("Chain is structurally intact but has authorization issues");
         
         // Get the private method using reflection with new signature

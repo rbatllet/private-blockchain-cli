@@ -85,7 +85,7 @@ public class AddBlockCommandEnhancedOffChainTest {
         
         // Verify success message
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("✅ Block Added Successfully"),
+        assertTrue(output.contains("Block Added Successfully"),
                   "Should show success message: " + output);
 
         // Skip blockchain verification in test environment
@@ -119,9 +119,9 @@ public class AddBlockCommandEnhancedOffChainTest {
         
         // Verify success message and off-chain storage
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("✅ Block Added Successfully"),
+        assertTrue(output.contains("Block Added Successfully"),
                   "Should show success message: " + output);
-        assertTrue(output.contains("💾 Off-chain"),
+        assertTrue(output.contains("Off-chain"),
                   "Should show off-chain storage message: " + output);
         assertTrue(output.contains("encrypted"),
                   "Should show encryption indication in output: " + output);
@@ -131,7 +131,7 @@ public class AddBlockCommandEnhancedOffChainTest {
     @Order(3)
     @DisplayName("Test adding block with automatic keyword extraction")
     void testAddBlockWithAutoKeywords() {
-        String dataWithUniversalElements = 
+        String dataWithUniversalElements =
             "Project meeting on 2024-01-15. API integration with database completed. " +
             "Contact: admin@company.com for details. Budget: 50000 EUR. " +
             "Document reference: DOC-2024-001. Format: JSON and XML supported.";
@@ -144,12 +144,12 @@ public class AddBlockCommandEnhancedOffChainTest {
         );
 
         int realExitCode = getRealExitCode(exitCode);
-        assertEquals(0, realExitCode, 
+        assertEquals(0, realExitCode,
                   "Command should succeed, but was: " + realExitCode);
-        
+
         // Verify success
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("✅ Block Added Successfully"),
+        assertTrue(output.contains("Block Added Successfully"),
                   "Should show success message: " + output);
     }
 
@@ -192,7 +192,7 @@ public class AddBlockCommandEnhancedOffChainTest {
         
         // Verify success and on-chain storage
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("✅ Block Added Successfully"),
+        assertTrue(output.contains("Block Added Successfully"),
                   "Should show success message: " + output);
         
         // Should not mention off-chain storage for small data
@@ -217,7 +217,7 @@ public class AddBlockCommandEnhancedOffChainTest {
         
         // Verify success and category normalization
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("✅ Block Added Successfully"),
+        assertTrue(output.contains("Block Added Successfully"),
                   "Should show success message: " + output);
     }
 
@@ -238,7 +238,7 @@ public class AddBlockCommandEnhancedOffChainTest {
         
         // Verify success and keyword parsing
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("✅ Block Added Successfully"),
+        assertTrue(output.contains("Block Added Successfully"),
                   "Should show success message: " + output);
     }
 
@@ -257,7 +257,7 @@ public class AddBlockCommandEnhancedOffChainTest {
         
         // Verify success
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("✅ Block Added Successfully"),
+        assertTrue(output.contains("Block Added Successfully"),
                   "Should show success message: " + output);
 
         // Should NOT contain keyword or category information in legacy mode
@@ -304,9 +304,9 @@ public class AddBlockCommandEnhancedOffChainTest {
                   "Command should succeed, but was: " + realExitCode);
         
         String output = outContent.toString() + errContent.toString();
-        assertTrue(output.contains("✅ Block Added Successfully"),
+        assertTrue(output.contains("Block Added Successfully"),
                   "Should show success message: " + output);
-        assertTrue(output.contains("🔍"),
-                  "Should show verbose markers: " + output);
+        assertTrue(output.contains("Creating block with options"),
+                  "Should show verbose operation details with block options: " + output);
     }
 }

@@ -76,7 +76,7 @@ public class BlockchainCLITest {
         assertEquals(0, realExitCode);
         String output = outContent.toString();
         assertTrue(output.contains("Private Blockchain CLI v1.0.5"));
-        assertTrue(output.contains("Available commands:"));
+        assertTrue(output.contains("Available Commands:"));
         assertTrue(output.contains("status"));
         assertTrue(output.contains("validate"));
         assertTrue(output.contains("add-block"));
@@ -268,7 +268,7 @@ public class BlockchainCLITest {
             String output = outContent.toString();
             // Should show default help
             assertTrue(output.contains("Private Blockchain CLI"), "Should show CLI header");
-            assertTrue(output.contains("Available commands:"), "Should list available commands");
+            assertTrue(output.contains("Available Commands:"), "Should list available commands");
         });
     }
 }

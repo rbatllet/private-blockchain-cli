@@ -5,6 +5,8 @@ Comprehensive examples and use cases for the Private Blockchain CLI, featuring t
 ## 📋 Table of Contents
 
 - [Quick Start Examples](#-quick-start-examples)
+- [Database Configuration Examples](#-database-configuration-examples)
+- [Database Migration Examples](#-database-migration-examples)
 - [Configuration Management Examples](#-configuration-management-examples)
 - [Encryption Analysis Examples](#-encryption-analysis-examples)
 - [Search Metrics Examples](#-search-metrics-examples)
@@ -1698,6 +1700,403 @@ java -jar blockchain-cli.jar status --detailed --verbose
 🔍 Loading blockchain database...
 🔍 Analyzing chain integrity...
 ✅ Status check completed
+```
+
+## 🗄️ Database Configuration Examples
+
+The Private Blockchain CLI supports multiple database backends: H2, SQLite, PostgreSQL, and MySQL. Configure your database using CLI arguments, environment variables, or configuration files.
+
+### Example 1: Using SQLite (Default)
+
+```zsh
+# SQLite is the default - no configuration needed
+java -jar blockchain-cli.jar status
+
+# Or explicitly specify SQLite
+java -jar blockchain-cli.jar --db-type sqlite --db-name blockchain status
+```
+
+### Example 2: Using PostgreSQL (Production Recommended)
+
+```zsh
+# Using environment variables (RECOMMENDED for production)
+export DB_TYPE=postgresql
+export DB_HOST=localhost
+export DB_PORT=5432
+export DB_NAME=blockchain
+export DB_USER=blockchain_user
+export DB_PASSWORD=your-secure-password
+
+java -jar blockchain-cli.jar status
+
+# Using CLI arguments (password visible in process list!)
+java -jar blockchain-cli.jar \
+  --db-type postgresql \
+  --db-host localhost \
+  --db-port 5432 \
+  --db-name blockchain \
+  --db-user blockchain_user \
+  --db-password your-password \
+  status
+```
+
+### Example 3: Using MySQL
+
+```zsh
+# Setup MySQL database first
+mysql -u root -p <<EOF
+CREATE DATABASE blockchain;
+CREATE USER 'blockchain_user'@'localhost' IDENTIFIED BY 'blockchain_pass';
+GRANT ALL PRIVILEGES ON blockchain.* TO 'blockchain_user'@'localhost';
+FLUSH PRIVILEGES;
+EOF
+
+# Use environment variables
+export DB_TYPE=mysql
+export DB_HOST=localhost
+export DB_PORT=3306
+export DB_NAME=blockchain
+export DB_USER=blockchain_user
+export DB_PASSWORD=blockchain_pass
+
+java -jar blockchain-cli.jar status
+```
+
+### Example 4: Using Configuration File
+
+```zsh
+# Create configuration file
+mkdir -p ~/.blockchain-cli
+cat > ~/.blockchain-cli/database.properties <<EOF
+db.type=postgresql
+db.host=localhost
+db.port=5432
+db.name=blockchain
+db.user=blockchain_user
+# DO NOT store password here in production!
+# Use DB_PASSWORD environment variable instead
+EOF
+
+# Set password via environment variable
+export DB_PASSWORD=your-secure-password
+
+# CLI will automatically load configuration
+java -jar blockchain-cli.jar status
+```
+
+### Example 5: Test Database Connection
+
+```zsh
+# Show current database configuration
+java -jar blockchain-cli.jar database show
+
+Output:
+📊 Current Database Configuration
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔧 Database Settings
+   Type:             postgresql
+   Host:             localhost
+   Port:             5432
+   Database:         blockchain
+   Username:         blockchain_user
+   Password:         ******** (masked)
+
+📍 Configuration Source
+   Loaded from:      Environment variables
+   Priority order:   CLI args > Env vars > Config file > Defaults
+
+✅ Configuration is valid
+
+# Test database connection
+java -jar blockchain-cli.jar database test
+
+Output:
+🔍 Testing Database Connection
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⏱️  Connecting to postgresql://localhost:5432/blockchain...
+✅ Connection successful! (234ms)
+
+📊 Database Information
+   Database:         PostgreSQL 18.0
+   Driver:           org.postgresql.Driver
+   JDBC URL:         jdbc:postgresql://localhost:5432/blockchain
+   User:             blockchain_user
+
+🔧 Connection Pool Status
+   Min connections:  10 ✅
+   Max connections:  60 ✅
+   Active:           1
+   Idle:             9
+
+✅ Database is ready for blockchain operations
+```
+
+### Example 6: Docker Deployment with PostgreSQL
+
+```zsh
+# docker-compose.yml
+version: '3.8'
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: blockchain
+      POSTGRES_USER: blockchain_user
+      POSTGRES_PASSWORD: blockchain_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - blockchain-data:/var/lib/postgresql/data
+
+  blockchain-cli:
+    image: blockchain-cli:latest
+    environment:
+      DB_TYPE: postgresql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: blockchain
+      DB_USER: blockchain_user
+      DB_PASSWORD: blockchain_pass
+    depends_on:
+      - postgres
+    command: status
+
+volumes:
+  blockchain-data:
+
+# Start services
+docker-compose up -d
+
+# Run blockchain commands
+docker-compose exec blockchain-cli java -jar blockchain-cli.jar status
+```
+
+## 📦 Database Migration Examples
+
+The `migrate` command manages database schema versioning and migrations, ensuring your database schema stays synchronized with your application version.
+
+### Example 1: Check Current Schema Version
+
+```zsh
+# Show current schema version
+java -jar blockchain-cli.jar migrate current-version
+
+Output:
+📊 Current Schema Version
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 Schema Status
+   Current Version:  V2
+   Description:      Add search performance indexes
+   Applied:          2025-10-18 15:30:45
+   Status:           ✅ Up to date
+
+📋 Database Information
+   Type:             postgresql
+   Database:         blockchain
+   Tables:           5
+   Migrations:       2
+
+# JSON output for automation
+java -jar blockchain-cli.jar migrate current-version --json
+
+Output:
+{
+  "currentVersion": "V2",
+  "description": "Add search performance indexes",
+  "appliedAt": "2025-10-18T15:30:45.123Z",
+  "status": "UP_TO_DATE",
+  "database": {
+    "type": "postgresql",
+    "name": "blockchain",
+    "tables": 5,
+    "migrations": 2
+  }
+}
+```
+
+### Example 2: View Migration History
+
+```zsh
+# Show all applied migrations
+java -jar blockchain-cli.jar migrate show-history
+
+Output:
+📜 Migration History
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ V1: Create initial blockchain schema
+   📅 Applied:  2025-10-10 10:15:30
+   ⏱️  Duration: 125ms
+   📝 Script:   V1__create_initial_blockchain_schema.sql
+   🔒 Checksum: -1234567890
+
+✅ V2: Add search performance indexes
+   📅 Applied:  2025-10-18 15:30:45
+   ⏱️  Duration: 89ms
+   📝 Script:   V2__add_search_performance_indexes.sql
+   🔒 Checksum: 987654321
+
+📊 Summary
+   Total migrations: 2
+   All successful:   ✅
+   Database:         postgresql (blockchain)
+
+# JSON output
+java -jar blockchain-cli.jar migrate show-history --json
+
+Output:
+[
+  {
+    "version": "V1",
+    "description": "Create initial blockchain schema",
+    "appliedAt": "2025-10-10T10:15:30.123Z",
+    "duration": 125,
+    "script": "V1__create_initial_blockchain_schema.sql",
+    "checksum": -1234567890,
+    "status": "SUCCESS"
+  },
+  {
+    "version": "V2",
+    "description": "Add search performance indexes",
+    "appliedAt": "2025-10-18T15:30:45.678Z",
+    "duration": 89,
+    "script": "V2__add_search_performance_indexes.sql",
+    "checksum": 987654321,
+    "status": "SUCCESS"
+  }
+]
+```
+
+### Example 3: Validate Migrations
+
+```zsh
+# Validate all migrations without applying them
+java -jar blockchain-cli.jar migrate validate
+
+Output:
+🔍 Validating Migrations
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ V1: Create initial blockchain schema
+   📝 File:     V1__create_initial_blockchain_schema.sql
+   ✅ Syntax:   Valid
+   ✅ Checksum: Matches applied version
+   📊 Size:     1.2 KB
+
+✅ V2: Add search performance indexes
+   📝 File:     V2__add_search_performance_indexes.sql
+   ✅ Syntax:   Valid
+   ✅ Checksum: Matches applied version
+   📊 Size:     2.5 KB
+
+📊 Validation Summary
+   Total migrations: 2
+   Valid:            2 ✅
+   Invalid:          0
+   Pending:          0
+
+✅ All migrations validated successfully!
+```
+
+### Example 4: Apply Pending Migrations
+
+```zsh
+# Check for pending migrations
+java -jar blockchain-cli.jar migrate current-version
+
+# Apply pending migrations (with confirmation)
+java -jar blockchain-cli.jar migrate run
+
+Output:
+📦 Database Migrations
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 Scanning for pending migrations...
+
+📋 Pending Migrations:
+   V3: Add full-text search support
+   V4: Optimize block queries
+
+⚠️  WARNING: This will modify your database schema.
+⚠️  Make sure you have a backup before proceeding.
+
+Continue with migration? (yes/no): yes
+
+🔄 Applying migrations...
+
+✅ V3: Add full-text search support
+   ⏱️  Duration: 456ms
+   📝 Script:   V3__add_fulltext_search.sql
+
+✅ V4: Optimize block queries
+   ⏱️  Duration: 234ms
+   📝 Script:   V4__optimize_block_queries.sql
+
+✅ All migrations applied successfully!
+
+📊 Summary
+   Migrations applied: 2
+   Total time:         690ms
+   Current version:    V4
+
+# Apply without confirmation (automation)
+java -jar blockchain-cli.jar migrate run --yes
+```
+
+### Example 5: Multi-Database Migration Testing
+
+```zsh
+# Test migrations on H2 (fast)
+java -jar blockchain-cli.jar --db-type h2 --db-name test_migrations migrate run --yes
+
+# Test migrations on PostgreSQL
+DB_TYPE=postgresql DB_NAME=blockchain_test java -jar blockchain-cli.jar migrate run --yes
+
+# Test migrations on MySQL
+DB_TYPE=mysql DB_NAME=blockchain_test java -jar blockchain-cli.jar migrate run --yes
+
+# Verify all databases are at same version
+for db in h2 postgresql mysql; do
+  echo "=== $db ==="
+  java -jar blockchain-cli.jar --db-type $db migrate current-version
+done
+```
+
+### Example 6: Production Migration Workflow
+
+```zsh
+#!/usr/bin/env zsh
+# Production migration script with safety checks
+
+set -e  # Exit on error
+
+echo "🔍 Pre-migration checks..."
+
+# 1. Backup database first
+pg_dump -h localhost -U blockchain_user blockchain > backup_$(date +%Y%m%d_%H%M%S).sql
+echo "✅ Database backed up"
+
+# 2. Validate migrations
+java -jar blockchain-cli.jar migrate validate
+echo "✅ Migrations validated"
+
+# 3. Show pending migrations
+echo "📋 Pending migrations:"
+java -jar blockchain-cli.jar migrate current-version
+
+# 4. Apply migrations
+echo "🔄 Applying migrations..."
+java -jar blockchain-cli.jar migrate run --yes
+
+# 5. Verify success
+echo "✅ Verifying..."
+java -jar blockchain-cli.jar migrate current-version
+java -jar blockchain-cli.jar database test
+
+echo "🎉 Migration completed successfully!"
 ```
 
 ## ⚙️ Configuration Management Examples

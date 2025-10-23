@@ -1,6 +1,7 @@
 package com.rbatllet.blockchain.cli.config;
 
 import com.rbatllet.blockchain.config.EncryptionConfig;
+import com.rbatllet.blockchain.config.util.SensitiveDataMasker;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -333,8 +334,12 @@ public class CLIConfig {
         
         if (!customProperties.isEmpty()) {
             sb.append("\n   Custom Properties:\n");
-            customProperties.forEach((key, value) -> 
-                sb.append("     ").append(key).append(": ").append(value).append("\n"));
+            customProperties.forEach((key, value) -> {
+                // Mask sensitive custom properties (password, secret, token, etc.)
+                String displayValue = SensitiveDataMasker.isSensitiveKey(key) ?
+                    "***" : SensitiveDataMasker.maskSensitiveData(value);
+                sb.append("     ").append(key).append(": ").append(displayValue).append("\n");
+            });
         }
         
         return sb.toString();
